@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Edit3, AlertTriangle, FileText, UserCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Edit3, AlertTriangle, FileText } from "lucide-react";
 import { MOCK_QUEUE } from "@/lib/mock-data";
 
 export default function PatientSummary({ params }: { params: { id: string } }) {
@@ -10,7 +10,7 @@ export default function PatientSummary({ params }: { params: { id: string } }) {
   const patient = MOCK_QUEUE.find(p => p.id === params.id) || MOCK_QUEUE[0];
   
   // We mock the edit state to show it's editable
-  const [history, setHistory] = useState(patient.history);
+  const history = patient.history;
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500 pb-20">

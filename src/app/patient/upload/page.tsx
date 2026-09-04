@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UploadCloud, FileText, X, CheckCircle2, ArrowLeft } from "lucide-react";
+import { UploadCloud, FileText, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function DocumentUploadPage() {

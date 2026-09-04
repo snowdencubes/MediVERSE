@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, AlertTriangle, ArrowLeft, ChevronRight } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const STAGES = [

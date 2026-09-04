@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Home } from "lucide-react";
-import { useEffect } from "react";
 
 export default function SubmittedPage() {
   const router = useRouter();
@@ -16,7 +15,7 @@ export default function SubmittedPage() {
       </div>
       
       <h1 className="font-serif text-4xl font-bold text-ink tracking-tight">
-        You're All Set!
+        You&apos;re All Set!
       </h1>
       
       <p className="text-xl text-ink/80 leading-relaxed max-w-sm">
