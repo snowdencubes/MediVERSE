@@ -45,7 +45,7 @@
 }
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--ink);
   }
   body {
     @apply bg-[var(--paper)] text-[var(--ink)];
