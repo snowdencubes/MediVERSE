@@ -1,8 +1,8 @@
 "use client";
 import { usePathname } from "next/navigation";
-import BurgerMenu from "@/components/BurgerMenu";
-import CustomCareButton from "@/components/CustomCareButton";
-import FloatingActionButton from "@/components/FloatingActionButton";
+import BurgerMenu from "@/components/patient/BurgerMenu";
+import CustomCareButton from "@/components/patient/CustomCareButton";
+import FloatingActionButton from "@/components/patient/FloatingActionButton";
 
 export default function PatientLayout({
   children,

@@ -18,30 +18,35 @@ export default function ConsentPage() {
         <h1 className="font-serif text-3xl font-bold text-ink">Your Privacy & Consent</h1>
       </div>
 
-      <div className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 space-y-6 shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60">
-        <div className="flex items-start gap-4">
-          <button className="mt-1 p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors shrink-0">
-            <Volume2 className="w-5 h-5" />
-          </button>
+      <div className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 space-y-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60">
+        <div className="flex flex-col gap-4">
           <p className="text-lg text-ink/80 leading-relaxed">
             By proceeding, you agree to share your health information, including symptoms and past medical records, with the hospital staff and your consulting doctor.
           </p>
-        </div>
-        <div className="flex items-start gap-4">
-          <button className="mt-1 p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors shrink-0">
-            <Volume2 className="w-5 h-5" />
+          <button className="flex items-center gap-2 self-start bg-primary/10 text-primary hover:bg-primary/20 px-6 min-h-[56px] rounded-2xl transition-colors">
+            <Volume2 className="w-6 h-6" />
+            <span className="font-bold">Read Aloud</span>
           </button>
+        </div>
+        
+        <div className="flex flex-col gap-4">
           <p className="text-lg text-ink/80 leading-relaxed">
             This information is used strictly to assist your doctor in providing care. We securely process your data in accordance with the Digital Personal Data Protection Act (DPDP Act 2023).
           </p>
-        </div>
-        <div className="flex items-start gap-4">
-          <button className="mt-1 p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors shrink-0">
-            <Volume2 className="w-5 h-5" />
+          <button className="flex items-center gap-2 self-start bg-primary/10 text-primary hover:bg-primary/20 px-6 min-h-[56px] rounded-2xl transition-colors">
+            <Volume2 className="w-6 h-6" />
+            <span className="font-bold">Read Aloud</span>
           </button>
+        </div>
+        
+        <div className="flex flex-col gap-4">
           <p className="text-lg text-ink/80 leading-relaxed">
             You may request to delete your digital records at the reception at any time.
           </p>
+          <button className="flex items-center gap-2 self-start bg-primary/10 text-primary hover:bg-primary/20 px-6 min-h-[56px] rounded-2xl transition-colors">
+            <Volume2 className="w-6 h-6" />
+            <span className="font-bold">Read Aloud</span>
+          </button>
         </div>
       </div>
 

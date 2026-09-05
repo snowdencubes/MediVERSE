@@ -35,9 +35,12 @@ export default function IntakeFlow() {
   return (
     <div className="flex-1 flex flex-col h-full animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-8">
-        <button onClick={handleBack} className="p-3 bg-surface rounded-full text-ink hover:bg-ink/5">
-          <ArrowLeft className="w-6 h-6" />
-        </button>
+        <div className="flex-1 flex justify-start">
+          <button onClick={handleBack} className="flex items-center gap-2 px-5 min-h-[56px] bg-surface rounded-[1.75rem] text-ink font-bold hover:bg-ink/5 transition-colors">
+            <ArrowLeft className="w-6 h-6" />
+            <span>Back</span>
+          </button>
+        </div>
         <div className="flex gap-2">
           {STAGES.map((_, i) => (
             <div
@@ -48,7 +51,7 @@ export default function IntakeFlow() {
             />
           ))}
         </div>
-        <div className="w-12" /> {/* Spacer for centering */}
+        <div className="flex-1" /> {/* Spacer for centering */}
       </div>
 
       <div className="flex-1 flex flex-col items-center max-w-2xl mx-auto w-full">

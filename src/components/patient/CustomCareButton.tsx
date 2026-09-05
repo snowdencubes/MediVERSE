@@ -34,11 +34,11 @@ export default function CustomCareButton() {
       {/* Persistent trigger — top-right, always visible on patient screens */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 z-40 flex items-center gap-2 px-3 py-2 bg-gold/10 text-gold border border-gold/20 rounded-full text-sm font-medium hover:bg-gold/20 transition-colors"
-        aria-label="Custom Care needs"
+        className="fixed top-4 right-4 z-40 flex items-center gap-2 px-5 min-h-[56px] bg-gold/10 text-gold border-2 border-gold/20 rounded-full text-base font-bold hover:bg-gold/20 transition-colors"
+        aria-label="Need Help?"
       >
-        <HandHelping className="w-4 h-4" />
-        <span className="hidden sm:inline">Custom Care</span>
+        <HandHelping className="w-6 h-6" />
+        <span>Need Help?</span>
       </button>
 
       <AnimatePresence>

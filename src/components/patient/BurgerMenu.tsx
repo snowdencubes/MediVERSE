@@ -22,10 +22,11 @@ export default function BurgerMenu() {
       {/* Trigger — fixed bottom-left, z-50 so it sits above content but below modals */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-primary text-paper rounded-2xl shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors active:scale-95"
+        className="fixed bottom-6 left-6 z-50 min-w-[72px] min-h-[72px] p-2 bg-primary text-paper rounded-2xl shadow-lg flex flex-col items-center justify-center gap-1 hover:bg-primary-dark transition-colors active:scale-95"
         aria-label="Open menu"
       >
-        <Menu className="w-6 h-6" />
+        <Menu className="w-7 h-7" />
+        <span className="text-xs font-bold tracking-wide">Menu</span>
       </button>
 
       <AnimatePresence>
