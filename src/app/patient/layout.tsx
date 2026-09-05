@@ -18,10 +18,14 @@ export default function PatientLayout({
     return { label: "Add", show: false }; // hide on screens where it's not relevant
   };
 
+  const isGlassScreen = pathname === "/patient" || pathname === "/patient/consent";
+  const bgClass = isGlassScreen
+    ? "min-h-screen bg-gradient-to-br from-paper via-paper to-gold/20 text-[var(--ink)] font-sans antialiased relative"
+    : "min-h-screen bg-surface text-[var(--ink)] font-sans antialiased relative";
   const fab = getFabAction();
 
   return (
-    <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)] font-sans antialiased relative">
+    <div className={bgClass}>
       {/* Persistent UI overlays — all patient screens */}
       <BurgerMenu />
       <CustomCareButton />

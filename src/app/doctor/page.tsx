@@ -11,15 +11,31 @@ export default function QueueDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="font-serif text-3xl font-bold text-ink">Patient Queue</h1>
-          <p className="text-ink/60 mt-1">You have {waitingPatients.length} patients waiting.</p>
+          <p className="text-ink/60 mt-1">Review AI-drafted summaries before consulting.</p>
         </div>
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink/40" />
           <input
             type="text"
             placeholder="Search patients..."
-            className="w-full sm:w-64 bg-surface border-2 border-surface focus:border-primary focus:ring-0 rounded-xl py-2 pl-10 pr-4 outline-none transition-colors"
+            className="w-full sm:w-64 bg-white/40 backdrop-blur-md border border-white/60 focus:border-primary focus:ring-0 rounded-xl py-2 pl-10 pr-4 outline-none transition-colors"
           />
+        </div>
+      </div>
+
+      {/* Top Stat Cards (Glassmorphism) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-semibold text-ink/60 mb-1">Waiting</p>
+          <p className="text-3xl font-bold text-primary">{waitingPatients.length}</p>
+        </div>
+        <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-semibold text-ink/60 mb-1">Avg Wait Time</p>
+          <p className="text-3xl font-bold text-ink">14m</p>
+        </div>
+        <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-semibold text-ink/60 mb-1">Red Flags</p>
+          <p className="text-3xl font-bold text-alert">{waitingPatients.filter(p => p.redFlag).length}</p>
         </div>
       </div>
 
@@ -28,10 +44,10 @@ export default function QueueDashboard() {
           <Link
             key={patient.id}
             href={`/doctor/patient/${patient.id}`}
-            className={`bg-surface p-5 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group ${
+            className={`bg-white/60 backdrop-blur-md p-5 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm group ${
               patient.redFlag 
                 ? "border-alert/30 hover:border-alert/50" 
-                : "border-ink/5 hover:border-primary/30"
+                : "border-white/60 hover:border-primary/30"
             }`}
           >
             <div className="flex items-start gap-4">

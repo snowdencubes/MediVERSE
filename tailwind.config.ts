@@ -16,6 +16,7 @@ const config: Config = {
           dark: "var(--primary-dk)",
         },
         gold: "var(--gold)",
+        teal: "var(--teal-accent)",
         alert: "var(--alert)",
         surface: "var(--surface)",
       },
@@ -23,8 +24,16 @@ const config: Config = {
         sans: ["var(--font-inter)"],
         serif: ["var(--font-fraunces)"],
       },
+      keyframes: {
+        shimmer: {
+          "100%": { transform: "translateX(150%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 2s infinite",
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;

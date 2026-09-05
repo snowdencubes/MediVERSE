@@ -83,7 +83,7 @@ export default function PatientSummary({ params }: { params: { id: string } }) {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-surface rounded-2xl border border-ink/5 p-5">
+          <div className="bg-white/60 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.04)] rounded-2xl border border-white/60 p-5">
             <h3 className="font-serif font-bold text-ink mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
               Uploaded Documents
@@ -108,8 +108,8 @@ export default function PatientSummary({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-paper border-t border-ink/10 p-4 flex justify-end gap-4 z-10">
-        <button className="px-6 py-3 rounded-xl font-medium text-ink bg-surface border border-ink/10 hover:bg-ink/5 transition-colors">
+      <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-white/70 backdrop-blur-xl border-t border-white/60 p-4 flex justify-end gap-4 z-10 shadow-[0_-8px_32px_rgba(0,0,0,0.04)]">
+        <button className="px-6 py-3 rounded-xl font-medium text-ink bg-white/60 backdrop-blur-md border border-white/60 hover:bg-white/80 transition-colors shadow-sm">
           Request More Tests
         </button>
         <button
@@ -126,7 +126,7 @@ export default function PatientSummary({ params }: { params: { id: string } }) {
 
 function Section({ title, children }: { title: string, children: React.ReactNode }) {
   return (
-    <div className="bg-surface rounded-2xl border border-ink/5 p-5 focus-within:ring-2 ring-primary/20 transition-all">
+    <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] p-5 focus-within:ring-2 ring-primary/20 transition-all">
       <h3 className="text-xs font-bold text-ink/50 mb-3 flex justify-between items-center">
         {title}
         <Edit3 className="w-3 h-3 opacity-50" />

@@ -13,13 +13,13 @@ import {
 } from "lucide-react";
 
 const CATEGORIES = [
-  { id: "eye", name: "Eye", icon: Eye, color: "text-blue-600 bg-blue-50" },
-  { id: "heart", name: "Heart", icon: Heart, color: "text-red-500 bg-red-50" },
-  { id: "bone", name: "Bone / Joint", icon: Bone, color: "text-amber-600 bg-amber-50" },
-  { id: "skin", name: "Skin", icon: Droplets, color: "text-pink-500 bg-pink-50" },
-  { id: "digestive", name: "Digestive", icon: Stethoscope, color: "text-orange-500 bg-orange-50" },
-  { id: "respiratory", name: "Respiratory", icon: Wind, color: "text-teal-600 bg-teal-50" },
-  { id: "mental", name: "Mental Health", icon: Brain, color: "text-violet-600 bg-violet-50" },
+  { id: "eye", name: "Eye", icon: Eye, color: "text-primary bg-primary/10" },
+  { id: "heart", name: "Heart", icon: Heart, color: "text-primary bg-primary/10" },
+  { id: "bone", name: "Bone / Joint", icon: Bone, color: "text-gold bg-gold/10" },
+  { id: "skin", name: "Skin", icon: Droplets, color: "text-teal bg-teal/10" },
+  { id: "digestive", name: "Digestive", icon: Stethoscope, color: "text-primary bg-primary/10" },
+  { id: "respiratory", name: "Respiratory", icon: Wind, color: "text-teal bg-teal/10" },
+  { id: "mental", name: "Mental Health", icon: Brain, color: "text-gold bg-gold/10" },
   { id: "ayush", name: "General / AYUSH", icon: Leaf, color: "text-primary bg-primary/10" },
   { id: "others", name: "Others", icon: MoreHorizontal, color: "text-ink/60 bg-ink/5" },
 ];

@@ -24,10 +24,10 @@ export default function DoctorLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-[var(--paper)] text-[var(--ink)] font-sans antialiased">
+    <div className="flex min-h-screen bg-gradient-to-br from-paper via-[#f4e8e6] to-gold/20 text-[var(--ink)] font-sans antialiased relative">
       {/* Mobile Sidebar Toggle */}
       <button 
-        className="md:hidden fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-sm"
+        className="md:hidden fixed top-4 right-4 z-50 p-2 bg-white/50 backdrop-blur-md rounded-lg shadow-sm border border-white/60"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
       >
         <Menu className="w-6 h-6" />
@@ -35,7 +35,7 @@ export default function DoctorLayout({
 
       {/* Sidebar */}
       <aside className={`
-        fixed md:sticky top-0 left-0 z-40 w-64 h-screen bg-surface border-r border-ink/5 flex flex-col transition-transform duration-300
+        fixed md:sticky top-0 left-0 z-40 w-64 h-screen bg-white/40 backdrop-blur-xl border-r border-white/60 flex flex-col transition-transform duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
         <div className="p-6">

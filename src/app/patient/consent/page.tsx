@@ -18,7 +18,7 @@ export default function ConsentPage() {
         <h1 className="font-serif text-3xl font-bold text-ink">Your Privacy & Consent</h1>
       </div>
 
-      <div className="bg-surface rounded-3xl p-8 space-y-6 shadow-sm border border-ink/5">
+      <div className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 space-y-6 shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60">
         <div className="flex items-start gap-4">
           <button className="mt-1 p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors shrink-0">
             <Volume2 className="w-5 h-5" />

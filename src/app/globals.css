@@ -4,13 +4,14 @@
 
 @layer base {
   :root {
-    --paper: #F6F3EA;
-    --ink: #1B2E28;
-    --primary: #2F6E58;
-    --primary-dk: #234F40;
-    --gold: #B6782F;
-    --alert: #B3261E;
-    --surface: #FCFBF7;
+    --paper: #FBF3F1;
+    --surface: #FCF7F6;
+    --ink: #2B1416;
+    --primary: #8C2F39;
+    --primary-dk: #6B222C;
+    --gold: #C9852E;
+    --teal-accent: #2F6E58;
+    --alert: #E8871E;
 
     --background: 46 36% 94%;
     --foreground: 161 26% 14%;
