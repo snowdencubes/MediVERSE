@@ -6,7 +6,7 @@ export default function ConsentPage() {
   const router = useRouter();
 
   const handleAccept = () => {
-    router.push("/patient/intake");
+    router.push("/patient/category");
   };
 
   return (

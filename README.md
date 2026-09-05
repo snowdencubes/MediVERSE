@@ -1,4 +1,4 @@
-# AyuLipi (MediKiosk)
+# AyuLipi (AyuLipi)
 
 AyuLipi is a patient case-taking web application designed for AYUSH OPDs. It allows patients to self-report their history, chief complaints, and upload past medical records prior to entering the consultation room. The system drafts a standardized clinical summary (including AYUSH specific history like Prakriti and Agni) for the doctor to review, edit, and confirm.
 

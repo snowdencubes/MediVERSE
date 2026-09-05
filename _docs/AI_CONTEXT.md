@@ -1,6 +1,6 @@
 # AI Context & Progress Tracking
 
-**Project Name:** AyuLipi (MediKiosk)
+**Project Name:** AyuLipi (AyuLipi)
 **Current Phase:** Phase 0 Completed (Frontend UI Shell)
 **Tech Stack:** Next.js 14 (App Router), React, TypeScript, Tailwind CSS, Lucide-React, Framer Motion
 
@@ -19,7 +19,7 @@
 7. **Linting/Build**: Fixed all ESLint and Vercel build issues (removed unused variables, fixed unescaped entities, removed non-existent `@apply border-border`).
 
 ## Important Notes for Next AI
-- The original PRD is `MediKiosk-PRD-1.md` located in this `_docs` folder.
+- The original PRD is `AyuLipi-PRD-1.md` located in this `_docs` folder.
 - **Phase 1** is next: Wiring up Supabase (Auth + Schema) and replacing the `mock-data.ts` with real data flow.
 - Follow the "Clinical Warmth" rules strictly (no all-caps eyebrow headers, no generic tailwind blue/teal, do not use `shadcn` defaults without restyling).
 - Use `lucide-react` for all icons.

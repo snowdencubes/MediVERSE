@@ -1,4 +1,4 @@
-# MediKiosk — Product Requirements Document
+# AyuLipi — Product Requirements Document
 
 **Problem Statement:** SIH26047 — Patient Case-Taking Software
 **Organization:** Ministry of Ayush | **Department:** All India Institute of Ayurveda (AIIA)
@@ -13,7 +13,7 @@
 
 ## 1. Problem, in one paragraph
 
-Government and AYUSH OPDs see thousands of patients a day with a doctor consultation window as short as 2–5 minutes. There's no time to take a full history, AYUSH history (Prakriti, Vikriti, Agni, Dashavidha Pariksha, etc.) is even more detailed than allopathic history, and patients arrive with scattered paper prescriptions and reports nobody has time to read. MediKiosk lets the patient do the time-consuming part — answering structured history questions and uploading old documents — **before** they enter the consultation room, so the doctor opens the visit with a ready, organized summary instead of building one from scratch.
+Government and AYUSH OPDs see thousands of patients a day with a doctor consultation window as short as 2–5 minutes. There's no time to take a full history, AYUSH history (Prakriti, Vikriti, Agni, Dashavidha Pariksha, etc.) is even more detailed than allopathic history, and patients arrive with scattered paper prescriptions and reports nobody has time to read. AyuLipi lets the patient do the time-consuming part — answering structured history questions and uploading old documents — **before** they enter the consultation room, so the doctor opens the visit with a ready, organized summary instead of building one from scratch.
 
 ## 2. Users
 

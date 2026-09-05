@@ -1,0 +1,10 @@
+{
+  "maxUploadSizeMB": 10,
+  "defaultModel": "groq",
+  "enableABHA": true,
+  "enableOCR": true,
+  "kiosk": {
+    "autoResetSeconds": 120,
+    "showAyushFields": true
+  }
+}

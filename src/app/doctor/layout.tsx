@@ -43,7 +43,7 @@ export default function DoctorLayout({
             <span className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-sm">
               Dr.
             </span>
-            MediKiosk
+            AyuLipi
           </h1>
         </div>
 
