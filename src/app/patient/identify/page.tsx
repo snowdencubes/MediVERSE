@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Phone, Scan, Briefcase, Shield, ChevronDown, ChevronUp, ArrowLeft, AlertCircle } from "lucide-react";
+import { User, Phone, Scan, Briefcase, ChevronDown, ArrowLeft, AlertCircle } from "lucide-react";
 
 const PROFESSION_OPTIONS = [
   "Student",
@@ -17,9 +17,6 @@ export default function IdentifyPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [profession, setProfession] = useState("");
-  const [showInsurance, setShowInsurance] = useState(false);
-  const [insuranceScheme, setInsuranceScheme] = useState("");
-  const [insurancePolicyId, setInsurancePolicyId] = useState("");
   const [error, setError] = useState("");
 
   const handleContinue = () => {
@@ -96,7 +93,7 @@ export default function IdentifyPage() {
               </div>
               <div className="text-center">
                 <div className="font-bold text-xl text-ink mb-1">Type details manually</div>
-                <div className="text-sm text-ink/60">If you don't have a card</div>
+                <div className="text-sm text-ink/60">If you don&apos;t have a card</div>
               </div>
             </button>
           </div>
