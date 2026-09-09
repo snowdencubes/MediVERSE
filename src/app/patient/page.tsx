@@ -10,6 +10,11 @@ export default function WelcomePage() {
   const router = useRouter();
   const { lang, setLang, t } = useTranslation();
 
+  const BENEFITS = [
+    { icon: Languages, label: t("welcome.benefit1") || "Choose your language" },
+    { icon: ShieldCheck, label: t("welcome.benefit2") || "Your information stays private" },
+    { icon: HeartPulse, label: t("welcome.benefit3") || "Simple questions for better care" },
+  ];
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[var(--paper)] text-ink">
