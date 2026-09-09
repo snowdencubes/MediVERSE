@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, Globe2, HeartPulse, Languages, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe2, HeartPulse, Languages, ShieldCheck, Sparkles, Plus } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { LANGUAGES } from "@/lib/i18n/translations";
 
@@ -9,6 +10,7 @@ import { LANGUAGES } from "@/lib/i18n/translations";
 export default function WelcomePage() {
   const router = useRouter();
   const { lang, setLang, t } = useTranslation();
+  const [showMore, setShowMore] = useState(false);
 
   const BENEFITS = [
     { icon: Languages, label: t("welcome.benefit1") || "Choose your language" },
@@ -74,7 +76,7 @@ export default function WelcomePage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4" role="radiogroup" aria-label="Choose your language">
-              {LANGUAGES.map((language) => {
+              {(showMore ? LANGUAGES : LANGUAGES.slice(0, 5)).map((language) => {
                 const selected = lang === language.code;
                 return (
                   <button
@@ -98,6 +100,18 @@ export default function WelcomePage() {
                   </button>
                 );
               })}
+              {!showMore && LANGUAGES.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowMore(true)}
+                  className="group flex min-h-[72px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/20 bg-transparent px-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 sm:px-5"
+                >
+                  <Plus className="h-5 w-5 text-ink/60 group-hover:text-primary transition-colors" />
+                  <span className="text-base font-bold text-ink/60 group-hover:text-primary transition-colors">
+                    More
+                  </span>
+                </button>
+              )}
             </div>
 
             <button
