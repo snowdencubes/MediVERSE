@@ -1,6 +1,6 @@
-# AyuLipi (Team Snowden - SIH26047)
+# MediVERSE (Team CureX - SIH26047)
 
-AyuLipi is a comprehensive Patient Case-Taking System designed specifically for AYUSH OPDs. It provides an ultra-accessible, multilingual patient kiosk for self-service intake, and a powerful Doctor Portal for reviewing AI-drafted summaries.
+MediVERSE is a comprehensive Patient Case-Taking System designed specifically for AYUSH OPDs. It provides an ultra-accessible, multilingual patient kiosk for self-service intake, and a powerful Doctor Portal for reviewing AI-drafted summaries.
 
 ## Features
 - **Universal Usability Kiosk**: Built for low digital literacy. One decision per screen, massive 56px touch targets, plain-language text paired with every icon, and zero hidden gestures.

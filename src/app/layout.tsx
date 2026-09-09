@@ -13,7 +13,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "AyuLipi - AYUSH OPD Case-Taking",
+  title: "MediVERSE - AYUSH OPD Case-Taking",
   description: "Patient Case-Taking Software for Ministry of Ayush",
 };
 

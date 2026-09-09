@@ -1,4 +1,4 @@
-# Deploying AyuLipi to Render
+# Deploying MediVERSE to Render
 
 ## Prerequisites
 - A [Render](https://render.com) account (free tier works)
@@ -11,7 +11,7 @@
    - Connect your GitHub/GitLab repository
 
 2. **Configure the Service**
-   - **Name:** `ayulipi-web`
+   - **Name:** `mediverse-web`
    - **Region:** Pick the closest to your users
    - **Runtime:** Docker (Render auto-detects the `Dockerfile`)
    - **Instance Type:** Free (or Starter for production)

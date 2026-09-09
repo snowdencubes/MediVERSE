@@ -1,9 +1,9 @@
-# AI Handoff & Project Context (AyuLipi)
+# AI Handoff & Project Context (MediVERSE)
 
-Hello! If you are an AI assistant or a new developer taking over this project, this document provides the exact context, rules, and current state of the **AyuLipi** (MediKiosk) project. Read this carefully before generating new code.
+Hello! If you are an AI assistant or a new developer taking over this project, this document provides the exact context, rules, and current state of the **MediVERSE** (MediKiosk) project. Read this carefully before generating new code.
 
 ## 1. Project Overview
-AyuLipi (Team Snowden, SIH26047) is a Patient Case-Taking System designed for AYUSH OPDs. It consists of two main parts:
+MediVERSE (Team CureX, SIH26047) is a Patient Case-Taking System designed for AYUSH OPDs. It consists of two main parts:
 1. **Patient Kiosk (`/patient`)**: A highly accessible, universal-usability self-service kiosk for patients to enter their symptoms, ABHA ID, and lifestyle details.
 2. **Doctor Portal (`/doctor`)**: A dashboard for doctors to review AI-generated drafts of patient summaries and manage their queue.
 

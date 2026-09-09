@@ -18,7 +18,7 @@ export default function WelcomePage() {
         <div className="text-center space-y-4 mb-10">
           <Globe className="w-16 h-16 text-primary mx-auto mb-6" />
           <h1 className="font-serif text-4xl font-bold text-ink tracking-tight">
-            Welcome to AyuLipi
+            Welcome to MediVERSE
           </h1>
           <p className="text-lg text-ink/70">Please select your preferred language</p>
         </div>

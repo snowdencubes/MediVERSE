@@ -51,7 +51,7 @@ export default function BurgerMenu() {
             >
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-ink/5">
-                <h2 className="font-serif text-xl font-bold text-primary">AyuLipi</h2>
+                <h2 className="font-serif text-xl font-bold text-primary">MediVERSE</h2>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-2 rounded-lg text-ink/50 hover:bg-ink/5 transition-colors"
@@ -84,7 +84,7 @@ export default function BurgerMenu() {
 
               {/* Footer */}
               <div className="p-4 border-t border-ink/5 text-center text-xs text-ink/40">
-                AyuLipi v0.1 — Team Snowden
+                MediVERSE v0.1 — Team CureX
               </div>
             </motion.aside>
           </>

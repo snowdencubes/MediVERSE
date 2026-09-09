@@ -6,7 +6,7 @@ const log = createLogger('Bootstrap');
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    log.info('🚀 AyuLipi server starting...');
+    log.info('🚀 MediVERSE server starting...');
     log.info({ port: process.env.PORT || 3000, node_env: process.env.NODE_ENV }, 'Environment');
 
     // Start the config file watcher (hot-reload without restart)
