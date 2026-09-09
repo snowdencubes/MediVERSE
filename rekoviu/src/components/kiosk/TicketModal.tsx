@@ -94,7 +94,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
 
             <div style={{ marginTop: 24, paddingTop: 20, borderTop: '2px dashed #ddd', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <QRCodeSVG 
-                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/receipt/${ticket.ticket_id}`} 
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}`} 
                 size={100} 
                 style={{ marginBottom: 16 }} 
               />

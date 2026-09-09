@@ -57,9 +57,27 @@ export default function KioskPage() {
       setLoading(false);
 
       const intentDept = localStorage.getItem('voice_intent_dept');
+      const intentIssue = localStorage.getItem('voice_intent_issue');
+      const intentEmergency = localStorage.getItem('voice_intent_emergency') === 'true';
+      const whatsappPhone = localStorage.getItem('whatsapp_phone');
+
+      if (whatsappPhone) {
+        setPatientPhone(whatsappPhone);
+        localStorage.removeItem('whatsapp_phone');
+      }
+
       if (intentDept) {
         setSelectedDepId(intentDept);
         localStorage.removeItem('voice_intent_dept');
+        
+        if (intentIssue) {
+          setVitals(v => ({ ...v, symptoms: [intentIssue] }));
+          localStorage.removeItem('voice_intent_issue');
+        }
+        if (intentEmergency) {
+          setVitals(v => ({ ...v, pain_score: 9 }));
+          localStorage.removeItem('voice_intent_emergency');
+        }
       }
     }
     loadCatalog();

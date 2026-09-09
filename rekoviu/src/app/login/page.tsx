@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/services/api';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('admin');
-  const [pin, setPin] = useState('admin');
+  const [username, setUsername] = useState('sadmin');
+  const [pin, setPin] = useState('sadmin');
   const [error, setError] = useState('');
   const router = useRouter();
 

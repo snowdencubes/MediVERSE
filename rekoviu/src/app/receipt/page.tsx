@@ -1,21 +1,26 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { QueueTicket } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
+import { useSearchParams } from 'next/navigation';
 
-export default function ReceiptPage({ params }: { params: { id: string } }) {
+function ReceiptContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+
   const [ticket, setTicket] = useState<QueueTicket | null>(null);
   const [error, setError] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!id) return;
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:8000`;
-    fetch(`${apiUrl}/api/v1/queue/ticket/${params.id}`)
+    fetch(`${apiUrl}/api/v1/queue/ticket/${id}`)
       .then(r => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -25,7 +30,7 @@ export default function ReceiptPage({ params }: { params: { id: string } }) {
         console.error('Fetch error:', err);
         setError(true);
       });
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     // Automatically trigger download after rendering the ticket
@@ -52,7 +57,7 @@ export default function ReceiptPage({ params }: { params: { id: string } }) {
     }
   }, [ticket, downloading]);
 
-  if (error) {
+  if (!id || error) {
     return (
       <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: "'Space Grotesk'" }}>
         <p>Invalid or expired receipt ID.</p>
@@ -124,11 +129,19 @@ export default function ReceiptPage({ params }: { params: { id: string } }) {
         )}
 
         <div style={{ marginTop: 32, paddingTop: 24, borderTop: '2px dashed #ddd', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <QRCodeSVG value={`${typeof window !== 'undefined' ? window.location.origin : ''}/receipt/${ticket.ticket_id}`} size={120} style={{ marginBottom: 16 }} />
+          <QRCodeSVG value={`${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}`} size={120} style={{ marginBottom: 16 }} />
           <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, color: '#999', letterSpacing: '.1em', textTransform: 'uppercase' }}>Scan to view live queue status</p>
         </div>
       </div>
 
     </div>
+  );
+}
+
+export default function ReceiptPage() {
+  return (
+    <Suspense fallback={<div>Loading receipt...</div>}>
+      <ReceiptContent />
+    </Suspense>
   );
 }

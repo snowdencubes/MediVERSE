@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RekovNav } from '@/components/common/RekovNav';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -35,89 +35,92 @@ export default function Home() {
   const [slideIdx, setSlideIdx] = useState(0);
   const [transcript, setTranscript] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
   const prevSlide = () => setSlideIdx(i => (i - 1 + FEATURE_SLIDES.length) % FEATURE_SLIDES.length);
   const nextSlide = () => setSlideIdx(i => (i + 1) % FEATURE_SLIDES.length);
 
+  useEffect(() => {
+    const pollWhatsapp = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:8000/api/v1`;
+        const res = await fetch(`${apiUrl}/kiosk/whatsapp/latest`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'found' && data.phone_number) {
+            localStorage.setItem('whatsapp_phone', data.phone_number);
+            setTranscript(`${t('understood')}: WhatsApp Check-In Detected`);
+            setTimeout(() => router.push('/kiosk'), 1500);
+          }
+        }
+      } catch (err) {
+        // silently fail polling
+      }
+    };
+    const interval = setInterval(pollWhatsapp, 3000);
+    return () => clearInterval(interval);
+  }, [router, t]);
+
   const startVoice = async () => {
     if (isListening) {
       setIsListening(false);
-      if (recognitionInstance) {
-        recognitionInstance.stop();
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
       }
       return;
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      alert("Browser does not support real-time speech recognition. Try Chrome or Edge.");
-      return;
-    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const audioChunks: BlobPart[] = [];
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+      };
 
-    recognition.onstart = () => {
-      setIsListening(true);
-      setTranscript(t('listening'));
-    };
+      recorder.onstart = () => {
+        setIsListening(true);
+        setTranscript(t('listening'));
+      };
 
-    let finalFinalTranscript = '';
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(track => track.stop());
+        setTranscript(`${t('processing')}...`);
+        
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'voice.webm');
 
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
-        }
-      }
-      finalFinalTranscript += finalTranscript;
-      setTranscript(finalFinalTranscript || interimTranscript);
-    };
-
-    recognition.onend = async () => {
-      setIsListening(false);
-      if (finalFinalTranscript && finalFinalTranscript !== t('listening')) {
-        setTranscript(`${t('processing')}: "${finalFinalTranscript}"`);
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:8000`;
-          const res = await fetch(`${apiUrl}/api/v1/kiosk/voice-intent`, {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:8000/api/v1`;
+          const res = await fetch(`${apiUrl}/kiosk/voice-audio`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: finalFinalTranscript })
+            body: formData
           });
           
           const data = await res.json();
           if (res.ok && data.department_id) {
             setTranscript(`${t('understood')}: "${data.raw_text}"`);
             localStorage.setItem('voice_intent_dept', data.department_id);
-            setTimeout(() => router.push('/kiosk'), 1500);
+            localStorage.setItem('voice_intent_issue', data.issue || '');
+            localStorage.setItem('voice_intent_emergency', data.is_emergency ? 'true' : 'false');
+            setTimeout(() => router.push('/kiosk'), 2000);
           } else {
-            setTranscript(t('network_error'));
+            setTranscript(t('network_error') + " " + (data.detail || ''));
             setTimeout(() => setTranscript(''), 3000);
           }
         } catch (err) {
           setTranscript(t('network_error'));
           setTimeout(() => setTranscript(''), 3000);
         }
-      } else {
-        setTranscript('');
-      }
-    };
+      };
 
-    try {
-      setRecognitionInstance(recognition);
-      recognition.start();
+      setMediaRecorder(recorder);
+      recorder.start();
     } catch (e) {
       console.error(e);
-      alert('Microphone access denied or error starting recognition.');
+      alert('Microphone access denied or error starting recording.');
     }
   };
 
@@ -128,8 +131,21 @@ export default function Home() {
       <main style={{
         position: 'relative', zIndex: 10, minHeight: '100vh',
         display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        alignItems: 'center', padding: '100px 24px 100px', textAlign: 'center'
+        alignItems: 'center', padding: '80px 24px 100px', textAlign: 'center'
       }}>
+
+        {/* WhatsApp Zero-Touch Check-in */}
+        <div style={{
+          position: 'absolute', top: 24, right: 24, display: 'flex', flexDirection: 'column', alignItems: 'center',
+          background: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid #ff2d55',
+          boxShadow: '0 8px 24px rgba(255,45,85,0.2)'
+        }}>
+          <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: '#ff2d55', letterSpacing: '.1em', marginBottom: 8 }}>
+            Zero-Touch Check-In
+          </p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/15551234567?text=Check%20me%20in&color=ffffff&bgcolor=111111" alt="WhatsApp QR" width={120} height={120} style={{ borderRadius: 8, marginBottom: 8 }} />
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: 'var(--text-secondary)' }}>Scan with WhatsApp to check in</p>
+        </div>
 
         {/* Logo + Tagline */}
         <h1 style={{

@@ -68,3 +68,27 @@
 2026-09-09 23:51:45 - rekov_system - INFO - [UI] ○ Compiling / ...
 2026-09-09 23:51:46 - rekov_system - INFO - [UI] ✓ Compiled / in 1699ms (555 modules)
 2026-09-09 23:51:54 - rekov_system - INFO - [UI] GET / 200 in 222ms
+2026-09-10 00:02:52 - rekov_system - INFO - [UI] GET / 200 in 48ms
+2026-09-10 00:03:49 - rekov_system - INFO - [UI] ✓ Compiled in 327ms (569 modules)
+2026-09-10 00:04:06 - rekov_system - INFO - [UI] ✓ Compiled in 181ms (569 modules)
+2026-09-10 00:11:06 - rekov_system - INFO - [UI] ✓ Compiled in 175ms (288 modules)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] file:///C:/Users/Roset/Desktop/rekov/rekoviu/next.config.mjs:10
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] export default nextConfig;
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] ^^^^^^^^^^^^^^^^^^
+2026-09-10 00:12:18 - rekov_system - ERROR - [UI] SyntaxError: Identifier '.default' has already been declared
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at #translate (node:internal/modules/esm/loader:434:20)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at afterLoad (node:internal/modules/esm/loader:502:29)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:507:12)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:560:36)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at afterResolve (node:internal/modules/esm/loader:607:52)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:613:12)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at node:internal/modules/esm/loader:632:32
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] at TracingChannel.tracePromise (node:diagnostics_channel:362:14)
+2026-09-10 00:12:18 - rekov_system - WARNING - [UI] Node.js v24.18.0
+2026-09-10 00:12:18 - rekov_system - INFO - [UI] [?25h
+2026-09-10 00:12:19 - rekov_system - ERROR - UI process exited (code 0)
+2026-09-10 00:12:19 - rekov_system - INFO - Terminating child processes...
+2026-09-10 00:12:19 - rekov_system - SUCCESS - System shutdown complete.

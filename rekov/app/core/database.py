@@ -41,6 +41,14 @@ class TicketModel(Base):
     estimated_call_time = Column(String)
     synced = Column(Boolean, default=False) # For offline -> Supabase sync
 
+class WhatsappSession(Base):
+    __tablename__ = "whatsapp_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    phone_number = Column(String, index=True)
+    status = Column(String, default="pending") # pending, consumed
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 class DoctorCredentials(Base):
     __tablename__ = "doctor_credentials"
 

@@ -46,13 +46,19 @@ app.include_router(receptionist.router, prefix=f"{settings.API_V1_STR}/reception
 app.include_router(settings_router.router, prefix=f"{settings.API_V1_STR}/settings")
 app.include_router(ai.router, prefix=f"{settings.API_V1_STR}")
 
-@app.get("/")
-def root():
-    return {
-        "message": "Welcome to rekov - KFC-Style Hospital Kiosk API",
-        "docs": "/docs",
-        "health": f"{settings.API_V1_STR}/health"
-    }
+import os
+from fastapi.staticfiles import StaticFiles
+
+if os.path.isdir("frontend_out"):
+    app.mount("/", StaticFiles(directory="frontend_out", html=True), name="frontend")
+else:
+    @app.get("/")
+    def root():
+        return {
+            "message": "Welcome to rekov API (Frontend missing)",
+            "docs": "/docs",
+            "health": f"{settings.API_V1_STR}/health"
+        }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

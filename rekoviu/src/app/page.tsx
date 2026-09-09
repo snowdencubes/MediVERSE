@@ -10,8 +10,13 @@ export default function LanguageSelectionPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Determine language from IP on mount
-    fetch('https://ipapi.co/json/')
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      setLoading(false);
+    }, 2000);
+
+    fetch('https://ipapi.co/json/', { signal: controller.signal })
       .then(res => res.json())
       .then(data => {
         const country = data.country_code;
@@ -24,8 +29,14 @@ export default function LanguageSelectionPage() {
         console.error('IP fetch failed:', err);
       })
       .finally(() => {
+        clearTimeout(timeoutId);
         setLoading(false);
       });
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [setLang]);
 
   const handleSelect = (l: 'EN' | 'HI' | 'ES' | 'FR') => {

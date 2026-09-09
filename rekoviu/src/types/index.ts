@@ -18,6 +18,7 @@ export interface Doctor {
   consultation_fee: number;
   rating: number;
   experience_years: number;
+  shift_schedule?: string;
 }
 
 export interface HealthComboPackage {

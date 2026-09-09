@@ -33,7 +33,7 @@ export default function ReceptionistPage() {
     }
   };
 
-  const handleUpdateSchedule = async (doctorId: str, newSchedule: str) => {
+  const handleUpdateSchedule = async (doctorId: string, newSchedule: string) => {
     try {
       await api.post(`/doctors/${doctorId}/schedule`, { shift_schedule: newSchedule });
       alert('Schedule updated successfully!');
