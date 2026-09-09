@@ -1,53 +1,121 @@
 "use client";
+
 import { useRouter } from "next/navigation";
-import { Globe } from "lucide-react";
+import { ArrowRight, Check, Globe2, HeartPulse, Languages, ShieldCheck, Sparkles } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { LANGUAGES } from "@/lib/i18n/translations";
+
+const BENEFITS = [
+  { icon: Languages, label: "Choose your language" },
+  { icon: ShieldCheck, label: "Your information stays private" },
+  { icon: HeartPulse, label: "Simple questions for better care" },
+];
 
 export default function WelcomePage() {
   const router = useRouter();
   const { lang, setLang, t } = useTranslation();
 
-  const handleContinue = () => {
-    router.push("/patient/identify");
-  };
-
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 min-h-[100dvh] bg-[var(--paper)]">
-      {/* Visual Polish: Consistent glass-panel treatment */}
-      <div className="glass-panel p-8 sm:p-12 rounded-[2.5rem] w-full max-w-lg flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="text-center space-y-4 mb-10">
-          <Globe className="w-16 h-16 text-primary mx-auto mb-6" />
-          <h1 className="font-serif text-4xl font-bold text-ink tracking-tight">
-            {t("welcome.title")}
-          </h1>
-          <p className="text-lg text-ink/70">{t("welcome.subtitle")}</p>
-        </div>
+    <main className="relative min-h-[100dvh] overflow-hidden bg-[var(--paper)] text-ink">
+      <div className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full bg-gold/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute left-[12%] top-[18%] h-3 w-3 rounded-full bg-gold/70 shadow-[0_0_0_10px_rgba(201,133,46,0.08)]" />
 
-        <div className="w-full grid grid-cols-2 gap-3 sm:gap-4 mb-8">
-          {LANGUAGES.map((l) => (
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
+        <header className="flex items-center justify-between" aria-label="MediVERSE header">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-paper shadow-[0_10px_24px_rgba(140,47,57,0.2)]">
+              <HeartPulse className="h-6 w-6" strokeWidth={2.2} />
+            </div>
+            <div>
+              <p className="font-serif text-xl font-bold leading-none tracking-tight text-primary">MediVERSE</p>
+              <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-ink/45">AYUSH care, made simple</p>
+            </div>
+          </div>
+          <div className="hidden items-center gap-2 rounded-full border border-ink/10 bg-white/45 px-4 py-2 text-sm font-semibold text-ink/60 shadow-sm backdrop-blur-sm sm:flex">
+            <ShieldCheck className="h-4 w-4 text-teal" />
+            Private &amp; secure
+          </div>
+        </header>
+
+        <section className="grid flex-1 items-center gap-10 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-16">
+          <div className="max-w-xl animate-in fade-in slide-in-from-left-4 duration-700">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-3.5 py-2 text-sm font-bold text-primary">
+              <Sparkles className="h-4 w-4 text-gold" />
+              Welcome to your care journey
+            </div>
+            <h1 className="max-w-lg font-serif text-5xl font-bold leading-[1.03] tracking-[-0.04em] text-ink sm:text-6xl">
+              Care starts with <span className="text-primary">being heard.</span>
+            </h1>
+            <p className="mt-6 max-w-md text-lg leading-8 text-ink/65 sm:text-xl">
+              Tell us a little about yourself in the language you are most comfortable with. It only takes a few minutes.
+            </p>
+            <div className="mt-9 hidden space-y-4 sm:block">
+              {BENEFITS.map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-3 text-sm font-semibold text-ink/65">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal/10 text-teal">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass-panel relative rounded-[2rem] p-6 shadow-[0_24px_80px_rgba(91,38,41,0.1)] sm:rounded-[2.5rem] sm:p-9 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="absolute -right-3 -top-3 flex h-12 w-12 rotate-12 items-center justify-center rounded-2xl bg-gold text-paper shadow-lg">
+              <Globe2 className="h-6 w-6" />
+            </div>
+            <div className="mb-8 pr-8">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary/70">Step 01 · Language</p>
+              <h2 className="font-serif text-3xl font-bold tracking-tight text-ink sm:text-4xl">{t("welcome.title")}</h2>
+              <p className="mt-2 text-base leading-6 text-ink/60">{t("welcome.subtitle")}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:gap-4" role="radiogroup" aria-label="Choose your language">
+              {LANGUAGES.map((language) => {
+                const selected = lang === language.code;
+                return (
+                  <button
+                    key={language.code}
+                    type="button"
+                    onClick={() => setLang(language.code)}
+                    aria-pressed={selected}
+                    className={`group flex min-h-[72px] items-center justify-between rounded-2xl border-2 px-4 text-left transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 sm:px-5 ${
+                      selected
+                        ? "border-primary bg-primary text-paper shadow-[0_12px_24px_rgba(140,47,57,0.18)]"
+                        : "border-ink/10 bg-white/55 text-ink hover:border-primary/35 hover:bg-white/80"
+                    }`}
+                  >
+                    <span>
+                      <span className="block text-lg font-bold leading-tight">{language.nativeName}</span>
+                      <span className={`mt-1 block text-xs ${selected ? "text-paper/70" : "text-ink/45"}`}>{language.name}</span>
+                    </span>
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full ${selected ? "bg-paper text-primary" : "border border-ink/15 text-transparent"}`}>
+                      <Check className="h-4 w-4" strokeWidth={3} />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             <button
-              key={l.code}
-              onClick={() => setLang(l.code)}
-              className={`p-4 rounded-2xl border-2 transition-all duration-300 text-lg font-medium flex items-center justify-between hover:-translate-y-0.5 ${
-                lang === l.code
-                  ? "border-primary bg-primary/10 text-primary shadow-sm"
-                  : "border-white/60 bg-white/40 text-ink hover:border-primary/30"
-              }`}
+              type="button"
+              onClick={() => router.push("/patient/identify")}
+              className="mt-7 flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-primary px-5 text-lg font-bold text-paper shadow-[0_14px_28px_rgba(140,47,57,0.2)] transition-all hover:bg-primary-dark hover:shadow-[0_18px_32px_rgba(140,47,57,0.26)] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25"
             >
-              <span>{l.nativeName}</span>
-              {lang === l.code && <div className="w-3 h-3 rounded-full bg-primary" />}
+              {t("welcome.continue")}
+              <ArrowRight className="h-5 w-5" />
             </button>
-          ))}
-        </div>
+            <p className="mt-4 text-center text-xs leading-5 text-ink/45">You can change your language later from the menu.</p>
+          </div>
+        </section>
 
-        <button
-          onClick={handleContinue}
-          className="w-full bg-primary hover:bg-primary-dark text-paper p-5 rounded-2xl text-xl font-semibold transition-all duration-300 mt-2 active:scale-95 shadow-md hover:shadow-lg"
-        >
-          {t("welcome.continue")}
-        </button>
+        <footer className="flex flex-col gap-2 border-t border-ink/10 pt-5 text-xs text-ink/45 sm:flex-row sm:items-center sm:justify-between">
+          <span>Designed for every patient, every story.</span>
+          <span>© {new Date().getFullYear()} MediVERSE · Team CureX</span>
+        </footer>
       </div>
-    </div>
+    </main>
   );
 }
