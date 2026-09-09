@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { SupportedLang, TRANSLATIONS, LANGUAGES } from "./translations";
+import { SupportedLang, TRANSLATIONS } from "./translations";
 
 interface TranslationContextType {
   lang: SupportedLang;

@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { LANGUAGES, SupportedLang } from "@/lib/i18n/translations";
+import { LANGUAGES } from "@/lib/i18n/translations";
 
 export default function WelcomePage() {
   const router = useRouter();

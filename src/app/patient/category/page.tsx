@@ -37,10 +37,10 @@ export default function CategorySelectionPage() {
     <div className="flex-1 flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto w-full pt-8 pb-24">
       <div className="text-center space-y-3">
         <h1 className="font-serif text-3xl font-bold text-ink">
-          What brings you in today?
+          {t("category.title") || "What brings you in today?"}
         </h1>
         <p className="text-lg text-ink/70">
-          Select the area closest to your concern
+          {t("category.subtitle") || "Select the area closest to your concern"}
         </p>
       </div>
 
