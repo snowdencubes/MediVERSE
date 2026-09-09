@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 
 interface GestureContextType {
   enabled: boolean;
@@ -23,7 +22,8 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
   const [isPinching, setIsPinching] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const landmarkerRef = useRef<HandLandmarker | null>(null);
+  // Store as any to avoid needing the type at the top level
+  const landmarkerRef = useRef<any>(null);
   const requestRef = useRef<number>();
   const isPinchingRef = useRef(false);
 
@@ -33,6 +33,8 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
     async function initMediaPipe() {
       if (!enabled) return;
       try {
+        const { FilesetResolver, HandLandmarker } = await import('@mediapipe/tasks-vision');
+        
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
         );
