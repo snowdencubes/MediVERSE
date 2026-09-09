@@ -87,12 +87,12 @@ export default function SchedulesPage() {
                       <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--text-secondary)' }}>{doc.specialty}</p>
                       
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontSize: 16 }}>🕒</span>
+                        <span style={{ fontSize: 16 }}>TIME:</span>
                         <span style={{ fontSize: 14, fontWeight: 600 }}>{doc.shift_schedule || '09:00 AM - 05:00 PM'}</span>
                       </div>
                       
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 16 }}>🚪</span>
+                        <span style={{ fontSize: 16 }}>ROOM:</span>
                         <span style={{ fontSize: 14 }}>{doc.room_number}</span>
                       </div>
                     </div>

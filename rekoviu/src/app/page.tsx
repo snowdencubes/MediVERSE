@@ -100,20 +100,19 @@ export default function LanguageSelectionPage() {
             border: '1px solid var(--border-color)',
             textAlign: 'left',
             fontFamily: "'Space Grotesk', sans-serif",
-            maxWidth: 300,
-            animation: 'fadeIn 0.5s ease-out'
+            maxWidth: 300
           }}>
             <p style={{ margin: '0 0 8px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-              ☝️ Point with one finger to move pointer.
+              Point with one finger to move pointer.
             </p>
             <p style={{ margin: '0 0 16px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-              ☝️ एक उंगली से पॉइंटर चलाएं।
+              एक उंगली से पॉइंटर चलाएं।
             </p>
             <p style={{ margin: '0 0 8px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-              🤏 Pinch your thumb and index finger to click.
+              Pinch your thumb and index finger to click.
             </p>
             <p style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)' }}>
-              🤏 अंगूठे और उंगली को मिलाकर क्लिक करें।
+              अंगूठे और उंगली को मिलाकर क्लिक करें।
             </p>
           </div>
         )}
@@ -142,7 +141,7 @@ export default function LanguageSelectionPage() {
               cursor: 'pointer', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8
             }}
           >
-            <span>{l === 'EN' ? '🇬🇧' : l === 'HI' ? '🇮🇳' : l === 'ES' ? '🇪🇸' : '🇫🇷'}</span>
+            <span>{l === 'EN' ? 'ENG' : l === 'HI' ? 'HIN' : l === 'ES' ? 'ESP' : 'FRA'}</span>
             {l === 'EN' ? 'English' : l === 'HI' ? 'हिन्दी (Hindi)' : l === 'ES' ? 'Español' : 'Français'}
           </button>
         ))}
@@ -160,12 +159,6 @@ export default function LanguageSelectionPage() {
       >
         CONTINUE
       </button>
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }
