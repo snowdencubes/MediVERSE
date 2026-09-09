@@ -25,6 +25,7 @@ export default function LanguageSelectionPage() {
         else setLang('EN');
       })
       .catch(err => {
+        if (err.name === 'AbortError') return;
         console.error('IP fetch failed:', err);
       })
       .finally(() => {

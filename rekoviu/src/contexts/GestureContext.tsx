@@ -73,8 +73,13 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
         });
 
       } catch (err: any) {
-        console.error("Gesture Init Error:", err);
-        alert("Gesture Init Error: " + (err.message || String(err)));
+        if (err.name === 'NotAllowedError') {
+          console.warn("Gesture Init: Camera permission denied by user.");
+          alert("Camera access was denied. Please allow camera permissions in your browser to use Gesture Controls.");
+        } else {
+          console.error("Gesture Init Error:", err);
+          alert("Gesture Init Error: " + (err.message || String(err)));
+        }
         setEnabled(false);
       }
     }
