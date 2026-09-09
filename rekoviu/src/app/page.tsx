@@ -9,13 +9,10 @@ export default function LanguageSelectionPage() {
   const router = useRouter();
   const { lang, setLang } = useLanguage();
   const { enabled: gestureEnabled, setEnabled: setGestureEnabled } = useGesture();
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-      setLoading(false);
     }, 2000);
 
     fetch('https://ipapi.co/json/', { signal: controller.signal })
@@ -32,7 +29,6 @@ export default function LanguageSelectionPage() {
       })
       .finally(() => {
         clearTimeout(timeoutId);
-        setLoading(false);
       });
 
     return () => {
@@ -49,76 +45,13 @@ export default function LanguageSelectionPage() {
     router.push('/home');
   };
 
-  if (loading) {
-    return (
-      <div style={{
-        position: 'relative', zIndex: 10,
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'transparent', color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", fontSize: 48
-      }}>
-        LOADING...
-      </div>
-    );
-  }
-
   return (
     <div style={{
       position: 'relative', zIndex: 10,
       minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       background: 'transparent', color: 'var(--text-primary)', padding: 24, textAlign: 'center'
     }}>
-      <div style={{ position: 'absolute', top: 40, right: 40, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-        <button
-          onClick={() => setGestureEnabled(!gestureEnabled)}
-          style={{
-            padding: '16px 32px',
-            background: gestureEnabled ? 'rgba(255, 45, 85, 0.2)' : 'var(--bg-card)',
-            border: `2px solid ${gestureEnabled ? '#ff2d55' : 'var(--border-color)'}`,
-            borderRadius: 32,
-            color: gestureEnabled ? '#ff2d55' : 'var(--text-primary)',
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: 20,
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 0.3s',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12
-          }}
-        >
-          <div style={{ 
-            width: 20, height: 20, borderRadius: '50%', 
-            background: gestureEnabled ? '#ff2d55' : 'var(--text-secondary)',
-            transition: 'background 0.3s'
-          }} />
-          {gestureEnabled ? 'Gesture Control ON / इशारे चालू हैं' : 'Enable Gestures / इशारों से चलाएं'}
-        </button>
-        {gestureEnabled && (
-          <div style={{ 
-            marginTop: 16, 
-            background: 'var(--bg-card)', 
-            padding: '16px 24px', 
-            borderRadius: 16,
-            border: '1px solid var(--border-color)',
-            textAlign: 'left',
-            fontFamily: "'Space Grotesk', sans-serif",
-            maxWidth: 300
-          }}>
-            <p style={{ margin: '0 0 8px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-              Point with one finger to move pointer.
-            </p>
-            <p style={{ margin: '0 0 16px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-              एक उंगली से पॉइंटर चलाएं।
-            </p>
-            <p style={{ margin: '0 0 8px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-              Pinch your thumb and index finger to click.
-            </p>
-            <p style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)' }}>
-              अंगूठे और उंगली को मिलाकर क्लिक करें।
-            </p>
-          </div>
-        )}
-      </div>
+
 
       <h1 style={{
         fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 10vw, 80px)',
@@ -161,6 +94,55 @@ export default function LanguageSelectionPage() {
       >
         CONTINUE
       </button>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 48 }}>
+        <button
+          onClick={() => setGestureEnabled(!gestureEnabled)}
+          style={{
+            padding: '16px 32px',
+            background: gestureEnabled ? 'rgba(255, 45, 85, 0.2)' : 'var(--bg-card)',
+            border: `2px solid ${gestureEnabled ? '#ff2d55' : 'var(--border-color)'}`,
+            borderRadius: 32,
+            color: gestureEnabled ? '#ff2d55' : 'var(--text-primary)',
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 18,
+            fontWeight: 700,
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}
+        >
+          <div style={{ 
+            width: 16, height: 16, borderRadius: '50%', 
+            background: gestureEnabled ? '#ff2d55' : 'var(--text-secondary)',
+            transition: 'background 0.3s'
+          }} />
+          {gestureEnabled ? 'Gesture Control ON / इशारे चालू हैं' : 'Enable Gestures / इशारों से चलाएं'}
+        </button>
+        {gestureEnabled && (
+          <div style={{ 
+            marginTop: 16, 
+            background: 'var(--bg-card)', 
+            padding: '16px 24px', 
+            borderRadius: 16,
+            border: '1px solid var(--border-color)',
+            textAlign: 'center',
+            fontFamily: "'Space Grotesk', sans-serif",
+            maxWidth: 320
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontSize: 13, color: 'var(--text-secondary)' }}>
+              Point with one finger to move pointer.<br/>
+              एक उंगली से पॉइंटर चलाएं।
+            </p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>
+              Pinch your thumb and index finger to click.<br/>
+              अंगूठे और उंगली को मिलाकर क्लिक करें।
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

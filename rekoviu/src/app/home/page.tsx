@@ -136,7 +136,7 @@ export default function Home() {
 
         {/* WhatsApp Zero-Touch Check-in */}
         <div style={{
-          position: 'absolute', top: 24, right: 24, display: 'flex', flexDirection: 'column', alignItems: 'center',
+          position: 'absolute', top: '50%', right: 24, transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center',
           background: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid #ff2d55',
           boxShadow: '0 8px 24px rgba(255,45,85,0.2)'
         }}>
@@ -147,21 +147,7 @@ export default function Home() {
           <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: 'var(--text-secondary)' }}>Scan with WhatsApp to check in</p>
         </div>
 
-        {/* Logo + Tagline */}
-        <h1 style={{
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: 'clamp(48px, 10vw, 100px)',
-          letterSpacing: '.08em', color: 'var(--text-primary)', lineHeight: 1, marginBottom: 8
-        }}>
-          REKOV
-        </h1>
-        <p style={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: 13, letterSpacing: '.2em', textTransform: 'uppercase',
-          color: 'var(--text-secondary)', marginBottom: 48
-        }}>
-          {t('hospital_system')}
-        </p>
+
 
         {/* Main Action Cards */}
         <div style={{

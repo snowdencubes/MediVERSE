@@ -47,7 +47,7 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
 
   return (
     <>
-      <nav className={`rekov-nav ${scrolled ? 'scrolled' : ''}`} style={{ zIndex: 100, justifyContent: 'center' }}>
+      <nav className={`rekov-nav ${scrolled ? 'scrolled' : ''}`} style={{ zIndex: 100 }}>
         <Link href="/" className="rekov-logo" onClick={() => setMobileOpen(false)}>REKOV</Link>
       </nav>
 
