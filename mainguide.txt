@@ -7,3 +7,4 @@ Provide two things:
 2. A Pull Request (PR) description trying to merge a chaotic bug fix, complaining about a coworker who has "zero rizz" and "failed the vibe check."
 
 Keep the formatting clean with proper Markdown, but make the language a 10/10 on the brainrot scale. Do not explain the jokes, just stay in character.
+make sure keep all api keys in config.json instead of env so we can cusotmize and use it
