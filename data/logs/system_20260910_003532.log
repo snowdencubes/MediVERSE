@@ -1,0 +1,37 @@
+2026-09-10 00:35:32 - rekov_system - SUCCESS - ==================================================
+2026-09-10 00:35:32 - rekov_system - SUCCESS -   REKOV -- Unified System Launcher
+2026-09-10 00:35:32 - rekov_system - SUCCESS - ==================================================
+2026-09-10 00:35:32 - rekov_system - INFO - 
+2026-09-10 00:35:32 - rekov_system - INFO -   Single process managing all services.
+2026-09-10 00:35:32 - rekov_system - INFO -   Backend + Frontend launched together.
+2026-09-10 00:35:32 - rekov_system - INFO - 
+2026-09-10 00:35:32 - rekov_system - INFO - [SETUP] Installing backend dependencies...
+2026-09-10 00:35:35 - rekov_system - SUCCESS - [SETUP] Backend dependencies ready.
+2026-09-10 00:35:35 - rekov_system - INFO - [SETUP] Installing frontend dependencies...
+2026-09-10 00:35:38 - rekov_system - SUCCESS - [SETUP] Frontend dependencies ready.
+2026-09-10 00:35:38 - rekov_system - INFO - [API] Spawning: C:\Users\Roset\AppData\Local\Programs\Python\Python313\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
+2026-09-10 00:35:38 - rekov_system - INFO - [UI] Spawning: cmd /c npm run dev
+2026-09-10 00:35:38 - rekov_system - SUCCESS - ==================================================
+2026-09-10 00:35:38 - rekov_system - SUCCESS -   ALL SYSTEMS ONLINE
+2026-09-10 00:35:38 - rekov_system - SUCCESS - ==================================================
+2026-09-10 00:35:38 - rekov_system - INFO - 
+2026-09-10 00:35:38 - rekov_system - INFO -   -> http://localhost:3000         (Application)
+2026-09-10 00:35:38 - rekov_system - INFO -   -> http://localhost:3000/kiosk    (Self-Service)
+2026-09-10 00:35:38 - rekov_system - INFO -   -> http://localhost:8000/docs     (API Docs)
+2026-09-10 00:35:38 - rekov_system - INFO - 
+2026-09-10 00:35:38 - rekov_system - INFO -   Press Ctrl+C to stop.
+2026-09-10 00:35:38 - rekov_system - INFO - 
+2026-09-10 00:35:38 - rekov_system - INFO - [UI] > rekoviu@1.0.0 dev
+2026-09-10 00:35:38 - rekov_system - INFO - [UI] > next dev -p 3000
+2026-09-10 00:35:39 - rekov_system - INFO - [UI] ▲ Next.js 14.2.35
+2026-09-10 00:35:39 - rekov_system - INFO - [UI] - Local:        http://localhost:3000
+2026-09-10 00:35:39 - rekov_system - INFO - [UI] ✓ Starting...
+2026-09-10 00:35:39 - rekov_system - INFO - [API] INFO:     Started server process [22824]
+2026-09-10 00:35:39 - rekov_system - INFO - [API] INFO:     Waiting for application startup.
+2026-09-10 00:35:39 - rekov_system - INFO - [API] INFO:     Application startup complete.
+2026-09-10 00:35:39 - rekov_system - ERROR - [API] ERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 8000): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+2026-09-10 00:35:39 - rekov_system - INFO - [API] INFO:     Waiting for application shutdown.
+2026-09-10 00:35:39 - rekov_system - INFO - [API] INFO:     Application shutdown complete.
+2026-09-10 00:35:40 - rekov_system - ERROR - API process exited (code 3)
+2026-09-10 00:35:40 - rekov_system - INFO - Terminating child processes...
+2026-09-10 00:35:40 - rekov_system - SUCCESS - System shutdown complete.

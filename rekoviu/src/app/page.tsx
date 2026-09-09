@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useGesture } from '@/contexts/GestureContext';
 
 export default function LanguageSelectionPage() {
   const router = useRouter();
   const { lang, setLang } = useLanguage();
+  const { enabled: gestureEnabled, setEnabled: setGestureEnabled } = useGesture();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +65,60 @@ export default function LanguageSelectionPage() {
       minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       background: 'var(--bg-main)', color: 'var(--text-primary)', padding: 24, textAlign: 'center'
     }}>
+      <div style={{ position: 'absolute', top: 40, right: 40, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <button
+          onClick={() => setGestureEnabled(!gestureEnabled)}
+          style={{
+            padding: '16px 32px',
+            background: gestureEnabled ? 'rgba(255, 45, 85, 0.2)' : 'var(--bg-card)',
+            border: `2px solid ${gestureEnabled ? '#ff2d55' : 'var(--border-color)'}`,
+            borderRadius: 32,
+            color: gestureEnabled ? '#ff2d55' : 'var(--text-primary)',
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 20,
+            fontWeight: 700,
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}
+        >
+          <div style={{ 
+            width: 20, height: 20, borderRadius: '50%', 
+            background: gestureEnabled ? '#ff2d55' : 'var(--text-secondary)',
+            transition: 'background 0.3s'
+          }} />
+          {gestureEnabled ? 'Gesture Control ON / इशारे चालू हैं' : 'Enable Gestures / इशारों से चलाएं'}
+        </button>
+        {gestureEnabled && (
+          <div style={{ 
+            marginTop: 16, 
+            background: 'var(--bg-card)', 
+            padding: '16px 24px', 
+            borderRadius: 16,
+            border: '1px solid var(--border-color)',
+            textAlign: 'left',
+            fontFamily: "'Space Grotesk', sans-serif",
+            maxWidth: 300,
+            animation: 'fadeIn 0.5s ease-out'
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
+              ☝️ Point with one finger to move pointer.
+            </p>
+            <p style={{ margin: '0 0 16px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
+              ☝️ एक उंगली से पॉइंटर चलाएं।
+            </p>
+            <p style={{ margin: '0 0 8px 0', fontSize: 14, color: 'var(--text-secondary)' }}>
+              🤏 Pinch your thumb and index finger to click.
+            </p>
+            <p style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)' }}>
+              🤏 अंगूठे और उंगली को मिलाकर क्लिक करें।
+            </p>
+          </div>
+        )}
+      </div>
+
       <h1 style={{
         fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 10vw, 80px)',
         letterSpacing: '.08em', marginBottom: 16
@@ -104,6 +160,12 @@ export default function LanguageSelectionPage() {
       >
         CONTINUE
       </button>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

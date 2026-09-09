@@ -4,6 +4,8 @@ import { CursorEffect } from '@/components/common/CursorEffect';
 import { BackgroundLayer } from '@/components/common/BackgroundLayer';
 import { PageLoader } from '@/components/common/PageLoader';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { GestureProvider } from '@/contexts/GestureContext';
+import { GestureCursor } from '@/components/common/GestureCursor';
 
 export const metadata: Metadata = {
   title: 'REKOV | Hospital Self-Service Kiosk',
@@ -18,15 +20,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LanguageProvider>
-          <PageLoader />
-          <CursorEffect />
-          <BackgroundLayer />
-          <div className="bg-grain"></div>
-          <div className="vignette"></div>
-          <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>REKOV</div>
-          {children}
-        </LanguageProvider>
+        <GestureProvider>
+          <LanguageProvider>
+            <PageLoader />
+            <CursorEffect />
+            <GestureCursor />
+            <BackgroundLayer />
+            <div className="bg-grain"></div>
+            <div className="vignette"></div>
+            <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>REKOV</div>
+            {children}
+          </LanguageProvider>
+        </GestureProvider>
       </body>
     </html>
   );
