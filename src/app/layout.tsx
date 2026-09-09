@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Patient Case-Taking Software for Ministry of Ayush",
 };
 
+import { TranslationProvider } from "@/lib/i18n/useTranslation";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${fraunces.variable} font-sans antialiased min-h-screen bg-[var(--paper)] text-[var(--ink)]`}>
-        {children}
+        <TranslationProvider>
+          {children}
+        </TranslationProvider>
       </body>
     </html>
   );

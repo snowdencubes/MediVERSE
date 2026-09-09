@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { User, Phone, Scan, Briefcase, ChevronDown, ArrowLeft, AlertCircle } from "lucide-react";
 
 const PROFESSION_OPTIONS = [
@@ -13,6 +14,7 @@ const PROFESSION_OPTIONS = [
 
 export default function IdentifyPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"choice" | "manual">("choice");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -62,10 +64,10 @@ export default function IdentifyPage() {
       <div className="flex-1 flex flex-col space-y-8 max-w-lg mx-auto w-full pt-4 pb-24">
         <div className="space-y-2">
           <h1 className="font-serif text-3xl font-bold text-ink">
-            {mode === "choice" ? "How would you like to start?" : "Patient Details"}
+            {mode === "choice" ? "How would you like to start?" : t("identify.title")}
           </h1>
           <p className="text-ink/70">
-            {mode === "choice" ? "Choose the fastest option for you." : "Please type your details below."}
+            {mode === "choice" ? "Choose the fastest option for you." : t("identify.subtitle")}
           </p>
         </div>
 
@@ -79,8 +81,8 @@ export default function IdentifyPage() {
                 <Scan className="w-10 h-10 text-primary" />
               </div>
               <div className="text-center">
-                <div className="font-bold text-2xl text-ink mb-1">Scan ABHA Card</div>
-                <div className="text-base text-ink/70">Fastest way (just scan the QR code)</div>
+                <div className="font-bold text-2xl text-ink mb-1">{t("identify.scan")}</div>
+                <div className="text-base text-ink/70">{t("identify.scan_sub")}</div>
               </div>
             </button>
 
@@ -92,7 +94,7 @@ export default function IdentifyPage() {
                 <User className="w-8 h-8 text-ink/60 group-hover:text-primary transition-colors" />
               </div>
               <div className="text-center">
-                <div className="font-bold text-xl text-ink mb-1">Type details manually</div>
+                <div className="font-bold text-xl text-ink mb-1">{t("identify.or")}</div>
                 <div className="text-sm text-ink/60">If you don&apos;t have a card</div>
               </div>
             </button>

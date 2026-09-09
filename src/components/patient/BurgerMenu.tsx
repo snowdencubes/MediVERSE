@@ -2,24 +2,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Home, FileText, Shield, Settings, HelpCircle } from "lucide-react";
+import { Menu, X, Home, Info, HelpCircle, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const NAV_ITEMS = [
-  { name: "Home", href: "/patient", icon: Home },
-  { name: "My Documents", href: "/patient/upload", icon: FileText },
-  { name: "Insurance", href: "/patient/insurance", icon: Shield },
-  { name: "Settings", href: "/patient/settings", icon: Settings },
-  { name: "Help", href: "/patient/help", icon: HelpCircle },
-];
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { t } = useTranslation();
+
+  const NAV_ITEMS = [
+    { name: t("menu.home"), href: "/patient", icon: Home },
+    { name: t("menu.about"), href: "/patient/about", icon: Info },
+    { name: t("menu.help"), href: "/patient/help", icon: HelpCircle },
+    { name: t("menu.privacy"), href: "/patient/privacy-policy", icon: ShieldAlert },
+  ];
 
   return (
     <>
-      {/* Trigger — fixed bottom-left, z-50 so it sits above content but below modals */}
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 left-6 z-50 min-w-[72px] min-h-[72px] p-2 bg-primary text-paper rounded-2xl shadow-lg flex flex-col items-center justify-center gap-1 hover:bg-primary-dark transition-colors active:scale-95"
@@ -32,7 +32,6 @@ export default function BurgerMenu() {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -41,7 +40,6 @@ export default function BurgerMenu() {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Drawer */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -49,7 +47,6 @@ export default function BurgerMenu() {
               transition={{ type: "spring", damping: 26, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-72 bg-surface border-r border-ink/5 shadow-2xl z-[70] flex flex-col"
             >
-              {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-ink/5">
                 <h2 className="font-serif text-xl font-bold text-primary">MediVERSE</h2>
                 <button
@@ -60,13 +57,12 @@ export default function BurgerMenu() {
                 </button>
               </div>
 
-              {/* Nav items */}
               <nav className="flex-1 py-4 px-3 space-y-1">
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link
-                      key={item.name}
+                      key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-colors text-lg ${
@@ -82,9 +78,9 @@ export default function BurgerMenu() {
                 })}
               </nav>
 
-              {/* Footer */}
+              {/* Footer is empty to remove build/version metadata from primary view */}
               <div className="p-4 border-t border-ink/5 text-center text-xs text-ink/40">
-                MediVERSE v0.1 — Team CureX
+                &copy; {new Date().getFullYear()} MediVERSE
               </div>
             </motion.aside>
           </>

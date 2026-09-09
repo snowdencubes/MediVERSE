@@ -1,8 +1,10 @@
 "use client";
 import { usePathname } from "next/navigation";
-import BurgerMenu from "@/components/patient/BurgerMenu";
-import CustomCareButton from "@/components/patient/CustomCareButton";
-import FloatingActionButton from "@/components/patient/FloatingActionButton";
+import dynamic from "next/dynamic";
+
+const BurgerMenu = dynamic(() => import("@/components/patient/BurgerMenu"), { ssr: false });
+const CustomCareButton = dynamic(() => import("@/components/patient/CustomCareButton"), { ssr: false });
+const FloatingActionButton = dynamic(() => import("@/components/patient/FloatingActionButton"), { ssr: false });
 
 export default function PatientLayout({
   children,
@@ -39,7 +41,7 @@ export default function PatientLayout({
         />
       )}
 
-      <main className="max-w-3xl mx-auto p-6 flex flex-col min-h-screen">
+      <main className="max-w-3xl mx-auto p-6 pb-28 pt-20 sm:pt-6 flex flex-col min-h-[100dvh]">
         {children}
       </main>
     </div>

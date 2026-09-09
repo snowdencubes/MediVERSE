@@ -1,34 +1,35 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import {
   Eye,
   Heart,
   Bone,
-  Droplets,
+  Drop,
   Wind,
   Brain,
   Leaf,
-  MoreHorizontal,
+  DotsThree,
   Stethoscope,
-} from "lucide-react";
-
-const CATEGORIES = [
-  { id: "eye", name: "Eye", icon: Eye, color: "text-primary bg-primary/10" },
-  { id: "heart", name: "Heart", icon: Heart, color: "text-primary bg-primary/10" },
-  { id: "bone", name: "Bone / Joint", icon: Bone, color: "text-gold bg-gold/10" },
-  { id: "skin", name: "Skin", icon: Droplets, color: "text-teal bg-teal/10" },
-  { id: "digestive", name: "Digestive", icon: Stethoscope, color: "text-primary bg-primary/10" },
-  { id: "respiratory", name: "Respiratory", icon: Wind, color: "text-teal bg-teal/10" },
-  { id: "mental", name: "Mental Health", icon: Brain, color: "text-gold bg-gold/10" },
-  { id: "ayush", name: "General / AYUSH", icon: Leaf, color: "text-primary bg-primary/10" },
-  { id: "others", name: "Others", icon: MoreHorizontal, color: "text-ink/60 bg-ink/5" },
-];
+} from "@phosphor-icons/react";
 
 export default function CategorySelectionPage() {
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const CATEGORIES = [
+    { id: "eye", name: "Eye", icon: Eye, color: "text-primary bg-primary/10" },
+    { id: "heart", name: "Heart", icon: Heart, color: "text-primary bg-primary/10" },
+    { id: "bone", name: "Bone / Joint", icon: Bone, color: "text-gold bg-gold/10" },
+    { id: "skin", name: "Skin", icon: Drop, color: "text-[#2C7A7B] bg-[#2C7A7B]/10" },
+    { id: "digestive", name: "Digestive", icon: Stethoscope, color: "text-primary bg-primary/10" },
+    { id: "respiratory", name: "Respiratory", icon: Wind, color: "text-[#2C7A7B] bg-[#2C7A7B]/10" },
+    { id: "mental", name: "Mental Health", icon: Brain, color: "text-gold bg-gold/10" },
+    { id: "ayush", name: "General / AYUSH", icon: Leaf, color: "text-primary bg-primary/10" },
+    { id: "others", name: "Others", icon: DotsThree, color: "text-ink/60 bg-ink/5" },
+  ];
 
   const handleSelect = (categoryId: string) => {
-    // Save selected category to context / URL param
     router.push(`/patient/intake?category=${categoryId}`);
   };
 
@@ -43,7 +44,7 @@ export default function CategorySelectionPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
@@ -53,7 +54,7 @@ export default function CategorySelectionPage() {
             <div
               className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 ${cat.color} group-hover:scale-110 transition-transform`}
             >
-              <cat.icon className="w-7 h-7" />
+              <cat.icon weight="duotone" className="w-8 h-8" />
             </div>
             <span className="text-sm font-semibold text-ink leading-tight">
               {cat.name}

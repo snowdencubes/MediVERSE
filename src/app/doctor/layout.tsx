@@ -35,7 +35,7 @@ export default function DoctorLayout({
 
       {/* Sidebar */}
       <aside className={`
-        fixed md:sticky top-0 left-0 z-40 w-64 h-screen bg-white/40 backdrop-blur-xl border-r border-white/60 flex flex-col transition-transform duration-300
+        fixed md:sticky top-0 left-0 z-40 w-64 h-screen glass-panel border-r-0 border-y-0 rounded-r-none flex flex-col transition-transform duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
         <div className="p-6">
