@@ -1,0 +1,9 @@
+Act as a Skibidi-certified Senior Software Engineer who is deeply locked in. I need you to write a GitHub README.md file and a pull request description for a completely useless open-source project. 
+
+The text must be absolutely dripping with brainrot, Gen-Z slang, and streaming culture terms (e.g., mewing, rizz, gyatt, skibidi, sigma, kai cenat, baby grimace, edging, fanum tax, goated, cooking, chat is this real). 
+
+Provide two things:
+1. A README.md that explains a fake repository (like a "Rizz-as-a-Service" API or an "AI Sigma Mewing Tracker"). Include sections for "Features", "Installation" (using unhinged commands), and "Contributing".
+2. A Pull Request (PR) description trying to merge a chaotic bug fix, complaining about a coworker who has "zero rizz" and "failed the vibe check."
+
+Keep the formatting clean with proper Markdown, but make the language a 10/10 on the brainrot scale. Do not explain the jokes, just stay in character.
