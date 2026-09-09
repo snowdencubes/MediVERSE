@@ -16,12 +16,11 @@ const config: Config = {
           dark: "var(--primary-dk)",
         },
         gold: "var(--gold)",
-        teal: "var(--teal-accent)",
         alert: "var(--alert)",
         surface: "var(--surface)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)"],
+        sans: ["var(--font-albert)"],
         serif: ["var(--font-fraunces)"],
       },
       keyframes: {

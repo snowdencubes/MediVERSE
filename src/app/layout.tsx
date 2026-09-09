@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Albert_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ 
+const albert = Albert_Sans({ 
   subsets: ["latin"],
-  variable: "--font-inter", 
+  variable: "--font-albert", 
 });
 
 const fraunces = Fraunces({ 
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${fraunces.variable} font-sans antialiased min-h-screen bg-[var(--paper)] text-[var(--ink)]`}>
+      <body className={`${albert.variable} ${fraunces.variable} font-sans antialiased min-h-screen bg-[var(--paper)] text-[var(--ink)]`}>
         <TranslationProvider>
           {children}
         </TranslationProvider>
