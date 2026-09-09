@@ -35,7 +35,7 @@ app.add_middleware(
 )
 
 # Include Routers
-from app.routers import kiosk, queue, doctor, health, auth, receptionist, settings as settings_router, ai
+from app.routers import kiosk, queue, doctor, health, auth, receptionist, settings as settings_router, ai, ai_voice
 
 app.include_router(health.router, prefix=settings.API_V1_STR)
 app.include_router(kiosk.router, prefix=settings.API_V1_STR)
@@ -45,6 +45,7 @@ app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(receptionist.router, prefix=f"{settings.API_V1_STR}/receptionist")
 app.include_router(settings_router.router, prefix=f"{settings.API_V1_STR}/settings")
 app.include_router(ai.router, prefix=f"{settings.API_V1_STR}")
+app.include_router(ai_voice.router, prefix=f"{settings.API_V1_STR}")
 
 import os
 from fastapi.staticfiles import StaticFiles

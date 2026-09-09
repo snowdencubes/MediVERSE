@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useGesture } from '@/contexts/GestureContext';
 
 const NAV_ITEMS = [
   { href: '/kiosk', label: 'Kiosk', symbol: '\u25C8' },
@@ -16,9 +18,12 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   
+  // Use the global LanguageContext instead of local state
+  const { lang, setLang } = useLanguage();
+  
+  const { enabled: gestureEnabled, setEnabled: setGestureEnabled, status: gestureStatus } = useGesture();
   const [theme, setTheme] = useState('DARK');
-  const [lang, setLang] = useState('EN');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('INR');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -26,17 +31,49 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Load currency from localStorage on mount, then try backend
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/settings/currency')
+    const savedCurrency = localStorage.getItem('rekov_currency');
+    if (savedCurrency) setCurrency(savedCurrency);
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8000/api/v1`;
+    fetch(`${apiUrl}/settings/currency`)
       .then(r => r.json())
-      .then(d => setCurrency(d.currency))
-      .catch(() => setCurrency('USD'));
+      .then(d => {
+        if (d.currency) {
+          setCurrency(d.currency);
+          localStorage.setItem('rekov_currency', d.currency);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Load theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('rekov_theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.body.classList.toggle('light-mode', savedTheme === 'LIGHT');
+    }
   }, []);
 
   const handleThemeToggle = () => {
     const newTheme = theme === 'DARK' ? 'LIGHT' : 'DARK';
     setTheme(newTheme);
+    localStorage.setItem('rekov_theme', newTheme);
     document.body.classList.toggle('light-mode', newTheme === 'LIGHT');
+  };
+
+  const handleCurrencyChange = (newCurrency: string) => {
+    setCurrency(newCurrency);
+    localStorage.setItem('rekov_currency', newCurrency);
+    // Also persist to backend
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:8000/api/v1`;
+    fetch(`${apiUrl}/settings/currency`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currency: newCurrency })
+    }).catch(() => {});
   };
 
   const isLight = theme === 'LIGHT';
@@ -47,8 +84,33 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
 
   return (
     <>
-      <nav className={`rekov-nav ${scrolled ? 'scrolled' : ''}`} style={{ zIndex: 100 }}>
+      <nav className={`rekov-nav ${scrolled ? 'scrolled' : ''}`} style={{ zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" className="rekov-logo" onClick={() => setMobileOpen(false)}>REKOV</Link>
+        {/* Gesture Status in Nav */}
+        {gestureEnabled && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'rgba(0,0,0,0.5)', padding: '4px 14px',
+            borderRadius: 20, border: '1px solid rgba(255,45,85,0.2)',
+            marginRight: 16
+          }}>
+            <div style={{
+              width: 7, height: 7, borderRadius: '50%',
+              background: gestureStatus === 'tracking' ? '#00e676' : gestureStatus === 'face_detected' ? '#2d9bff' : '#ff2d55',
+              boxShadow: gestureStatus === 'tracking' ? '0 0 6px #00e676' : 'none'
+            }} />
+            <span style={{
+              fontFamily: "'Space Grotesk'", fontSize: 10, fontWeight: 600,
+              color: gestureStatus === 'tracking' ? '#00e676' : gestureStatus === 'face_detected' ? '#2d9bff' : 'var(--text-secondary)',
+              letterSpacing: '.04em'
+            }}>
+              {gestureStatus === 'tracking' ? 'TRACKING' :
+               gestureStatus === 'face_detected' ? 'SHOW HAND' :
+               gestureStatus === 'no_face' ? 'NO FACE' :
+               gestureStatus === 'loading' ? 'LOADING...' : 'GESTURE'}
+            </span>
+          </div>
+        )}
       </nav>
 
       {/* Global Bottom-Left Hamburger */}
@@ -104,7 +166,7 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
                   transition: 'color 0.2s', cursor: 'pointer'
                 }}
               >
-                SETTINGS {settingsOpen ? '▲' : '▼'}
+                SETTINGS {settingsOpen ? '\u25B2' : '\u25BC'}
               </button>
             </li>
           </ul>
@@ -132,7 +194,7 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
                 <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: textColor }}>Language</span>
                 <select 
                   value={lang}
-                  onChange={(e) => setLang(e.target.value)}
+                  onChange={(e) => setLang(e.target.value as any)}
                   style={{ background: 'var(--bg-main)', border: `1px solid ${borderColor}`, color: '#ff2d55', padding: '4px 8px', fontSize: 12, fontFamily: "'Space Grotesk'", borderRadius: 4, cursor: 'pointer', outline: 'none' }}
                 >
                   <option value="EN">EN - English</option>
@@ -146,15 +208,32 @@ export function RekovNav({ currentModule }: { currentModule: string }) {
                 <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: textColor }}>Currency</span>
                 <select 
                   value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
+                  onChange={(e) => handleCurrencyChange(e.target.value)}
                   style={{ background: 'var(--bg-main)', border: `1px solid ${borderColor}`, color: '#ff2d55', padding: '4px 8px', fontSize: 12, fontFamily: "'Space Grotesk'", borderRadius: 4, cursor: 'pointer', outline: 'none' }}
                 >
                   <option value="USD">USD ($)</option>
-                  <option value="INR">INR (₹)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
-                  <option value="JPY">JPY (¥)</option>
+                  <option value="INR">INR (&#8377;)</option>
+                  <option value="EUR">EUR (&euro;)</option>
+                  <option value="GBP">GBP (&pound;)</option>
+                  <option value="JPY">JPY (&yen;)</option>
                 </select>
+              </div>
+
+              {/* Gesture Toggle */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, paddingTop: 16, borderTop: `1px solid ${borderColor}` }}>
+                <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: textColor }}>Gestures</span>
+                <button 
+                  onClick={() => { setGestureEnabled(!gestureEnabled); }}
+                  style={{ 
+                    background: gestureEnabled ? 'rgba(255,45,85,0.15)' : 'none', 
+                    border: `1px solid ${gestureEnabled ? '#ff2d55' : borderColor}`, 
+                    color: gestureEnabled ? '#ff2d55' : mutedColor, 
+                    padding: '4px 12px', fontSize: 12, fontFamily: "'Space Grotesk'", 
+                    borderRadius: 4, cursor: 'pointer', fontWeight: 600 
+                  }}
+                >
+                  {gestureEnabled ? 'ON -- TAP TO TURN OFF' : 'OFF'}
+                </button>
               </div>
             </div>
           )}

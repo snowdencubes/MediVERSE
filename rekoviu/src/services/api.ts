@@ -147,6 +147,29 @@ export async function callNextPatient(doctorId: string, roomNumber: string): Pro
   }
 }
 
+export async function chatWithVoiceAssistant(
+  sessionId: string | null, 
+  message: string
+): Promise<{session_id: string, reply: string, action: string | null, action_data: any}> {
+  try {
+    const res = await fetch(`${API_BASE}/ai_voice/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId, message })
+    });
+    if (!res.ok) throw new Error('Voice chat failed');
+    return await res.json();
+  } catch (err) {
+    console.error('Voice Chat Error:', err);
+    return { 
+      session_id: sessionId || '', 
+      reply: "I'm having trouble connecting. Please try again.", 
+      action: null, 
+      action_data: null 
+    };
+  }
+}
+
 export const api = {
   get: async (path: string) => {
     const res = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });

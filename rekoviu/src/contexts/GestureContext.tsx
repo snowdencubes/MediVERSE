@@ -7,6 +7,8 @@ interface GestureContextType {
   setEnabled: (val: boolean) => void;
   pointerPos: { x: number; y: number } | null;
   isPinching: boolean;
+  hasFace: boolean;
+  status: 'off' | 'loading' | 'no_face' | 'face_detected' | 'tracking';
 }
 
 const GestureContext = createContext<GestureContextType>({
@@ -14,149 +16,266 @@ const GestureContext = createContext<GestureContextType>({
   setEnabled: () => {},
   pointerPos: null,
   isPinching: false,
+  hasFace: false,
+  status: 'off',
 });
+
+// Smoothing factor for pointer (0 = no smoothing, 1 = frozen)
+const SMOOTH = 0.55;
+// Pinch thresholds with hysteresis to prevent flickering
+const PINCH_START_DIST = 0.045;
+const PINCH_END_DIST = 0.065;
+// Minimum face confidence
+const FACE_MIN_CONFIDENCE = 0.5;
+// Face check interval (every N frames, re-check for face)
+const FACE_CHECK_INTERVAL = 30; // ~every 0.5s at 60fps
 
 export function GestureProvider({ children }: { children: React.ReactNode }) {
   const [enabled, setEnabled] = useState(false);
   const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(null);
   const [isPinching, setIsPinching] = useState(false);
-  
+  const [hasFace, setHasFace] = useState(false);
+  const [status, setStatus] = useState<'off' | 'loading' | 'no_face' | 'face_detected' | 'tracking'>('off');
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  // Store as any to avoid needing the type at the top level
-  const landmarkerRef = useRef<any>(null);
+  const handLandmarkerRef = useRef<any>(null);
+  const faceDetectorRef = useRef<any>(null);
   const requestRef = useRef<number>();
   const isPinchingRef = useRef(false);
+  const enabledRef = useRef(false);
+  const smoothPosRef = useRef<{ x: number; y: number } | null>(null);
+  const frameCountRef = useRef(0);
+  const hasFaceRef = useRef(false);
+  const clickCooldownRef = useRef(0);
+
+  useEffect(() => { enabledRef.current = enabled; }, [enabled]);
 
   useEffect(() => {
     let active = true;
 
-    async function initMediaPipe() {
+    async function init() {
       if (!enabled) return;
+      setStatus('loading');
+
       try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (!navigator.mediaDevices?.getUserMedia) {
           throw new Error("Camera API not available. Ensure HTTPS or localhost.");
         }
 
-        // 1. Request camera permission immediately
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        if (!active) {
-          stream.getTracks().forEach(t => t.stop());
-          return;
-        }
+        // 1. Get camera stream
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+        if (!active) { stream.getTracks().forEach(t => t.stop()); return; }
 
         const video = document.createElement('video');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('autoplay', '');
+        video.muted = true;
         video.srcObject = stream;
-        video.playsInline = true;
-        video.autoplay = true;
         videoRef.current = video;
+        await video.play();
+        console.log('[Gesture] Camera playing:', video.videoWidth, 'x', video.videoHeight);
+        if (!active) { stream.getTracks().forEach(t => t.stop()); return; }
 
-        // 2. Load heavy models in the background
-        const { FilesetResolver, HandLandmarker } = await import('@mediapipe/tasks-vision');
-        
+        // 2. Load MediaPipe models (Face + Hand)
+        const { FilesetResolver, HandLandmarker, FaceDetector } = await import('@mediapipe/tasks-vision');
+
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
         );
-        const landmarker = await HandLandmarker.createFromOptions(vision, {
+        if (!active) return;
+
+        // Face Detector — lightweight, just needs to confirm a face exists
+        const faceDetector = await FaceDetector.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.task",
+            delegate: "GPU"
+          },
+          runningMode: "VIDEO",
+          minDetectionConfidence: FACE_MIN_CONFIDENCE
+        });
+        if (!active) return;
+        faceDetectorRef.current = faceDetector;
+        console.log('[Gesture] FaceDetector loaded');
+
+        // Hand Landmarker
+        const handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
             delegate: "GPU"
           },
           runningMode: "VIDEO",
           numHands: 1
         });
-        
         if (!active) return;
-        landmarkerRef.current = landmarker;
+        handLandmarkerRef.current = handLandmarker;
+        console.log('[Gesture] HandLandmarker loaded');
 
-        video.addEventListener('loadeddata', () => {
-          predictWebcam();
-        });
+        setStatus('no_face');
+        detectLoop();
 
       } catch (err: any) {
         if (err.name === 'NotAllowedError') {
-          console.warn("Gesture Init: Camera permission denied by user.");
-          alert("Camera access was denied. Please allow camera permissions in your browser to use Gesture Controls.");
+          alert("Camera access denied. Please allow camera permissions to use Gesture Controls.");
         } else {
-          console.error("Gesture Init Error:", err);
+          console.error("[Gesture] Init Error:", err);
           alert("Gesture Init Error: " + (err.message || String(err)));
         }
         setEnabled(false);
+        setStatus('off');
       }
     }
 
     let lastVideoTime = -1;
-    function predictWebcam() {
+    let lastFaceCheckTime = -1;
+
+    function detectLoop() {
       const video = videoRef.current;
-      const landmarker = landmarkerRef.current;
-      if (!video || !landmarker || !enabled) return;
+      const handLandmarker = handLandmarkerRef.current;
+      const faceDetector = faceDetectorRef.current;
+
+      if (!video || !handLandmarker || !faceDetector || !enabledRef.current) return;
+      if (video.readyState < 2) {
+        requestRef.current = requestAnimationFrame(detectLoop);
+        return;
+      }
 
       if (video.currentTime !== lastVideoTime) {
         lastVideoTime = video.currentTime;
-        const results = landmarker.detectForVideo(video, performance.now());
-        
-        if (results.landmarks && results.landmarks.length > 0) {
-          const landmarks = results.landmarks[0];
-          
-          // Index finger tip is 8
-          const indexTip = landmarks[8];
-          // Thumb tip is 4
-          const thumbTip = landmarks[4];
+        const now = performance.now();
+        frameCountRef.current++;
 
-          // Mirror X because it's a user-facing camera
-          const x = (1 - indexTip.x) * window.innerWidth;
-          const y = indexTip.y * window.innerHeight;
-          setPointerPos({ x, y });
+        // Decrement click cooldown
+        if (clickCooldownRef.current > 0) clickCooldownRef.current--;
 
-          // Calculate distance for pinch
-          const dx = indexTip.x - thumbTip.x;
-          const dy = indexTip.y - thumbTip.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          
-          const pinching = dist < 0.05;
-          
-          if (pinching && !isPinchingRef.current) {
-            // Trigger a synthetic click!
-            const element = document.elementFromPoint(x, y);
-            if (element && element instanceof HTMLElement) {
-              element.click();
+        // --- FACE CHECK (every FACE_CHECK_INTERVAL frames) ---
+        if (frameCountRef.current % FACE_CHECK_INTERVAL === 0) {
+          try {
+            const faceResults = faceDetector.detectForVideo(video, now);
+            const faceFound = faceResults.detections && faceResults.detections.length > 0;
+            hasFaceRef.current = faceFound;
+            setHasFace(faceFound);
+
+            if (faceFound) {
+              setStatus('face_detected');
+            } else {
+              setStatus('no_face');
+              // Clear hand tracking state when no face
+              setPointerPos(null);
+              setIsPinching(false);
+              isPinchingRef.current = false;
+              smoothPosRef.current = null;
             }
+          } catch (e) {
+            // Face detection error — assume no face
+            hasFaceRef.current = false;
           }
-          
-          isPinchingRef.current = pinching;
-          setIsPinching(pinching);
-        } else {
-          setPointerPos(null);
-          setIsPinching(false);
-          isPinchingRef.current = false;
+        }
+
+        // --- HAND TRACKING (only if face is detected) ---
+        if (hasFaceRef.current) {
+          try {
+            const handResults = handLandmarker.detectForVideo(video, now);
+
+            if (handResults.landmarks && handResults.landmarks.length > 0) {
+              const lm = handResults.landmarks[0];
+              setStatus('tracking');
+
+              // Index finger tip = 8, Thumb tip = 4
+              const indexTip = lm[8];
+              const thumbTip = lm[4];
+
+              // Mirror X for selfie camera
+              const rawX = (1 - indexTip.x) * window.innerWidth;
+              const rawY = indexTip.y * window.innerHeight;
+
+              // Apply exponential smoothing
+              if (smoothPosRef.current) {
+                smoothPosRef.current = {
+                  x: smoothPosRef.current.x * SMOOTH + rawX * (1 - SMOOTH),
+                  y: smoothPosRef.current.y * SMOOTH + rawY * (1 - SMOOTH),
+                };
+              } else {
+                smoothPosRef.current = { x: rawX, y: rawY };
+              }
+              setPointerPos({ ...smoothPosRef.current });
+
+              // Pinch detection with hysteresis
+              const dx = indexTip.x - thumbTip.x;
+              const dy = indexTip.y - thumbTip.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+
+              const wasPinching = isPinchingRef.current;
+              const nowPinching = wasPinching
+                ? dist < PINCH_END_DIST    // Wider threshold to release
+                : dist < PINCH_START_DIST; // Tighter threshold to start
+
+              if (nowPinching && !wasPinching && clickCooldownRef.current <= 0) {
+                // Fire synthetic click
+                const el = document.elementFromPoint(
+                  smoothPosRef.current.x,
+                  smoothPosRef.current.y
+                );
+                if (el && el instanceof HTMLElement) {
+                  el.click();
+                }
+                // 15 frame cooldown (~250ms) to prevent double clicks
+                clickCooldownRef.current = 15;
+              }
+
+              isPinchingRef.current = nowPinching;
+              setIsPinching(nowPinching);
+            } else {
+              // Hand lost but face still there
+              setPointerPos(null);
+              smoothPosRef.current = null;
+              setIsPinching(false);
+              isPinchingRef.current = false;
+              setStatus('face_detected');
+            }
+          } catch (e) {
+            console.error('[Gesture] Hand detection error:', e);
+          }
         }
       }
-      
-      requestRef.current = requestAnimationFrame(predictWebcam);
+
+      requestRef.current = requestAnimationFrame(detectLoop);
     }
 
     if (enabled) {
-      initMediaPipe();
+      init();
     } else {
-      if (videoRef.current && videoRef.current.srcObject) {
+      // Cleanup
+      if (videoRef.current?.srcObject) {
         (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+        videoRef.current = null;
       }
+      handLandmarkerRef.current = null;
+      faceDetectorRef.current = null;
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       setPointerPos(null);
       setIsPinching(false);
+      setHasFace(false);
       isPinchingRef.current = false;
+      smoothPosRef.current = null;
+      frameCountRef.current = 0;
+      hasFaceRef.current = false;
+      setStatus('off');
     }
 
     return () => {
       active = false;
-      if (videoRef.current && videoRef.current.srcObject) {
+      if (videoRef.current?.srcObject) {
         (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+        videoRef.current = null;
       }
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
   }, [enabled]);
 
   return (
-    <GestureContext.Provider value={{ enabled, setEnabled, pointerPos, isPinching }}>
+    <GestureContext.Provider value={{ enabled, setEnabled, pointerPos, isPinching, hasFace, status }}>
       {children}
     </GestureContext.Provider>
   );
