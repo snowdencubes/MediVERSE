@@ -29,7 +29,9 @@ export default function RootLayout({
             <div className="bg-grain"></div>
             <div className="vignette"></div>
             <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>REKOV</div>
-            {children}
+            <div style={{ position: 'relative', zIndex: 10 }}>
+              {children}
+            </div>
           </LanguageProvider>
         </GestureProvider>
       </body>

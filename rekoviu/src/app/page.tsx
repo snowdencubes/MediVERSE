@@ -52,8 +52,9 @@ export default function LanguageSelectionPage() {
   if (loading) {
     return (
       <div style={{
+        position: 'relative', zIndex: 10,
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", fontSize: 48
+        background: 'transparent', color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", fontSize: 48
       }}>
         LOADING...
       </div>
@@ -62,8 +63,9 @@ export default function LanguageSelectionPage() {
 
   return (
     <div style={{
+      position: 'relative', zIndex: 10,
       minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      background: 'var(--bg-main)', color: 'var(--text-primary)', padding: 24, textAlign: 'center'
+      background: 'transparent', color: 'var(--text-primary)', padding: 24, textAlign: 'center'
     }}>
       <div style={{ position: 'absolute', top: 40, right: 40, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
         <button

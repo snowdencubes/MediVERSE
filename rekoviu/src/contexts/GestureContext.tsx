@@ -33,6 +33,24 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
     async function initMediaPipe() {
       if (!enabled) return;
       try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera API not available. Ensure HTTPS or localhost.");
+        }
+
+        // 1. Request camera permission immediately
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        if (!active) {
+          stream.getTracks().forEach(t => t.stop());
+          return;
+        }
+
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.playsInline = true;
+        video.autoplay = true;
+        videoRef.current = video;
+
+        // 2. Load heavy models in the background
         const { FilesetResolver, HandLandmarker } = await import('@mediapipe/tasks-vision');
         
         const vision = await FilesetResolver.forVisionTasks(
@@ -49,25 +67,14 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
         
         if (!active) return;
         landmarkerRef.current = landmarker;
-        
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        if (!active) {
-          stream.getTracks().forEach(t => t.stop());
-          return;
-        }
-
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        video.playsInline = true;
-        video.autoplay = true;
-        videoRef.current = video;
 
         video.addEventListener('loadeddata', () => {
           predictWebcam();
         });
 
-      } catch (err) {
+      } catch (err: any) {
         console.error("Gesture Init Error:", err);
+        alert("Gesture Init Error: " + (err.message || String(err)));
         setEnabled(false);
       }
     }
