@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { User, Phone, Scan, Briefcase, ChevronDown, ArrowLeft, AlertCircle, Camera, CheckCircle2 } from "lucide-react";
+import { User, Phone, Scan, Briefcase, ChevronDown, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 
 const PROFESSION_OPTIONS = [
