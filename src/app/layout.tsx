@@ -13,6 +13,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mediverse.vercel.app"),
   title: {
     template: "%s | MediVERSE",
     default: "MediVERSE - AYUSH OPD Case-Taking",
