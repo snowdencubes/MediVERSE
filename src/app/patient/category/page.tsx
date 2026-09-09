@@ -57,7 +57,7 @@ export default function CategorySelectionPage() {
               <cat.icon weight="duotone" className="w-8 h-8" />
             </div>
             <span className="text-sm font-semibold text-ink leading-tight">
-              {cat.name}
+              {t(`category.${cat.id}`) || cat.name}
             </span>
           </button>
         ))}

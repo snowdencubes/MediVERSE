@@ -5,15 +5,11 @@ import { ArrowRight, Check, Globe2, HeartPulse, Languages, ShieldCheck, Sparkles
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { LANGUAGES } from "@/lib/i18n/translations";
 
-const BENEFITS = [
-  { icon: Languages, label: "Choose your language" },
-  { icon: ShieldCheck, label: "Your information stays private" },
-  { icon: HeartPulse, label: "Simple questions for better care" },
-];
 
 export default function WelcomePage() {
   const router = useRouter();
   const { lang, setLang, t } = useTranslation();
+
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[var(--paper)] text-ink">
@@ -29,12 +25,12 @@ export default function WelcomePage() {
             </div>
             <div>
               <p className="font-serif text-xl font-bold leading-none tracking-tight text-primary">MediVERSE</p>
-              <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-ink/45">AYUSH care, made simple</p>
+              <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-ink/45">{t("welcome.header_sub") || "AYUSH care, made simple"}</p>
             </div>
           </div>
           <div className="hidden items-center gap-2 rounded-full border border-ink/10 bg-white/45 px-4 py-2 text-sm font-semibold text-ink/60 shadow-sm backdrop-blur-sm sm:flex">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            Private &amp; secure
+            {t("welcome.header_badge") || "Private & secure"}
           </div>
         </header>
 
@@ -42,13 +38,13 @@ export default function WelcomePage() {
           <div className="max-w-xl animate-in fade-in slide-in-from-left-4 duration-700">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-3.5 py-2 text-sm font-bold text-primary">
               <Sparkles className="h-4 w-4 text-gold" />
-              Welcome to your care journey
+              {t("welcome.hero_tag") || "Welcome to your care journey"}
             </div>
             <h1 className="max-w-lg font-serif text-5xl font-bold leading-[1.03] tracking-[-0.04em] text-ink sm:text-6xl">
-              Care starts with <span className="text-primary">being heard.</span>
+              {t("welcome.hero_title") || "Care starts with "} <span className="text-primary">{t("welcome.hero_title_hl") || "being heard."}</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-8 text-ink/65 sm:text-xl">
-              Tell us a little about yourself in the language you are most comfortable with. It only takes a few minutes.
+              {t("welcome.hero_desc") || "Tell us a little about yourself in the language you are most comfortable with. It only takes a few minutes."}
             </p>
             <div className="mt-9 hidden space-y-4 sm:block">
               {BENEFITS.map(({ icon: Icon, label }) => (
@@ -67,7 +63,7 @@ export default function WelcomePage() {
               <Globe2 className="h-6 w-6" />
             </div>
             <div className="mb-8 pr-8">
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary/70">Step 01 · Language</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary/70">{t("welcome.step") || "Step 01 · Language"}</p>
               <h2 className="font-serif text-3xl font-bold tracking-tight text-ink sm:text-4xl">{t("welcome.title")}</h2>
               <p className="mt-2 text-base leading-6 text-ink/60">{t("welcome.subtitle")}</p>
             </div>
@@ -107,12 +103,12 @@ export default function WelcomePage() {
               {t("welcome.continue")}
               <ArrowRight className="h-5 w-5" />
             </button>
-            <p className="mt-4 text-center text-xs leading-5 text-ink/45">You can change your language later from the menu.</p>
+            <p className="mt-4 text-center text-xs leading-5 text-ink/45">{t("welcome.note") || "You can change your language later from the menu."}</p>
           </div>
         </section>
 
         <footer className="flex flex-col gap-2 border-t border-ink/10 pt-5 text-xs text-ink/45 sm:flex-row sm:items-center sm:justify-between">
-          <span>Designed for every patient, every story.</span>
+          <span>{t("welcome.footer1") || "Designed for every patient, every story."}</span>
           <span>© {new Date().getFullYear()} MediVERSE · Team CureX</span>
         </footer>
       </div>

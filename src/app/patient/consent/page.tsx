@@ -27,7 +27,7 @@ export default function ConsentPage() {
           </p>
           <button className="flex items-center gap-2 self-start bg-primary/10 text-primary hover:bg-primary/20 px-6 min-h-[56px] rounded-2xl transition-colors">
             <Volume2 className="w-6 h-6" />
-            <span className="font-bold">Read Aloud</span>
+            <span className="font-bold">{t("consent.read_aloud") || "Read Aloud"}</span>
           </button>
         </div>
         
@@ -37,7 +37,7 @@ export default function ConsentPage() {
           </p>
           <button className="flex items-center gap-2 self-start bg-primary/10 text-primary hover:bg-primary/20 px-6 min-h-[56px] rounded-2xl transition-colors">
             <Volume2 className="w-6 h-6" />
-            <span className="font-bold">Read Aloud</span>
+            <span className="font-bold">{t("consent.read_aloud") || "Read Aloud"}</span>
           </button>
         </div>
         
@@ -47,7 +47,7 @@ export default function ConsentPage() {
           </p>
           <button className="flex items-center gap-2 self-start bg-primary/10 text-primary hover:bg-primary/20 px-6 min-h-[56px] rounded-2xl transition-colors">
             <Volume2 className="w-6 h-6" />
-            <span className="font-bold">Read Aloud</span>
+            <span className="font-bold">{t("consent.read_aloud") || "Read Aloud"}</span>
           </button>
         </div>
       </div>

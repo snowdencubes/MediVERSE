@@ -70,11 +70,11 @@ export default function IdentifyPage() {
 
   const handleContinue = () => {
     if (!name.trim()) {
-      setError("Please tell us your full name so we know what to call you.");
+      setError(t("identify.err_name") || "Please tell us your full name so we know what to call you.");
       return;
     }
     if (!phone.trim() || phone.length < 10) {
-      setError("Please enter a valid 10-digit phone number so we can reach you.");
+      setError(t("identify.err_phone") || "Please enter a valid 10-digit phone number so we can reach you.");
       return;
     }
     setError("");
@@ -97,7 +97,7 @@ export default function IdentifyPage() {
         <div className="flex-1 flex justify-start">
           <button onClick={handleBack} className="flex items-center gap-2 px-5 min-h-[56px] bg-surface rounded-[1.75rem] text-ink font-bold hover:bg-ink/5 transition-colors">
             <ArrowLeft className="w-6 h-6" />
-            <span>Back</span>
+            <span>{t("identify.back") || "Back"}</span>
           </button>
         </div>
         <div className="flex-1" />
@@ -110,8 +110,8 @@ export default function IdentifyPage() {
             <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-2">
               <CheckCircle2 className="w-12 h-12 text-primary" />
             </div>
-            <h1 className="font-serif text-3xl font-bold text-ink">ABHA Linked Successfully!</h1>
-            <p className="text-lg text-ink/70">Redirecting to consent...</p>
+            <h1 className="font-serif text-3xl font-bold text-ink">{t("identify.success_title") || "ABHA Linked Successfully!"}</h1>
+            <p className="text-lg text-ink/70">{t("identify.success_sub") || "Redirecting to consent..."}</p>
           </div>
         )}
 
@@ -119,10 +119,10 @@ export default function IdentifyPage() {
           <>
             <div className="space-y-2 text-center md:text-left">
               <h1 className="font-serif text-3xl font-bold text-ink">
-                {mode === "choice" ? "How would you like to start?" : t("identify.title")}
+                {mode === "choice" ? (t("identify.choice_title") || "How would you like to start?") : (t("identify.title") || "Patient Details")}
               </h1>
               <p className="text-ink/70">
-                {mode === "choice" ? "Choose the fastest option for you." : t("identify.subtitle")}
+                {mode === "choice" ? (t("identify.choice_sub") || "Choose the fastest option for you.") : (t("identify.subtitle") || "Enter your details or scan your ABHA ID card.")}
               </p>
             </div>
 
@@ -150,7 +150,7 @@ export default function IdentifyPage() {
                   </div>
                   <div className="text-center">
                     <div className="font-bold text-xl text-ink mb-1">{t("identify.or")}</div>
-                    <div className="text-sm text-ink/60">If you don&apos;t have a card</div>
+                    <div className="text-sm text-ink/60">{t("identify.no_card") || "If you don't have a card"}</div>
                   </div>
                 </button>
               </div>
@@ -163,11 +163,11 @@ export default function IdentifyPage() {
                   <div className="absolute inset-0 border-[6px] border-primary/50 m-8 rounded-xl z-10 pointer-events-none" />
                   <div className="absolute top-4 left-0 right-0 text-center z-20">
                     <span className="bg-black/60 text-white px-4 py-1.5 rounded-full text-sm font-medium backdrop-blur-md">
-                      Scanning ABHA...
+                      {t("identify.camera_scanning") || "Scanning ABHA..."}
                     </span>
                   </div>
                 </div>
-                <p className="text-ink/60 font-medium">Position your card inside the frame</p>
+                <p className="text-ink/60 font-medium">{t("identify.camera_instruction") || "Position your card inside the frame"}</p>
               </div>
             )}
 
@@ -177,8 +177,8 @@ export default function IdentifyPage() {
                   <QRCodeSVG value="https://abha.abdm.gov.in/" size={200} />
                 </div>
                 <div className="text-center space-y-2">
-                  <h3 className="font-bold text-2xl text-ink">Waiting for your phone...</h3>
-                  <p className="text-ink/70">Scan this QR code with your mobile camera to link your ABHA securely.</p>
+                  <h3 className="font-bold text-2xl text-ink">{t("identify.qr_title") || "Waiting for your phone..."}</h3>
+                  <p className="text-ink/70">{t("identify.qr_sub") || "Scan this QR code with your mobile camera to link your ABHA securely."}</p>
                 </div>
               </div>
             )}
@@ -193,7 +193,7 @@ export default function IdentifyPage() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-ink mb-1.5 ml-1">Full Name</label>
+                  <label className="block text-sm font-medium text-ink mb-1.5 ml-1">{t("identify.fullname") || "Full Name"}</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink/40" />
                     <input
@@ -207,7 +207,7 @@ export default function IdentifyPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-ink mb-1.5 ml-1">Phone Number</label>
+                  <label className="block text-sm font-medium text-ink mb-1.5 ml-1">{t("identify.phone") || "Phone Number"}</label>
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink/40" />
                     <input
@@ -222,7 +222,7 @@ export default function IdentifyPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-ink mb-1.5 ml-1">
-                    Profession <span className="text-ink/40 font-normal">(optional)</span>
+                    {t("identify.profession") || "Profession"} <span className="text-ink/40 font-normal">{t("identify.optional") || "(optional)"}</span>
                   </label>
                   <div className="relative">
                     <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink/40" />
@@ -231,7 +231,7 @@ export default function IdentifyPage() {
                       onChange={(e) => setProfession(e.target.value)}
                       className="w-full min-h-[64px] bg-surface border-2 border-surface focus:border-primary focus:ring-0 rounded-2xl p-4 pl-12 outline-none transition-colors text-lg appearance-none cursor-pointer"
                     >
-                      <option value="">Select if you want</option>
+                      <option value="">{t("identify.select") || "Select if you want"}</option>
                       {PROFESSION_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
@@ -245,7 +245,7 @@ export default function IdentifyPage() {
                     onClick={handleContinue}
                     className="w-full min-h-[64px] flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-paper p-5 rounded-2xl text-xl font-bold transition-colors active:scale-95 shadow-sm"
                   >
-                    Continue
+                    {t("identify.continue") || "Continue"}
                   </button>
                 </div>
               </div>

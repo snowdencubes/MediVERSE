@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const Navigation = dynamic(() => import("@/components/patient/Navigation"), { ssr: false });
 const CustomCareButton = dynamic(() => import("@/components/patient/CustomCareButton"), { ssr: false });
@@ -14,15 +15,16 @@ export default function PatientLayout({
 }) {
   const pathname = usePathname();
   const [isKiosk, setIsKiosk] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setIsKiosk(localStorage.getItem("mediverse_kiosk_mode") === "true");
   }, []);
 
   const getFabAction = () => {
-    if (pathname.includes("/upload")) return { label: "Add Document", show: true };
-    if (pathname.includes("/intake")) return { label: "Add Complaint", show: true };
-    return { label: "Add", show: false };
+    if (pathname.includes("/upload")) return { label: t("fab.add_doc") || "Add Document", show: true };
+    if (pathname.includes("/intake")) return { label: t("fab.add_complaint") || "Add Complaint", show: true };
+    return { label: t("fab.add") || "Add", show: false };
   };
 
   const isGlassScreen = pathname === "/patient/consent";
