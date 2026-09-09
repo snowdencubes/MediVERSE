@@ -25,12 +25,17 @@ export default function PatientLayout({
     return { label: "Add", show: false };
   };
 
-  const isGlassScreen = pathname === "/patient" || pathname === "/patient/consent";
+  const isGlassScreen = pathname === "/patient/consent";
   const bgClass = isGlassScreen
     ? "min-h-screen bg-gradient-to-br from-paper via-paper to-gold/20 text-[var(--ink)] font-sans antialiased relative"
     : "min-h-screen bg-surface text-[var(--ink)] font-sans antialiased relative";
   
   const fab = getFabAction();
+
+  // The Welcome page is fully self-contained and shouldn't be boxed in by the navigation layout.
+  if (pathname === "/patient") {
+    return <>{children}</>;
+  }
 
   // Padding adjusts based on navigation mode:
   // Kiosk: Top-bar (pt-24)
