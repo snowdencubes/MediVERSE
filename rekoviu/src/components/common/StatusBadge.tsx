@@ -9,7 +9,7 @@ export function StatusBadge({ type }: { type: string }) {
   switch (type) {
     case 'EMERGENCY':
       bg = 'rgba(255,45,85,.15)';
-      color = '#ff2d55';
+      color = '#D91636';
       border = 'rgba(255,45,85,.3)';
       break;
     case 'URGENT':
@@ -24,7 +24,7 @@ export function StatusBadge({ type }: { type: string }) {
       break;
     case 'NOW_CALLING':
       bg = 'rgba(255,45,85,.12)';
-      color = '#ff2d55';
+      color = '#D91636';
       border = 'rgba(255,45,85,.25)';
       label = 'NOW CALLING';
       break;
@@ -43,7 +43,7 @@ export function StatusBadge({ type }: { type: string }) {
   return (
     <span style={{
       fontFamily: "'Space Grotesk', sans-serif",
-      fontSize: 10,
+      fontSize: 'clamp(12px, 1.2vw, 16px)',
       fontWeight: 700,
       letterSpacing: '.1em',
       textTransform: 'uppercase',

@@ -46,19 +46,19 @@ export default function LoginPage() {
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)', backdropFilter: 'blur(20px)'
       }}>
         <h1 style={{ fontFamily: "'Bebas Neue'", fontSize: 48, marginBottom: 8, textAlign: 'center' }}>STAFF LOGIN</h1>
-        <p style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 32 }}>
+        <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 32 }}>
           Access Receptionist & Doctor Portals
         </p>
 
         {error && (
-          <div style={{ background: 'rgba(255,45,85,0.1)', color: '#ff2d55', padding: 12, borderRadius: 8, marginBottom: 20, fontFamily: "'Space Grotesk'", fontSize: 14, textAlign: 'center' }}>
+          <div style={{ background: 'rgba(255,45,85,0.1)', color: '#D91636', padding: 12, borderRadius: 8, marginBottom: 20, fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', textAlign: 'center' }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
-            <label style={{ fontFamily: "'Space Grotesk'", fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>USER ID / USERNAME</label>
+            <label style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>USER ID / USERNAME</label>
             <input 
               type="text" 
               value={username} 
@@ -66,14 +66,14 @@ export default function LoginPage() {
               placeholder="e.g. admin or doc_1"
               style={{
                 width: '100%', padding: '16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                color: 'var(--text-primary)', borderRadius: 12, fontSize: 16, fontFamily: "'Space Grotesk'", outline: 'none'
+                color: 'var(--text-primary)', borderRadius: 12, fontSize: 'clamp(18px, 1.9vw, 22px)', fontFamily: "'Space Grotesk'", outline: 'none'
               }}
               required
             />
           </div>
 
           <div>
-            <label style={{ fontFamily: "'Space Grotesk'", fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>SECURE PIN</label>
+            <label style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>SECURE PIN</label>
             <input 
               type="password" 
               value={pin} 
@@ -81,15 +81,15 @@ export default function LoginPage() {
               placeholder="••••"
               style={{
                 width: '100%', padding: '16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)',
-                color: 'var(--text-primary)', borderRadius: 12, fontSize: 16, fontFamily: "'Space Grotesk'", outline: 'none'
+                color: 'var(--text-primary)', borderRadius: 12, fontSize: 'clamp(18px, 1.9vw, 22px)', fontFamily: "'Space Grotesk'", outline: 'none'
               }}
               required
             />
           </div>
 
           <button type="submit" style={{
-            background: '#ff2d55', color: '#fff', border: 'none', padding: '16px', borderRadius: 12,
-            fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 600, cursor: 'pointer', marginTop: 12,
+            background: '#D91636', color: '#fff', border: 'none', padding: '16px', borderRadius: 12,
+            fontFamily: "'Space Grotesk'", fontSize: 'clamp(18px, 1.9vw, 22px)', fontWeight: 600, cursor: 'pointer', marginTop: 12,
             transition: 'background 0.2s', width: '100%'
           }}>
             LOGIN TO SYSTEM
@@ -97,7 +97,7 @@ export default function LoginPage() {
         </form>
       </div>
       
-      <button onClick={() => router.push('/')} style={{ marginTop: 24, background: 'none', border: 'none', color: 'var(--text-secondary)', fontFamily: "'Space Grotesk'", fontSize: 14, cursor: 'pointer' }}>
+      <button onClick={() => router.push('/')} style={{ marginTop: 24, background: 'none', border: 'none', color: 'var(--text-secondary)', fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', cursor: 'pointer' }}>
         ← Back to Home
       </button>
     </div>

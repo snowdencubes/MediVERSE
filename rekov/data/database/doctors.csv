@@ -1,5 +1,5 @@
 id,name,department_id,specialty,room_number,is_available,estimated_wait_minutes,consultation_fee,rating,experience_years,arrival_time,pin,shift_schedule
-sadmin,Dr. Rajesh Kumar,dep_gen,General Physician,Room 101,True,15,40.0,4.8,12,,sadmin,09:00 AM - 05:00 PM
+sadmin,Dr. Rajesh Kumar,dep_gen,General Physician,Room 101,False,15,40.0,4.8,12,,sadmin,09:00 AM - 05:00 PM
 doc_2,Dr. Priya Sharma,dep_gen,Family Medicine,Room 102,True,10,35.0,4.9,8,,1234,09:00 AM - 05:00 PM
 doc_3,Dr. Amit Patel,dep_card,Interventional Cardiologist,Room 201,True,30,80.0,4.7,15,,1234,10:00 AM - 04:00 PM
 doc_4,Dr. Sunita Iyer,dep_ped,Pediatrician,Room 301,True,20,50.0,4.9,10,,1234,08:00 AM - 02:00 PM

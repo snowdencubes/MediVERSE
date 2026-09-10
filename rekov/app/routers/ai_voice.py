@@ -24,6 +24,7 @@ class HistoryResponse(BaseModel):
     messages: List[ChatMessage]
 
 @router.post("/chat", response_model=ChatResponse)
+@router.post("/chat/", response_model=ChatResponse)
 def chat_with_voice_assistant(request: ChatRequest):
     """Send a message to the AI voice assistant. Returns reply + any actions."""
     result = generate_voice_response(request.session_id, request.message)

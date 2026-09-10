@@ -8,7 +8,7 @@ import { GestureProvider } from '@/contexts/GestureContext';
 import { GestureCursor } from '@/components/common/GestureCursor';
 
 export const metadata: Metadata = {
-  title: 'REKOV | Hospital Self-Service Kiosk',
+  title: 'MediVERSE | Hospital Self-Service Kiosk',
   description: 'KFC-style hospital self-service kiosk. Express check-in, triage, and live queue management.',
 };
 
@@ -28,7 +28,7 @@ export default function RootLayout({
             <BackgroundLayer />
             <div className="bg-grain"></div>
             <div className="vignette"></div>
-            <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>REKOV</div>
+            <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>MediVERSE</div>
             <div style={{ position: 'relative', zIndex: 10 }}>
               {children}
             </div>

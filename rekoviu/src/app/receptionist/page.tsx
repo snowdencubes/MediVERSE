@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RekovNav } from '@/components/common/RekovNav';
+import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { api } from '@/services/api';
 
@@ -63,7 +63,7 @@ export default function ReceptionistPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: "'Space Grotesk'" }}>
-      <RekovNav currentModule="receptionist" />
+      <MediVERSENav currentModule="receptionist" />
       
       <main style={{ padding: '120px 5% 60px', maxWidth: 1000, margin: '0 auto' }}>
         <h1 style={{ fontFamily: "'Bebas Neue'", fontSize: 64, letterSpacing: '.05em', marginBottom: 40 }}>RECEPTIONIST DASHBOARD</h1>
@@ -75,7 +75,7 @@ export default function ReceptionistPage() {
               onClick={() => setActiveTab(tab as any)}
               style={{
                 flex: 1, padding: 16, border: '1px solid var(--border-color)',
-                background: activeTab === tab ? '#ff2d55' : 'var(--bg-card)',
+                background: activeTab === tab ? '#D91636' : 'var(--bg-card)',
                 color: activeTab === tab ? '#fff' : 'var(--text-primary)', 
                 fontFamily: "'Space Grotesk'", fontWeight: 700, textTransform: 'uppercase',
                 letterSpacing: '.1em', cursor: 'pointer', transition: 'all 0.2s'
@@ -95,18 +95,18 @@ export default function ReceptionistPage() {
             
             {scanResult && (
               <div style={{ marginTop: 24, textAlign: 'center' }}>
-                <p style={{ color: '#ff2d55', fontSize: 24, fontWeight: 700 }}>Scanned Token: {scanResult}</p>
+                <p style={{ color: '#D91636', fontSize: 'clamp(26px, 2.9vw, 30px)', fontWeight: 700 }}>Scanned Token: {scanResult}</p>
                 
                 <div style={{ marginTop: 20, background: 'var(--bg-main)', padding: 20, borderRadius: 12, border: '1px solid var(--border-color)', textAlign: 'left' }}>
-                  <h3 style={{ fontSize: 16, marginBottom: 12, color: 'var(--text-secondary)' }}>AI PATIENT SUMMARY</h3>
+                  <h3 style={{ fontSize: 'clamp(18px, 1.9vw, 22px)', marginBottom: 12, color: 'var(--text-secondary)' }}>AI PATIENT SUMMARY</h3>
                   {loadingSummary ? (
-                    <p style={{ color: '#ff2d55' }}>Generating summary via HuggingFace...</p>
+                    <p style={{ color: '#D91636' }}>Generating summary via HuggingFace...</p>
                   ) : (
-                    <p style={{ fontSize: 18, lineHeight: 1.5 }}>{aiSummary}</p>
+                    <p style={{ fontSize: 'clamp(20px, 2.2vw, 24px)', lineHeight: 1.5 }}>{aiSummary}</p>
                   )}
                 </div>
 
-                <button style={{ marginTop: 24, background: '#ff2d55', color: '#fff', padding: '16px 32px', fontWeight: 700, border: 'none', cursor: 'pointer', borderRadius: 8 }}>PRINT FINAL BILL</button>
+                <button style={{ marginTop: 24, background: '#D91636', color: '#fff', padding: '16px 32px', fontWeight: 700, border: 'none', cursor: 'pointer', borderRadius: 8 }}>PRINT FINAL BILL</button>
               </div>
             )}
           </div>
@@ -119,8 +119,8 @@ export default function ReceptionistPage() {
               {doctors.map((doc, idx) => (
                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-main)', padding: 16, borderRadius: 8, border: '1px solid var(--border-color)' }}>
                   <div>
-                    <h3 style={{ fontSize: 18, margin: 0 }}>{doc.name}</h3>
-                    <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>{doc.specialty} • {doc.room_number}</p>
+                    <h3 style={{ fontSize: 'clamp(20px, 2.2vw, 24px)', margin: 0 }}>{doc.name}</h3>
+                    <p style={{ fontSize: 'clamp(16px, 1.7vw, 20px)', color: 'var(--text-secondary)', margin: 0 }}>{doc.specialty} • {doc.room_number}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <input 
@@ -130,7 +130,7 @@ export default function ReceptionistPage() {
                       onBlur={(e) => handleUpdateSchedule(doc.id, e.target.value)}
                       style={{ padding: '8px 12px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-primary)', fontFamily: "'Space Grotesk'" }}
                     />
-                    <span style={{ fontSize: 12, color: doc.is_available ? '#34c759' : '#ff3b30' }}>
+                    <span style={{ fontSize: 'clamp(14px, 1.4vw, 18px)', color: doc.is_available ? '#34c759' : '#ff3b30' }}>
                       {doc.is_available ? '● PRESENT' : '● ABSENT'}
                     </span>
                   </div>

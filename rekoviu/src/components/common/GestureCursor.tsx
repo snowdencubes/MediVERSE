@@ -12,7 +12,7 @@ export function GestureCursor() {
   const showBanner = status === 'loading' || status === 'no_face' || status === 'face_detected';
   const bannerMap: Record<string, { text: string; color: string }> = {
     loading:       { text: '[ ] Loading camera + AI models...', color: 'var(--text-secondary)' },
-    no_face:       { text: '[!] Face not detected -- Show your face to the camera to enable hand tracking / कैमरे के सामने आएं', color: '#ff2d55' },
+    no_face:       { text: '[!] Face not detected -- Show your face to the camera to enable hand tracking / कैमरे के सामने आएं', color: '#D91636' },
     face_detected: { text: '[*] Face detected -- Now show your hand / अब हाथ दिखाएं', color: '#2d9bff' },
   };
 
@@ -38,7 +38,7 @@ export function GestureCursor() {
           padding: '14px 28px',
           borderRadius: 12,
           fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: 13,
+          fontSize: 'clamp(15px, 1.6vw, 19px)',
           fontWeight: 600,
           letterSpacing: '.03em',
           border: `1px solid ${bannerInfo.color}33`,
@@ -51,14 +51,14 @@ export function GestureCursor() {
         }}>
           {bannerInfo.text}
           {status === 'no_face' && (
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 6 }}>
+            <div style={{ fontSize: 'clamp(12px, 1.2vw, 16px)', color: 'var(--text-muted)', marginTop: 6 }}>
               Gesture mode requires your face to be visible for security and accuracy.
             </div>
           )}
         </div>
       )}
 
-      {/* Gesture Mode Indicator now lives in RekovNav */}
+      {/* Gesture Mode Indicator now lives in MediVERSENav */}
 
       {/* Cursor Dot */}
       {pointerPos && status === 'tracking' && (
@@ -67,7 +67,7 @@ export function GestureCursor() {
           <div style={{
             position: 'fixed', top: 0, left: 0,
             width: 40, height: 40, borderRadius: '50%',
-            border: `2px solid ${isPinching ? '#ff2d55' : 'rgba(255,45,85,0.4)'}`,
+            border: `2px solid ${isPinching ? '#D91636' : 'rgba(255,45,85,0.4)'}`,
             transform: `translate(${pointerPos.x - 20}px, ${pointerPos.y - 20}px)`,
             transition: 'border-color 0.1s',
             pointerEvents: 'none',
@@ -79,7 +79,7 @@ export function GestureCursor() {
             position: 'fixed', top: 0, left: 0,
             width: isPinching ? 10 : 14, height: isPinching ? 10 : 14,
             borderRadius: '50%',
-            backgroundColor: isPinching ? '#fff' : '#ff2d55',
+            backgroundColor: isPinching ? '#fff' : '#D91636',
             transform: `translate(${pointerPos.x - (isPinching ? 5 : 7)}px, ${pointerPos.y - (isPinching ? 5 : 7)}px)`,
             transition: 'width 0.1s, height 0.1s, background-color 0.1s',
             pointerEvents: 'none',

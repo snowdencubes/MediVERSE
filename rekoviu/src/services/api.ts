@@ -1,6 +1,16 @@
 import { Department, Doctor, HealthComboPackage, TicketCreateRequest, QueueTicket, QueueBoardResponse } from '../types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+function getApiBase(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname || 'localhost';
+    return `http://${host}:8000/api/v1`;
+  }
+  return 'http://localhost:8000/api/v1';
+}
+
+const getBaseUrl = () => getApiBase();
+const API_BASE = getApiBase();
 
 export async function fetchDepartments(): Promise<Department[]> {
   try {
@@ -152,7 +162,8 @@ export async function chatWithVoiceAssistant(
   message: string
 ): Promise<{session_id: string, reply: string, action: string | null, action_data: any}> {
   try {
-    const res = await fetch(`${API_BASE}/ai_voice/chat`, {
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}/ai_voice/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, message })

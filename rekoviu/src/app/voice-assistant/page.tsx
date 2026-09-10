@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { RekovNav } from '@/components/common/RekovNav';
+import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { chatWithVoiceAssistant, createTicket } from '@/services/api';
 
 interface Message {
@@ -106,7 +106,7 @@ export default function VoiceAssistantPage() {
     };
 
     // Greet on mount
-    const greeting = "Hello, I am REKOV AI. How can I help you today?";
+    const greeting = "Hello, I am MediVERSE AI. How can I help you today?";
     addMessage('assistant', greeting);
     speakText(greeting);
 
@@ -144,16 +144,19 @@ export default function VoiceAssistantPage() {
             department_id: res.action_data.dept_id || 'dep_gen',
             doctor_id: res.action_data.doctor_id || '',
             patient: {
+              national_id: 'GUEST-000',
               full_name: res.action_data.patient_name || 'Guest Patient',
-              phone_number: 'N/A',
-              dob: '2000-01-01',
-              gender: 'O'
+              phone: 'N/A',
+              age: 25,
+              gender: 'O',
+              insurance_member: false
             },
+            payment_method: 'CASH',
             combo_package_ids: []
           });
           localStorage.setItem('current_ticket', JSON.stringify(ticket));
-          addMessage('system', `Ticket ${ticket.token_number} booked! Redirecting...`);
-          setTimeout(() => router.push('/success'), 2000);
+          addMessage('system', `Ticket ${ticket.token_number} booked! Redirecting to receipt...`);
+          setTimeout(() => router.push(`/receipt?id=${ticket.ticket_id}`), 2000);
         } catch (e) {
           addMessage('system', 'Booking failed. Please try the manual kiosk.');
         }
@@ -220,7 +223,7 @@ export default function VoiceAssistantPage() {
 
   return (
     <>
-      <RekovNav currentModule="voice-assistant" />
+      <MediVERSENav currentModule="voice-assistant" />
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -254,7 +257,7 @@ export default function VoiceAssistantPage() {
                   padding: '12px 16px',
                   borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : msg.role === 'system' ? '8px' : '16px 16px 16px 4px',
                   background: msg.role === 'user' 
-                    ? '#ff2d55' 
+                    ? '#D91636' 
                     : msg.role === 'system'
                     ? 'rgba(255,45,85,0.1)'
                     : 'var(--bg-card)',
@@ -263,11 +266,11 @@ export default function VoiceAssistantPage() {
                 }}>
                   <p style={{
                     fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: 14, lineHeight: 1.5, margin: 0
+                    fontSize: 'clamp(16px, 1.7vw, 20px)', lineHeight: 1.5, margin: 0
                   }}>{msg.content}</p>
                   <p style={{
                     fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: 10, color: msg.role === 'user' ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)',
+                    fontSize: 'clamp(12px, 1.2vw, 16px)', color: msg.role === 'user' ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)',
                     marginTop: 4, textAlign: 'right'
                   }}>{msg.timestamp}</p>
                 </div>
@@ -284,7 +287,7 @@ export default function VoiceAssistantPage() {
                   border: '1px solid rgba(255,45,85,0.5)',
                   color: '#fff'
                 }}>
-                  <p style={{ fontFamily: "'Space Grotesk'", fontSize: 14, margin: 0, fontStyle: 'italic' }}>
+                  <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', margin: 0, fontStyle: 'italic' }}>
                     {liveTranscript}...
                   </p>
                 </div>
@@ -298,7 +301,7 @@ export default function VoiceAssistantPage() {
                   padding: '12px 20px', borderRadius: '16px 16px 16px 4px',
                   background: 'var(--bg-card)', border: '1px solid var(--border-color)'
                 }}>
-                  <p style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: 'var(--text-secondary)', margin: 0, animation: 'blink 1s infinite' }}>
+                  <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', color: 'var(--text-secondary)', margin: 0, animation: 'blink 1s infinite' }}>
                     Thinking...
                   </p>
                 </div>
@@ -319,7 +322,7 @@ export default function VoiceAssistantPage() {
               style={{
                 flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)',
                 color: 'var(--text-primary)', padding: '12px 16px', borderRadius: 8,
-                fontFamily: "'Space Grotesk'", fontSize: 14, outline: 'none'
+                fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', outline: 'none'
               }}
               onKeyDown={e => {
                 if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
@@ -332,8 +335,8 @@ export default function VoiceAssistantPage() {
               onClick={toggleListen}
               style={{
                 width: 48, height: 48, borderRadius: '50%',
-                background: isListening ? '#ff2d55' : 'var(--bg-card)',
-                border: `2px solid ${isListening ? '#ff2d55' : 'var(--border-color)'}`,
+                background: isListening ? '#D91636' : 'var(--bg-card)',
+                border: `2px solid ${isListening ? '#D91636' : 'var(--border-color)'}`,
                 color: isListening ? '#fff' : 'var(--text-primary)',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, transition: 'all 0.3s',
@@ -357,8 +360,8 @@ export default function VoiceAssistantPage() {
             style={{
               width: 140, height: 140, borderRadius: '50%',
               background: isListening ? 'rgba(255,45,85,0.2)' : isSpeaking ? 'rgba(45,155,255,0.15)' : 'var(--bg-card)',
-              border: `3px solid ${isListening ? '#ff2d55' : isSpeaking ? '#2d9bff' : 'var(--border-color)'}`,
-              color: isListening ? '#ff2d55' : isSpeaking ? '#2d9bff' : 'var(--text-primary)',
+              border: `3px solid ${isListening ? '#D91636' : isSpeaking ? '#2d9bff' : 'var(--border-color)'}`,
+              color: isListening ? '#D91636' : isSpeaking ? '#2d9bff' : 'var(--text-primary)',
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.3s',
               boxShadow: isListening ? '0 0 40px rgba(255,45,85,0.5)' : isSpeaking ? '0 0 40px rgba(45,155,255,0.4)' : 'none',
@@ -375,7 +378,7 @@ export default function VoiceAssistantPage() {
               letterSpacing: '.08em', color: 'var(--text-primary)', marginBottom: 8
             }}>{statusText}</h2>
             <p style={{
-              fontFamily: "'Space Grotesk'", fontSize: 12,
+              fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)',
               color: 'var(--text-secondary)', lineHeight: 1.6
             }}>
               Speak in any language.<br/>
@@ -390,10 +393,10 @@ export default function VoiceAssistantPage() {
             border: '1px solid var(--border-color)', borderRadius: 8,
             width: '100%', textAlign: 'center'
           }}>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, color: 'var(--text-muted)', letterSpacing: '.05em' }}>
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', color: 'var(--text-muted)', letterSpacing: '.05em' }}>
               SESSION: {sessionId.slice(0, 16)}...
             </p>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', color: 'var(--text-muted)', marginTop: 4 }}>
               {messages.filter(m => m.role === 'user').length} messages sent
             </p>
           </div>
@@ -404,7 +407,7 @@ export default function VoiceAssistantPage() {
             style={{
               padding: '12px 24px', background: 'transparent',
               border: '1px solid var(--border-color)', color: 'var(--text-secondary)',
-              borderRadius: 8, fontFamily: "'Space Grotesk'", fontSize: 12,
+              borderRadius: 8, fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)',
               cursor: 'pointer', letterSpacing: '.05em', transition: 'all 0.2s'
             }}
           >

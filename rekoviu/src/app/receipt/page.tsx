@@ -49,7 +49,7 @@ function ReceiptContent() {
           });
           
           pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
-          pdf.save(`rekov-receipt-${ticket.ticket_id}.pdf`);
+          pdf.save(`MediVERSE-receipt-${ticket.ticket_id}.pdf`);
         } catch (e) {
           console.error('Download failed', e);
         }
@@ -68,7 +68,7 @@ function ReceiptContent() {
   if (!ticket) {
     return (
       <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)' }}>
-        <div style={{ width: 40, height: 40, border: '3px solid var(--border-color)', borderTopColor: '#ff2d55', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: 40, height: 40, border: '3px solid var(--border-color)', borderTopColor: '#D91636', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     );
@@ -77,7 +77,7 @@ function ReceiptContent() {
   return (
     <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       
-      <p style={{ color: '#ff2d55', fontFamily: "'Space Grotesk'", marginBottom: 20, textAlign: 'center' }}>
+      <p style={{ color: '#D91636', fontFamily: "'Space Grotesk'", marginBottom: 20, textAlign: 'center' }}>
         {downloading ? 'Downloading your PDF receipt...' : 'Preparing receipt...'}
       </p>
 
@@ -90,7 +90,7 @@ function ReceiptContent() {
         }} />
 
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: 4 }}>REKOV DIGITAL RECEIPT</p>
+          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', fontWeight: 700, color: '#999', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: 4 }}>MediVERSE DIGITAL RECEIPT</p>
           <h1 style={{ fontFamily: "'Bebas Neue'", fontSize: 64, color: '#000', letterSpacing: '.04em', lineHeight: 1, marginBottom: 8 }}>{ticket.token_number}</h1>
           <StatusBadge type={ticket.priority_level} />
         </div>
@@ -107,7 +107,7 @@ function ReceiptContent() {
             <div key={label} style={{
               display: 'flex', justifyContent: 'space-between',
               padding: '12px 0', borderBottom: '1px solid #eee',
-              fontFamily: "'Space Grotesk'", fontSize: 13
+              fontFamily: "'Space Grotesk'", fontSize: 'clamp(15px, 1.6vw, 19px)'
             }}>
               <span style={{ color: '#888' }}>{label}</span>
               <span style={{ fontWeight: 700, color: '#000', textAlign: 'right' }}>{value}</span>
@@ -117,10 +117,10 @@ function ReceiptContent() {
 
         {ticket.combos_selected.length > 0 && (
           <div style={{ marginTop: 20 }}>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: '#888', marginBottom: 8 }}>ADD-ONS</p>
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(13px, 1.3vw, 17px)', color: '#888', marginBottom: 8 }}>ADD-ONS</p>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {ticket.combos_selected.map(c => (
-                <span key={c} style={{ background: 'rgba(255,45,85,0.1)', color: '#ff2d55', padding: '4px 10px', fontSize: 11, fontFamily: "'Space Grotesk'" }}>
+                <span key={c} style={{ background: 'rgba(255,45,85,0.1)', color: '#D91636', padding: '4px 10px', fontSize: 'clamp(13px, 1.3vw, 17px)', fontFamily: "'Space Grotesk'" }}>
                   {c}
                 </span>
               ))}
@@ -130,7 +130,7 @@ function ReceiptContent() {
 
         <div style={{ marginTop: 32, paddingTop: 24, borderTop: '2px dashed #ddd', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <QRCodeSVG value={`${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}`} size={120} style={{ marginBottom: 16 }} />
-          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, color: '#999', letterSpacing: '.1em', textTransform: 'uppercase' }}>Scan to view live queue status</p>
+          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', color: '#999', letterSpacing: '.1em', textTransform: 'uppercase' }}>Scan to view live queue status</p>
         </div>
       </div>
 

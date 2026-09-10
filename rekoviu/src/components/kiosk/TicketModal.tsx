@@ -20,7 +20,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
-      link.download = `rekov-ticket-${ticket.ticket_id}.png`;
+      link.download = `MediVERSE-ticket-${ticket.ticket_id}.png`;
       link.click();
     }
   };
@@ -39,13 +39,13 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
         <button onClick={onClose} style={{
           position: 'absolute', top: 12, right: 12, width: 32, height: 32,
           background: 'var(--bg-hover)', border: '1px solid var(--border-color)',
-          color: 'var(--text-secondary)', fontSize: 16, cursor: 'pointer',
+          color: 'var(--text-secondary)', fontSize: 'clamp(18px, 1.9vw, 22px)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10
         }}>&times;</button>
 
         {/* Success Header */}
         <div style={{
-          background: '#ff2d55', padding: '40px 32px', textAlign: 'center', position: 'relative'
+          background: '#D91636', padding: '40px 32px', textAlign: 'center', position: 'relative'
         }}>
           <div style={{
             width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,.2)',
@@ -53,7 +53,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
             fontSize: 28, color: '#fff'
           }}>{'\u2713'}</div>
           <h2 style={{ fontFamily: "'Bebas Neue'", fontSize: 32, color: '#fff', letterSpacing: '.06em' }}>CHECK-IN COMPLETE</h2>
-          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 4 }}>Please take your ticket</p>
+          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'rgba(255,255,255,.7)', marginTop: 4 }}>Please take your ticket</p>
         </div>
 
         {/* Receipt wrapper to capture */}
@@ -67,7 +67,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
             }} />
 
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: 4 }}>YOUR TOKEN NUMBER</p>
+              <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', fontWeight: 700, color: '#999', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: 4 }}>YOUR TOKEN NUMBER</p>
               <h1 style={{ fontFamily: "'Bebas Neue'", fontSize: 56, color: '#000', letterSpacing: '.04em', lineHeight: 1, marginBottom: 8 }}>{ticket.token_number}</h1>
               <StatusBadge type={ticket.priority_level} />
             </div>
@@ -84,7 +84,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
                 <div key={label} style={{
                   display: 'flex', justifyContent: 'space-between',
                   padding: '10px 0', borderBottom: '1px solid #eee',
-                  fontFamily: "'Space Grotesk'", fontSize: 12
+                  fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)'
                 }}>
                   <span style={{ color: '#888' }}>{label}</span>
                   <span style={{ fontWeight: 700, color: '#000', textAlign: 'right' }}>{value}</span>
@@ -98,7 +98,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
                 size={100} 
                 style={{ marginBottom: 16 }} 
               />
-              <p style={{ fontFamily: "'Space Grotesk'", fontSize: 9, color: '#999', letterSpacing: '.1em', textTransform: 'uppercase' }}>Scan QR to save your receipt</p>
+              <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(11px, 1.1vw, 15px)', color: '#999', letterSpacing: '.1em', textTransform: 'uppercase' }}>Scan QR to save your receipt</p>
             </div>
           </div>
         </div>
@@ -107,12 +107,12 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
         <div style={{ padding: 16, borderTop: '1px solid var(--border-color)', display: 'flex', gap: 12 }}>
           <button onClick={handleDownload} style={{
             flex: 1, padding: '16px', background: 'transparent', border: '1px solid var(--border-color)',
-            color: 'var(--text-primary)', fontFamily: "'Space Grotesk'", fontSize: 13, fontWeight: 700,
+            color: 'var(--text-primary)', fontFamily: "'Space Grotesk'", fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 700,
             letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer'
           }}>DOWNLOAD</button>
           <button onClick={onClose} style={{
-            flex: 1, padding: '16px', background: '#ff2d55', border: 'none',
-            color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 13, fontWeight: 700,
+            flex: 1, padding: '16px', background: '#D91636', border: 'none',
+            color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 700,
             letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer'
           }}>FINISH</button>
         </div>

@@ -1,0 +1,2 @@
+ticket_id,token_number,patient_name,patient_phone,department,doctor,room,total_fee,priority,triage_score,combos,created_at
+tck-87daf2d0,GEN-101,raju poaad,N/A,General Medicine,Dr. Priya Sharma,Room 102,35.0,STANDARD,1,,2026-09-10 13:34:50

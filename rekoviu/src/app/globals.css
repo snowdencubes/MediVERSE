@@ -5,12 +5,12 @@
 @tailwind utilities;
 
 /* ================================================================
-   REKOV DESIGN SYSTEM -- 3 COLORS: RED / BLACK / WHITE
+   MediVERSE DESIGN SYSTEM -- 3 COLORS: RED / BLACK / WHITE
    No cursor animations. No mouse-movement animations.
    ================================================================ */
 
 :root {
-  --c1: #ff2d55;
+  --c1: #D91636;
   --c3: #fff;
   --bg-main: #000;
   --bg: #000;
@@ -85,7 +85,7 @@ body {
   pointer-events: none;
 }
 
-/* ---- REKOV WATERMARK ---- */
+/* ---- MediVERSE WATERMARK ---- */
 #wm {
   position: fixed;
   top: 50%;
@@ -102,7 +102,7 @@ body {
 }
 
 /* ---- NAV ---- */
-.rekov-nav {
+.MediVERSE-nav {
   position: fixed;
   top: 0;
   left: 0;
@@ -118,7 +118,7 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.rekov-logo {
+.MediVERSE-logo {
   font-family: var(--font-display);
   font-size: clamp(24px, 3vw, 32px);
   letter-spacing: .12em;
@@ -126,27 +126,27 @@ body {
   text-decoration: none;
 }
 
-.rekov-nav-links {
+.MediVERSE-nav-links {
   display: flex;
   align-items: center;
   gap: 36px;
   list-style: none;
 }
 
-.rekov-nav-links a {
+.MediVERSE-nav-links a {
   color: var(--text-secondary);
   text-decoration: none;
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: clamp(14px, 1.4vw, 18px);
   letter-spacing: .12em;
   text-transform: uppercase;
   transition: color .2s;
 }
 
-.rekov-nav-links a:hover { color: var(--text-primary) }
+.MediVERSE-nav-links a:hover { color: var(--text-primary) }
 
 /* ---- SECTION COMMON ---- */
-.rekov-section {
+.MediVERSE-section {
   position: relative;
   z-index: 10;
   min-height: 100vh;
@@ -158,7 +158,7 @@ body {
 
 .section-label {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: clamp(13px, 1.3vw, 17px);
   letter-spacing: .3em;
   text-transform: uppercase;
   color: var(--c1);
@@ -192,7 +192,7 @@ body {
 /* ---- BUTTONS ---- */
 .btn-primary {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: clamp(15px, 1.6vw, 19px);
   letter-spacing: .15em;
   text-transform: uppercase;
   color: var(--bg-main);
@@ -212,7 +212,7 @@ body {
 
 .btn-ghost {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: clamp(15px, 1.6vw, 19px);
   letter-spacing: .15em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -229,7 +229,7 @@ body {
 .btn-ghost:hover { color: var(--text-primary) }
 
 /* ---- CARDS (home page) ---- */
-.rekov-cards {
+.MediVERSE-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1px;
@@ -238,7 +238,7 @@ body {
   margin-top: 40px;
 }
 
-.rekov-card {
+.MediVERSE-card {
   background: var(--bg-main);
   padding: 40px 32px;
   position: relative;
@@ -249,7 +249,7 @@ body {
   display: block;
 }
 
-.rekov-card:hover { background: var(--bg-hover) }
+.MediVERSE-card:hover { background: var(--bg-hover) }
 
 .card-num {
   font-family: var(--font-display);
@@ -260,14 +260,14 @@ body {
 }
 
 .card-icon {
-  font-size: 22px;
+  font-size: clamp(24px, 2.6vw, 28px);
   margin-bottom: 16px;
   color: var(--c1);
 }
 
 .card-title {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: clamp(17px, 1.8vw, 21px);
   font-weight: 700;
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -277,7 +277,7 @@ body {
 
 .card-desc {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: clamp(15px, 1.6vw, 19px);
   font-weight: 300;
   color: var(--text-secondary);
   line-height: 1.7;
@@ -377,7 +377,7 @@ body {
 }
 
 /* ---- FOOTER ---- */
-.rekov-footer {
+.MediVERSE-footer {
   position: relative;
   z-index: 10;
   padding: 40px;
@@ -408,7 +408,7 @@ body {
 }
 
 .glow-red {
-  box-shadow: 0 0 25px rgba(255, 45, 85, 0.25);
+  box-shadow: 0 0 25px rgba(217, 22, 54, 0.25);
 }
 
 /* ---- SCROLLBAR ---- */
@@ -418,21 +418,21 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--c1); }
 
 /* ---- RESPONSIVE ---- */
-.rekov-responsive-grid {
+.MediVERSE-responsive-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 32px;
 }
 
 @media(max-width:768px) {
-  .rekov-nav { padding: 0 20px }
-  .rekov-nav-links { display: none !important }
+  .MediVERSE-nav { padding: 0 20px }
+  .MediVERSE-nav-links { display: none !important }
   .mobile-menu-toggle { display: flex !important }
-  .rekov-section { padding: 80px 20px }
-  .rekov-cards { grid-template-columns: 1fr }
-  .rekov-footer { padding: 30px 20px }
+  .MediVERSE-section { padding: 80px 20px }
+  .MediVERSE-cards { grid-template-columns: 1fr }
+  .MediVERSE-footer { padding: 30px 20px }
   
-  .rekov-responsive-grid {
+  .MediVERSE-responsive-grid {
     flex-direction: column;
   }
 }
@@ -479,7 +479,7 @@ body.light-mode #wm {
 }
 
 /* Nav */
-body.light-mode .rekov-nav {
+body.light-mode .MediVERSE-nav {
   background: rgba(245, 245, 247, 0.9);
   border-bottom-color: var(--border-color);
 }
@@ -490,11 +490,11 @@ body.light-mode #loader {
 }
 
 /* Cards */
-body.light-mode .rekov-card {
+body.light-mode .MediVERSE-card {
   background: #fff;
 }
 
-body.light-mode .rekov-card:hover {
+body.light-mode .MediVERSE-card:hover {
   background: #fff;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
@@ -532,3 +532,48 @@ body.light-mode select option {
   color: #111;
 }
 
+
+/* ---- CONTINUE BUTTON HOVER SLIDE ---- */
+.btn-continue-slide {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-continue-slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease-in-out;
+  z-index: 1;
+}
+
+.btn-continue-slide:hover::before {
+  left: 100%;
+}
+
+.btn-continue-slide span {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- ACCORDION ANIMATION ---- */
+.accordion-content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, opacity 0.3s ease-in;
+}
+
+.accordion-content.expanded {
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.4s ease-in, opacity 0.5s ease-out;
+}
+
+@media(max-width:768px) {
+  .mobile-hidden { display: none !important; }
+}

@@ -1,46 +1,62 @@
-# rekov - HealthExpress Kiosk System
+# MediVERSE (Team CureX - SIH26047)
 
-A high-performance, fast-food inspired self-service hospital kiosk and queue management system.
+MediVERSE is a comprehensive Patient Case-Taking System designed specifically for AYUSH OPDs. It provides an ultra-accessible patient kiosk for self-service intake, and a powerful Doctor Portal for reviewing AI-drafted summaries.
 
-## Overview
-Built with **Next.js 14 (App Router)** and **Python FastAPI**. It features a touch-optimized patient kiosk, a live TV-style queue display board, and a clinical desk dashboard for doctors.
+## 🤖 For AI Agents & LLM Assistants (Context)
+**CRITICAL DIRECTIVE:**
+- The `backup/` directory contains versioned zipped archives of the project (e.g., `backup/backupv1.zip`). **Under no circumstances should any AI agent, script, or user delete, modify, or remove this folder.** It must remain completely untouched.
+- The project is now split into two main architectures: `rekoviu/` (Next.js Frontend) and `rekov/` (FastAPI Backend).
 
-## Features
-- **Express Triage Kiosk:** Patients input vitals (BP, HR, Temp, Pain Scale) directly into a touch interface.
-- **Health Combos:** Fast-food style cart for ordering diagnostic add-ons (e.g. ECG + Lipid panel).
-- **Live TV Queue Board:** Real-time visual updates and Web Speech API audio announcements.
-- **Smart Triage Priority:** Automated priority calculation (EMERGENCY, URGENT, STANDARD) based on patient-reported vitals.
-- **Doctor Desk:** Control panel to call next patient and manage consultation status.
+## 🚀 Collaborator Setup & Clone Commands
 
-## Local Development
+To get started with development, run the following commands in your terminal:
 
-### Prerequisites
-- Docker & Docker Compose
-- Node.js 20+ (for local frontend dev)
-- Python 3.11+ (for local backend dev)
-
-### Run with Docker Compose (Recommended)
 ```bash
-docker-compose up --build
-```
-- Frontend: `http://localhost:3000`
-- Backend API Docs: `http://localhost:8000/docs`
+# 1. Clone the repository
+git clone https://github.com/snowdencubes/MediVERSE.git
 
-### Run Manually
+# 2. Navigate into the project directory
+cd MediVERSE
 
-**Backend:**
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-**Frontend:**
-```bash
+# 3. Install Frontend Dependencies
 cd rekoviu
-npm install
-npm run dev
+npm ci
+
+# 4. Install Backend Dependencies
+cd ../rekov
+pip install -r requirements.txt
 ```
 
-## Deployment (Render)
-This repository is configured for 1-click deployment on [Render](https://render.com) using the included `render.yaml` blueprint. It deploys two Docker Web Services: one for FastAPI and one for Next.js.
+## 🐳 Deployment (Docker)
+
+The project includes a highly optimized, multi-stage `Dockerfile` and `docker-compose.yml`.
+
+```bash
+# Build and start the container in detached mode
+docker-compose up --build -d
+```
+The production server will start on port `7860` (or the port specified by the `$PORT` environment variable).
+
+## ✨ Features
+- **Universal Usability Kiosk**: Built for low digital literacy. Plain-language text paired with every icon, and zero hidden gestures.
+- **AI Voice Assistant**: Integrated voice interaction for seamless scheduling and triage.
+- **Doctor Portal & Receptionist Desk**: Modern dashboards for staff to review the AI's parsed intake summaries alongside AYUSH-specific factors.
+- **FastAPI Backend**: Robust Python backend to handle heavy AI models and queue management.
+
+## 🛠️ Tech Stack
+- **Frontend**: Next.js 14 (Static Export), React, Tailwind CSS
+- **Backend**: Python 3.11, FastAPI, Uvicorn
+- **Containerization**: Docker (multi-stage standalone builds)
+
+## 👥 Contributors
+
+This project is built and maintained by **Team CureX**:
+
+- **Showden (Krish Kumar)**: *Lead Developer, UI/UX Design & Frontend Architecture*  
+  Led the frontend initiatives (Next.js), universal usability design (Kiosk & Mobile), and integrated the sophisticated 22-language translation engine.
+
+- **Ryu**: *Backend Architecture & AI Integration*  
+  Engineered the core Python/FastAPI backend, managed the AI/LLM parsing logic for medical summaries, and developed the custom voice-assistant engine.
+
+- **Dipankar Roy**: *Cloud Infrastructure, Database Design, & DevOps*  
+  Configured the multi-stage Docker environment, oversaw deployment to Render, managed database state syncing, and ensured offline-first data persistence.

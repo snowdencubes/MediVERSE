@@ -13,7 +13,7 @@ export function PageLoader() {
 
   return (
     <div id="loader">
-      <div className="loader-logo">REKOV</div>
+      <div className="loader-logo">MediVERSE</div>
       <div className="loader-bar-wrap">
         <div className="loader-bar"></div>
       </div>

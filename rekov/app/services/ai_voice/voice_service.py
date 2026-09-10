@@ -11,6 +11,8 @@ HF_API_TOKEN = os.getenv("HF_API_TOKEN")
 
 # ---- Load database context from CSV files ----
 DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "database"
+if not DATA_DIR.exists():
+    DATA_DIR = Path.cwd() / "data" / "database"
 
 def _load_csv(filename: str) -> list:
     filepath = DATA_DIR / filename
@@ -88,6 +90,149 @@ def get_or_create_session(session_id: str | None) -> tuple:
 def get_session_history(session_id: str) -> List[dict]:
     return _sessions.get(session_id, [])
 
+def _detect_language(text: str) -> str:
+    """Detect script/language from text."""
+    for ch in text:
+        cp = ord(ch)
+        if 0x0900 <= cp <= 0x097F: return "hi"
+        if 0x0980 <= cp <= 0x09FF: return "bn"
+        if 0x0B80 <= cp <= 0x0BFF: return "ta"
+        if 0x0C00 <= cp <= 0x0C7F: return "te"
+        if 0x0900 <= cp <= 0x097F: return "mr"  # Devanagari shared
+        if 0x0A80 <= cp <= 0x0AFF: return "gu"
+        if 0x0C80 <= cp <= 0x0CFF: return "kn"
+        if 0x0D00 <= cp <= 0x0D7F: return "ml"
+        if 0x0A00 <= cp <= 0x0A7F: return "pa"
+        if 0x0600 <= cp <= 0x06FF: return "ur"
+    return "en"
+
+
+# Keyword-to-department mapping covering English + Hindi + common Hinglish + regional
+_DEPT_KEYWORDS = {
+    "dep_card": {
+        "en": ["heart", "chest", "cardiac", "cardio", "palpitation", "bp", "blood pressure"],
+        "hi": ["dil", "seena", "dhadkan", "dharkan", "saans", "blood pressure", "hart", "chhati"],
+        "bn": ["hridoy", "buk", "chhati"],
+        "ta": ["idhayam", "nenju"],
+        "te": ["gunde", "chhathi"],
+    },
+    "dep_ortho": {
+        "en": ["bone", "joint", "back", "knee", "fracture", "spine", "shoulder", "leg", "arm", "hip"],
+        "hi": ["haddi", "jodon", "pair", "kamar", "ghutna", "toot", "haath", "ped", "back pain"],
+        "bn": ["har", "gora", "hatu"],
+        "ta": ["elumbu", "moottu"],
+        "te": ["emuka", "mokalu"],
+    },
+    "dep_ped": {
+        "en": ["child", "kid", "baby", "infant", "pediatric", "toddler", "newborn", "son", "daughter"],
+        "hi": ["bacha", "bachcha", "bache", "bacchi", "beta", "beti", "chhota", "nanhi", "shishu"],
+        "bn": ["bachcha", "chhele", "meye"],
+        "ta": ["kuzhanthai", "pillai"],
+        "te": ["pillalu", "bidda"],
+    },
+    "dep_gen": {
+        "en": ["fever", "cold", "cough", "headache", "stomach", "vomit", "pain", "sick", "ill", "doctor",
+                "not well", "unwell", "body", "weakness", "tired", "nausea", "diarrhea", "infection",
+                "throat", "flu", "allergy", "rash", "skin", "ache", "hurts"],
+        "hi": ["bukhar", "sardi", "khansi", "khasi", "sir dard", "pet", "ulti", "dard", "bimar",
+                "tabiyat", "kamzori", "thakan", "gala", "jukham", "bimari", "dawai", "ilaj",
+                "pet dard", "sar dard", "chakkar", "pasina"],
+        "bn": ["jor", "thanda", "kashi", "matha", "pet", "bomi"],
+        "ta": ["kaichal", "jalam", "iruma", "thalai", "vayiru"],
+        "te": ["jwaram", "daggu", "tala", "kallu"],
+    },
+    "dep_emg": {
+        "en": ["emergency", "accident", "bleeding", "unconscious", "breathless", "heart attack", "stroke",
+                "seizure", "faint", "collapse", "critical", "ambulance", "dying"],
+        "hi": ["emergency", "hadsa", "khoon", "behosh", "saans nahi", "heart attack", "gir gaya",
+                "bahut kharab", "jaldi", "turant"],
+    },
+}
+
+# Replies in detected language
+_GREETINGS = {
+    "en": "Hello! I'm the MediVERSE AI assistant. What health issue can I help you with today?",
+    "hi": "नमस्ते! मैं MediVERSE AI सहायक हूँ। आज मैं आपकी क्या मदद कर सकता हूँ?",
+    "bn": "নমস্কার! আমি MediVERSE AI সহায়ক। আজ আপনার কী সমস্যা?",
+    "ta": "வணக்கம்! நான் MediVERSE AI உதவியாளர். இன்று என்ன உதவி வேண்டும்?",
+    "te": "నమస్కారం! నేను MediVERSE AI సహాయకుడిని. ఈరోజు ఏమి సహాయం కావాలి?",
+    "mr": "नमस्कार! मी MediVERSE AI सहाय्यक आहे. आज काय मदत करू?",
+    "gu": "નમસ્તે! હું MediVERSE AI સહાયક છું. આજે શું મદદ કરું?",
+    "kn": "ನಮಸ್ಕಾರ! ನಾನು MediVERSE AI ಸಹಾಯಕ. ಇವತ್ತು ಏನು ಸಹಾಯ ಬೇಕು?",
+    "ml": "നമസ്കാരം! ഞാൻ MediVERSE AI സഹായിയാണ്. ഇന്ന് എന്ത് സഹായം വേണം?",
+    "pa": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ MediVERSE AI ਸਹਾਇਕ ਹਾਂ। ਅੱਜ ਕੀ ਮਦਦ ਕਰਾਂ?",
+    "ur": "السلام علیکم! میں MediVERSE AI اسسٹنٹ ہوں۔ آج کیا مدد کر سکتا ہوں؟",
+}
+
+
+def _match_department(text: str, lang: str) -> str | None:
+    """Match user text to a department ID using keyword lists."""
+    lower = text.lower()
+    # Check emergency first (highest priority)
+    for dept_id in ["dep_emg", "dep_card", "dep_ortho", "dep_ped", "dep_gen"]:
+        keywords = _DEPT_KEYWORDS.get(dept_id, {})
+        for kw_lang in [lang, "en", "hi"]:  # check user's lang, then en, then hi
+            for kw in keywords.get(kw_lang, []):
+                if kw in lower:
+                    return dept_id
+    return None
+
+
+def _get_dept_name(dept_id: str) -> str:
+    departments = _load_csv("departments.csv")
+    for d in departments:
+        if d.get("id") == dept_id:
+            return d.get("name", dept_id)
+    return dept_id
+
+
+def _get_best_doctor(dept_id: str) -> dict | None:
+    doctors = _load_csv("doctors.csv")
+    available = [d for d in doctors if d.get("department_id") == dept_id and d.get("is_available", "").lower() == "true"]
+    if not available:
+        return None
+    # Sort by rating descending
+    available.sort(key=lambda d: float(d.get("rating", 0)), reverse=True)
+    return available[0]
+
+
+def _offline_reply(lang: str, key: str, **kwargs) -> str:
+    """Generate localized replies for the offline flow."""
+    templates = {
+        "suggest_dept": {
+            "en": "Based on your symptoms, I recommend the **{dept}** department. {doctor_info} Shall I book an appointment?",
+            "hi": "आपके लक्षणों के अनुसार, मैं **{dept}** विभाग सुझाता हूँ। {doctor_info} क्या मैं अपॉइंटमेंट बुक करूँ?",
+        },
+        "doctor_info": {
+            "en": "Dr. {name} is available (Room {room}, Fee: ₹{fee}, Wait: ~{wait} min).",
+            "hi": "डॉ. {name} उपलब्ध हैं (कमरा {room}, शुल्क: ₹{fee}, प्रतीक्षा: ~{wait} मिनट)।",
+        },
+        "confirm_book": {
+            "en": "Great! What is your name please? I'll book your ticket right away.",
+            "hi": "बढ़िया! कृपया अपना नाम बताएं, मैं तुरंत आपका टिकट बुक करता हूँ।",
+        },
+        "booking_done": {
+            "en": "Booking your appointment now with Dr. {doctor} in {dept}...",
+            "hi": "डॉ. {doctor} के साथ {dept} में आपकी अपॉइंटमेंट बुक हो रही है...",
+        },
+        "ask_symptom": {
+            "en": "Could you tell me what health problem you're experiencing? For example: fever, headache, chest pain, or bone/joint pain.",
+            "hi": "कृपया बताएं आपको क्या तकलीफ़ है? जैसे: बुखार, सिर दर्द, छाती में दर्द, या हड्डी/जोड़ का दर्द।",
+        },
+        "emergency": {
+            "en": "🚨 This sounds like an EMERGENCY. I'm routing you to the Emergency department with highest priority immediately!",
+            "hi": "🚨 यह EMERGENCY लग रहा है। मैं आपको तुरंत इमरजेंसी विभाग में सर्वोच्च प्राथमिकता पर भेज रहा हूँ!",
+        },
+        "not_understood": {
+            "en": "I understand many languages! Could you describe your health issue? I can help book a doctor's appointment.",
+            "hi": "मैं कई भाषाएं समझता हूँ! कृपया अपनी स्वास्थ्य समस्या बताएं, मैं डॉक्टर की अपॉइंटमेंट बुक कर सकता हूँ।",
+        },
+    }
+    t = templates.get(key, {})
+    text = t.get(lang, t.get("en", t.get("hi", "")))
+    return text.format(**kwargs) if kwargs else text
+
+
 def generate_voice_response(session_id: str | None, user_message: str) -> dict:
     """
     Main entry point. Takes a session_id and new user message.
@@ -99,12 +244,10 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
     history.append({"role": "user", "content": user_message})
 
     if not HF_API_TOKEN:
-        reply = "System is in offline mode. Please use the manual touch screen to book your ticket."
-        history.append({"role": "assistant", "content": reply})
-        return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
+        return _offline_flow(sid, history, user_message)
 
     # Build Qwen chat prompt
-    API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct"
+    API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-1.5B-Instruct"
     headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
 
     prompt = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n"
@@ -122,8 +265,9 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
                 "temperature": 0.4,
                 "top_p": 0.9,
                 "repetition_penalty": 1.1
-            }
-        }, timeout=15)
+            },
+            "options": {"wait_for_model": True}
+        }, timeout=30)
 
         if response.status_code == 200:
             result = response.json()
@@ -134,16 +278,14 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
             else:
                 reply = "I could not process that. Could you please repeat?"
         elif response.status_code == 503:
-            # Model loading
-            reply = "The AI model is loading, please wait a moment and try again."
+            # Model loading — fall back to offline
+            return _offline_flow(sid, history, user_message)
         else:
             print(f"HF API Error {response.status_code}: {response.text[:200]}")
-            reply = "I am having trouble connecting. Please try again in a moment."
-    except requests.exceptions.Timeout:
-        reply = "The request timed out. Please try again."
-    except Exception as e:
-        print(f"HF API Exception: {e}")
-        reply = "I am having trouble connecting. Please use the manual touchscreen."
+            return _offline_flow(sid, history, user_message)
+    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, Exception) as e:
+        print(f"HF API unreachable ({type(e).__name__}), using offline mode")
+        return _offline_flow(sid, history, user_message)
 
     # Parse actions from reply
     action = None
@@ -193,6 +335,156 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
     return {
         "session_id": sid,
         "reply": clean_reply,
+        "action": action,
+        "action_data": action_data
+    }
+
+
+# ---- Offline session state ----
+_offline_state: Dict[str, dict] = {}
+
+def _offline_flow(sid: str, history: List[dict], user_message: str) -> dict:
+    """
+    Rule-based offline fallback that handles multi-step booking without any LLM.
+    Tracks conversation state per session: greeting → symptom → suggest → confirm → book.
+    """
+    lang = _detect_language(user_message)
+    lower = user_message.lower().strip()
+
+    # Get or init session state
+    if sid not in _offline_state:
+        _offline_state[sid] = {"step": "greeting", "dept_id": None, "doctor": None, "lang": lang}
+    state = _offline_state[sid]
+    state["lang"] = lang  # update based on latest message
+
+    action = None
+    action_data = None
+
+    # Handle greetings / generic hellos
+    greet_words = ["hi", "hello", "hey", "hii", "hiii", "namaste", "namaskar", "help", "helo",
+                   "namaskaram", "vanakkam", "sat sri akal", "assalam", "salam"]
+    is_greeting = any(g in lower for g in greet_words) and len(lower.split()) <= 4
+
+    if state["step"] == "greeting" or is_greeting:
+        # Check if user already mentioned symptoms in greeting
+        dept_id = _match_department(user_message, lang)
+        if dept_id:
+            state["dept_id"] = dept_id
+            doctor = _get_best_doctor(dept_id)
+            state["doctor"] = doctor
+            dept_name = _get_dept_name(dept_id)
+
+            if dept_id == "dep_emg":
+                reply = _offline_reply(lang, "emergency")
+                state["step"] = "confirm_name"
+            else:
+                if doctor:
+                    doc_name = doctor.get("name", "?").replace("Dr. ", "").replace("Dr ", "").replace("Dr.", "")
+                    doc_info = _offline_reply(lang, "doctor_info",
+                        name=doc_name,
+                        room=doctor.get("room_number", "?"),
+                        fee=doctor.get("consultation_fee", "?"),
+                        wait=doctor.get("estimated_wait_minutes", "?"))
+                else:
+                    doc_info = ""
+                reply = _offline_reply(lang, "suggest_dept", dept=dept_name, doctor_info=doc_info)
+                state["step"] = "confirm_dept"
+        else:
+            reply = _GREETINGS.get(lang, _GREETINGS["en"])
+            state["step"] = "ask_symptom"
+
+    elif state["step"] == "ask_symptom":
+        dept_id = _match_department(user_message, lang)
+        if dept_id:
+            state["dept_id"] = dept_id
+            doctor = _get_best_doctor(dept_id)
+            state["doctor"] = doctor
+            dept_name = _get_dept_name(dept_id)
+
+            if dept_id == "dep_emg":
+                reply = _offline_reply(lang, "emergency")
+                state["step"] = "confirm_name"
+            else:
+                if doctor:
+                    doc_name = doctor.get("name", "?").replace("Dr. ", "").replace("Dr ", "").replace("Dr.", "")
+                    doc_info = _offline_reply(lang, "doctor_info",
+                        name=doc_name,
+                        room=doctor.get("room_number", "?"),
+                        fee=doctor.get("consultation_fee", "?"),
+                        wait=doctor.get("estimated_wait_minutes", "?"))
+                else:
+                    doc_info = ""
+                reply = _offline_reply(lang, "suggest_dept", dept=dept_name, doctor_info=doc_info)
+                state["step"] = "confirm_dept"
+        else:
+            reply = _offline_reply(lang, "ask_symptom")
+
+    elif state["step"] == "confirm_dept":
+        # User says yes/no to department suggestion
+        yes_words = ["yes", "haan", "ha", "ok", "sure", "book", "theek", "thik", "acha", "accha",
+                     "chalo", "kar do", "karo", "please", "ji", "haa", "sahi", "done", "okay"]
+        no_words = ["no", "nahi", "naa", "nahin", "change", "dusra", "aur", "other"]
+
+        if any(w in lower for w in yes_words):
+            reply = _offline_reply(lang, "confirm_book")
+            state["step"] = "confirm_name"
+        elif any(w in lower for w in no_words):
+            reply = _offline_reply(lang, "ask_symptom")
+            state["step"] = "ask_symptom"
+            state["dept_id"] = None
+            state["doctor"] = None
+        else:
+            # Treat as symptom re-entry
+            dept_id = _match_department(user_message, lang)
+            if dept_id:
+                state["dept_id"] = dept_id
+                state["doctor"] = _get_best_doctor(dept_id)
+                dept_name = _get_dept_name(dept_id)
+                doc = state["doctor"]
+                doc_info = ""
+                if doc:
+                    doc_info = _offline_reply(lang, "doctor_info",
+                        name=doc.get("name", "?"), room=doc.get("room_number", "?"),
+                        fee=doc.get("consultation_fee", "?"), wait=doc.get("estimated_wait_minutes", "?"))
+                reply = _offline_reply(lang, "suggest_dept", dept=dept_name, doctor_info=doc_info)
+            else:
+                reply = _offline_reply(lang, "confirm_book")
+                state["step"] = "confirm_name"
+
+    elif state["step"] == "confirm_name":
+        # User provides their name — now book
+        patient_name = user_message.strip()
+        if len(patient_name) < 2:
+            patient_name = "Guest Patient"
+
+        dept_id = state.get("dept_id") or "dep_gen"
+        doctor = state.get("doctor")
+        doctor_id = doctor.get("id", "") if doctor else ""
+        doc_name = doctor.get("name", "Duty Specialist") if doctor else "Duty Specialist"
+        dept_name = _get_dept_name(dept_id)
+        priority = "EMERGENCY" if dept_id == "dep_emg" else "STANDARD"
+
+        reply = _offline_reply(lang, "booking_done", doctor=doc_name, dept=dept_name)
+        action = "BOOK_TICKET"
+        action_data = {
+            "dept_id": dept_id,
+            "doctor_id": doctor_id,
+            "priority": priority,
+            "patient_name": patient_name
+        }
+        # Reset state for next conversation
+        state["step"] = "done"
+
+    else:
+        # Done or unknown — restart
+        reply = _GREETINGS.get(lang, _GREETINGS["en"])
+        state["step"] = "ask_symptom"
+
+    history.append({"role": "assistant", "content": reply})
+
+    return {
+        "session_id": sid,
+        "reply": reply,
         "action": action,
         "action_data": action_data
     }

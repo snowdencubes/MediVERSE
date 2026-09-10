@@ -39,11 +39,12 @@ def get_ai_summary(ticket_id: str):
         # Call Hugging Face Qwen model
         headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
         # We can use Qwen2.5-7B-Instruct or a similar lightweight instruction model
-        API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct"
+        API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-1.5B-Instruct"
         
         response = requests.post(API_URL, headers=headers, json={
             "inputs": prompt,
-            "parameters": {"max_new_tokens": 50, "temperature": 0.3}
+            "parameters": {"max_new_tokens": 50, "temperature": 0.3},
+            "options": {"wait_for_model": True}
         })
 
         if response.status_code == 200:

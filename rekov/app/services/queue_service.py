@@ -174,10 +174,13 @@ class QueueService:
 
         priority_lvl, triage_sc = self.calculate_triage(req.vitals)
 
+        ticket_id = f"tck-{uuid.uuid4().hex[:8]}"
+        now = datetime.utcnow()
+
         db = SessionLocal()
         try:
             db_ticket = TicketModel(
-                ticket_id=f"tck-{uuid.uuid4().hex[:8]}",
+                ticket_id=ticket_id,
                 token_number=token_num,
                 department_id=dep.id,
                 department_name=dep.name,
@@ -197,9 +200,41 @@ class QueueService:
             db.add(db_ticket)
             db.commit()
             db.refresh(db_ticket)
+
+            # Append to receipts.csv for flat-file tracking
+            self._append_receipt(
+                ticket_id=ticket_id,
+                token_number=token_num,
+                patient_name=req.patient.full_name,
+                patient_phone=req.patient.phone or "",
+                department=dep.name,
+                doctor=doc_name,
+                room=room_num,
+                total_fee=total_fee,
+                priority=priority_lvl,
+                triage_score=triage_sc,
+                combos="; ".join(combo_titles),
+                created_at=now.strftime("%Y-%m-%d %H:%M:%S")
+            )
+
             return self._model_to_schema(db_ticket)
         finally:
             db.close()
+
+    def _append_receipt(self, **row):
+        """Append a single receipt row to receipts.csv, creating the file with headers if needed."""
+        receipt_file = os.path.join(DATA_DIR, "receipts.csv")
+        file_exists = os.path.exists(receipt_file)
+        fieldnames = [
+            "ticket_id", "token_number", "patient_name", "patient_phone",
+            "department", "doctor", "room", "total_fee", "priority",
+            "triage_score", "combos", "created_at"
+        ]
+        with open(receipt_file, mode="a", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(row)
 
     def get_queue_board(self) -> QueueBoardResponse:
         db = SessionLocal()

@@ -36,19 +36,19 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({ departments, selectedI
               position: 'relative'
             }}
           >
-            <span style={{ fontSize: 28, marginBottom: 10, color: isSelected ? '#ff2d55' : 'var(--text-secondary)' }}>{sym}</span>
+            <span style={{ fontSize: 28, marginBottom: 10, color: isSelected ? '#D91636' : 'var(--text-secondary)' }}>{sym}</span>
             <h3 style={{
-              fontFamily: "'Space Grotesk'", fontSize: 14, fontWeight: 700,
+              fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', fontWeight: 700,
               color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)', marginBottom: 4
             }}>{dep.name}</h3>
             <p style={{
-              fontFamily: "'Space Grotesk'", fontSize: 11,
+              fontFamily: "'Space Grotesk'", fontSize: 'clamp(13px, 1.3vw, 17px)',
               color: 'var(--text-muted)', lineHeight: 1.4
             }}>{dep.description}</p>
             {dep.wait_time_minutes > 0 && (
               <span style={{
                 position: 'absolute', top: 8, right: 8,
-                fontFamily: "'Space Grotesk'", fontSize: 9, fontWeight: 700,
+                fontFamily: "'Space Grotesk'", fontSize: 'clamp(11px, 1.1vw, 15px)', fontWeight: 700,
                 padding: '2px 8px', background: 'var(--bg-card)',
                 border: '1px solid var(--border-color)', color: 'var(--text-secondary)'
               }}>

@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RekovNav } from '@/components/common/RekovNav';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const FEATURE_SLIDES = [
@@ -38,12 +39,33 @@ const cardStyle: React.CSSProperties = {
 
 export default function Home() {
   const router = useRouter();
-  const { t } = useLanguage();
+      const { lang, t } = useLanguage();
+
+  const getFallbackLang = (l: string) => {
+    if (l === 'EN') return 'HI';
+    if (['HI', 'BN', 'SAT', 'KVN', 'HOC', 'UNW', 'TA', 'TE', 'MR', 'GU', 'UR', 'KN', 'ML', 'PA'].includes(l)) {
+      if (l === 'HI') return 'EN';
+      return 'HI';
+    }
+    return 'EN';
+  };
+  const subLang = getFallbackLang(lang) as any;
+
+
+
   const [slideIdx, setSlideIdx] = useState(0);
   const [transcript, setTranscript] = useState('');
 
   const prevSlide = () => setSlideIdx(i => (i - 1 + FEATURE_SLIDES.length) % FEATURE_SLIDES.length);
   const nextSlide = () => setSlideIdx(i => (i + 1) % FEATURE_SLIDES.length);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideIdx(i => (i + 1) % FEATURE_SLIDES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
 
   useEffect(() => {
     const pollWhatsapp = async () => {
@@ -62,13 +84,13 @@ export default function Home() {
         // silently fail polling
       }
     };
-    const interval = setInterval(pollWhatsapp, 3000);
+    const interval = setInterval(pollWhatsapp, 10000);
     return () => clearInterval(interval);
   }, [router, t]);
 
   const hoverOn = (e: React.MouseEvent<HTMLElement>, accent = false) => {
     e.currentTarget.style.background = accent ? 'rgba(255,45,85,.12)' : 'var(--bg-hover)';
-    e.currentTarget.style.borderColor = accent ? '#ff2d55' : 'var(--text-primary)';
+    e.currentTarget.style.borderColor = accent ? '#D91636' : 'var(--text-primary)';
   };
   const hoverOff = (e: React.MouseEvent<HTMLElement>) => {
     e.currentTarget.style.background = 'var(--bg-card)';
@@ -77,151 +99,108 @@ export default function Home() {
 
   return (
     <>
-      <RekovNav currentModule="home" />
+      <MediVERSENav currentModule="home" />
 
-      <main style={{
-        position: 'relative', zIndex: 10, height: '100vh',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        alignItems: 'center', padding: '80px 24px 60px', textAlign: 'center',
-        overflow: 'hidden'
-      }}>
+      <main className="relative z-10 min-h-screen w-full flex flex-col justify-start md:justify-center items-center px-4 pt-24 md:pt-32 pb-16 text-center overflow-x-hidden overflow-y-auto">
 
-        {/* Main Action Cards: 5 items in a row */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)',
-          gap: 1, width: '100%', maxWidth: 1100, marginBottom: 32,
-          background: 'var(--border-color)', border: '1px solid var(--border-color)'
-        }}>
+        {/* Main Action Cards: Responsive */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, staggerChildren: 0.1 }}
+          className="w-full max-w-6xl mb-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-[1px] bg-white/10 border border-white/10 shadow-2xl"
+        >
           {/* Card 1: Check-In */}
-          <Link href="/kiosk" style={cardStyle}
-            onMouseEnter={e => hoverOn(e, true)}
-            onMouseLeave={hoverOff}
-          >
-            <span style={{ fontSize: 28, color: '#ff2d55', marginBottom: 12 }}>&#9672;</span>
-            <span style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: 20,
-              letterSpacing: '.1em', color: 'var(--text-primary)'
-            }}>{t('check_in')}</span>
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 10,
-              color: 'var(--text-secondary)', marginTop: 8, letterSpacing: '.05em'
-            }}>{t('manual_entry')}</span>
+          <Link href="/kiosk" className="group flex flex-col items-center justify-center p-6 bg-black/60 hover:bg-transparent hover:ring-1 hover:ring-inset hover:ring-white transition-all cursor-pointer relative text-decoration-none text-center">
+            <span className="text-3xl text-[#D91636] mb-4 drop-shadow-[0_0_8px_rgba(217,22,54,0.5)]">&#9672;</span>
+            <div className="flex flex-col items-center">
+              <span className="font-['Bebas_Neue'] text-2xl lg:text-3xl tracking-widest text-white">{t('check_in')}</span>
+              <span className="font-['Space_Grotesk'] text-sm lg:text-base text-white/50 tracking-wider mt-1">{t('manual_entry', subLang)}</span>
+            </div>
           </Link>
 
           {/* Card 2: Status Check */}
-          <Link href="/status" style={cardStyle}
-            onMouseEnter={e => hoverOn(e)}
-            onMouseLeave={hoverOff}
-          >
-            <span style={{ fontSize: 28, color: 'var(--text-primary)', marginBottom: 12 }}>&#9678;</span>
-            <span style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: 20,
-              letterSpacing: '.1em', color: 'var(--text-primary)'
-            }}>{t('status_check')}</span>
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 10,
-              color: 'var(--text-secondary)', marginTop: 8, letterSpacing: '.05em'
-            }}>{t('token_lookup')}</span>
+          <Link href="/status" className="group flex flex-col items-center justify-center p-6 bg-black/60 hover:bg-transparent hover:ring-1 hover:ring-inset hover:ring-white transition-all cursor-pointer relative text-decoration-none text-center">
+            <span className="text-3xl text-white mb-4 opacity-80">&#9678;</span>
+            <div className="flex flex-col items-center">
+              <span className="font-['Bebas_Neue'] text-2xl lg:text-3xl tracking-widest text-white">{t('status_check')}</span>
+              <span className="font-['Space_Grotesk'] text-sm lg:text-base text-white/50 tracking-wider mt-1">{t('token_lookup', subLang)}</span>
+            </div>
           </Link>
 
           {/* Card 3: Schedules */}
-          <Link href="/schedules" style={cardStyle}
-            onMouseEnter={e => hoverOn(e)}
-            onMouseLeave={hoverOff}
-          >
-            <span style={{ fontSize: 28, color: 'var(--text-primary)', marginBottom: 12 }}>&#9638;</span>
-            <span style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: 20,
-              letterSpacing: '.1em', color: 'var(--text-primary)'
-            }}>{t('schedules')}</span>
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 10,
-              color: 'var(--text-secondary)', marginTop: 8, letterSpacing: '.05em'
-            }}>{t('doctor_timings')}</span>
+          <Link href="/schedules" className="group flex flex-col items-center justify-center p-6 bg-black/60 hover:bg-transparent hover:ring-1 hover:ring-inset hover:ring-white transition-all cursor-pointer relative text-decoration-none text-center">
+            <span className="text-3xl text-white mb-4 opacity-80">&#9638;</span>
+            <div className="flex flex-col items-center">
+              <span className="font-['Bebas_Neue'] text-2xl lg:text-3xl tracking-widest text-white">{t('schedules')}</span>
+              <span className="font-['Space_Grotesk'] text-sm lg:text-base text-white/50 tracking-wider mt-1">{t('doctor_timings', subLang)}</span>
+            </div>
           </Link>
 
           {/* Card 4: Voice Assistant */}
-          <div style={cardStyle}
-            onClick={() => router.push('/voice-assistant')}
-            onMouseEnter={e => hoverOn(e, true)}
-            onMouseLeave={hoverOff}
-          >
-            <span style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff2d55" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div onClick={() => router.push('/voice-assistant')} className="group flex flex-col items-center justify-center p-6 bg-black/60 hover:bg-transparent hover:ring-1 hover:ring-inset hover:ring-white transition-all cursor-pointer relative text-center">
+            <span className="flex items-center justify-center mb-4">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D91636" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_0_8px_rgba(217,22,54,0.5)]">
                 <rect x="9" y="2" width="6" height="11" rx="3"></rect>
                 <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
                 <line x1="12" y1="19" x2="12" y2="22"></line>
                 <line x1="8" y1="22" x2="16" y2="22"></line>
               </svg>
             </span>
-            <span style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: 20,
-              letterSpacing: '.1em', color: 'var(--text-primary)'
-            }}>VOICE ASSIST</span>
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 10,
-              color: 'var(--text-secondary)', marginTop: 8, letterSpacing: '.05em'
-            }}>Speak Naturally</span>
+            <div className="flex flex-col items-center">
+              <span className="font-['Bebas_Neue'] text-2xl lg:text-3xl tracking-widest text-white">{t('voice_assist')}</span>
+              <span className="font-['Space_Grotesk'] text-sm lg:text-base text-white/50 tracking-wider mt-1">{t('speak_naturally', subLang)}</span>
+            </div>
           </div>
 
           {/* Card 5: QR Zero-Touch */}
-          <div style={{...cardStyle, position: 'relative'}}
-            onMouseEnter={e => hoverOn(e)}
-            onMouseLeave={hoverOff}
-          >
+          <div className="col-span-2 md:col-span-1 group flex flex-col items-center justify-center p-6 bg-black/60 hover:bg-transparent hover:ring-1 hover:ring-inset hover:ring-white transition-all cursor-pointer relative text-center">
             <img 
               src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://wa.me/15551234567?text=Check%20me%20in&color=ff2d55&bgcolor=111111" 
               alt="WhatsApp QR" width={64} height={64} 
-              style={{ borderRadius: 4, marginBottom: 12 }} 
+              className="mb-4 border border-white/20 transition-transform group-hover:scale-105 duration-300 w-16 h-16" 
             />
-            <span style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: 20,
-              letterSpacing: '.1em', color: 'var(--text-primary)'
-            }}>QR CHECK-IN</span>
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 10,
-              color: 'var(--text-secondary)', marginTop: 8, letterSpacing: '.05em'
-            }}>Scan with WhatsApp</span>
+            <div className="flex flex-col items-center">
+              <span className="font-['Bebas_Neue'] text-2xl lg:text-3xl tracking-widest text-white">{t('qr_check_in')}</span>
+              <span className="font-['Space_Grotesk'] text-sm lg:text-base text-white/50 tracking-wider mt-1">{t('scan_whatsapp', subLang)}</span>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Feature Slides */}
-        <div style={{
-          width: '100%', maxWidth: 500, position: 'relative',
-          background: 'var(--bg-card)', border: '1px solid var(--border-color)',
-          padding: '24px 48px', minHeight: 80
-        }}>
-          <button onClick={prevSlide} style={{
-            position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-            background: 'none', border: 'none', color: 'var(--text-secondary)',
-            fontSize: 20, cursor: 'pointer', padding: 4
-          }}>&#8249;</button>
-
-          <div style={{ textAlign: 'center' }}>
-            <p style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 13,
-              fontWeight: 700, color: '#ff2d55', letterSpacing: '.05em', marginBottom: 4
-            }}>{FEATURE_SLIDES[slideIdx].title}</p>
-            <p style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 11,
-              color: 'var(--text-secondary)', lineHeight: 1.6
-            }}>{FEATURE_SLIDES[slideIdx].desc}</p>
+        <div className="w-full max-w-[500px] relative bg-black/40 border border-white/10 p-6 md:p-8 min-h-[140px] flex items-center justify-center overflow-hidden">
+          <button onClick={prevSlide} className="absolute left-2 md:left-4 z-20 text-white/50 hover:text-white text-3xl cursor-pointer bg-transparent border-none p-2">&#8249;</button>
+          
+          <div className="text-center w-full px-8 relative flex items-center justify-center min-h-[80px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slideIdx}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="absolute w-full"
+              >
+                <p className="font-['Space_Grotesk'] text-[clamp(15px,1.6vw,19px)] font-bold text-[#D91636] tracking-wider mb-2">
+                  {FEATURE_SLIDES[slideIdx].title}
+                </p>
+                <p className="font-['Space_Grotesk'] text-[clamp(13px,1.3vw,17px)] text-white/60 leading-relaxed">
+                  {FEATURE_SLIDES[slideIdx].desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-          <button onClick={nextSlide} style={{
-            position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-            background: 'none', border: 'none', color: 'var(--text-secondary)',
-            fontSize: 20, cursor: 'pointer', padding: 4
-          }}>&#8250;</button>
+          <button onClick={nextSlide} className="absolute right-2 md:right-4 z-20 text-white/50 hover:text-white text-3xl cursor-pointer bg-transparent border-none p-2">&#8250;</button>
         </div>
 
         {/* Dots */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+        <div className="flex gap-2 mt-4">
           {FEATURE_SLIDES.map((_, i) => (
             <button key={i} onClick={() => setSlideIdx(i)} style={{
-              width: i === slideIdx ? 24 : 8, height: 4, borderRadius: 2,
-              background: i === slideIdx ? '#ff2d55' : 'var(--border-color)',
-              border: 'none', cursor: 'pointer', transition: 'width .3s, background .3s'
+              width: i === slideIdx ? 24 : 8, height: 4,
+              background: i === slideIdx ? '#D91636' : 'rgba(255,255,255,0.2)',
+              border: 'none', cursor: 'pointer', transition: 'all .3s ease'
             }} />
           ))}
         </div>
@@ -231,7 +210,7 @@ export default function Home() {
           <div style={{ 
             position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 100,
             background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '10px 20px', 
-            borderRadius: 24, fontSize: 14, fontFamily: "'Space Grotesk'", 
+            borderRadius: 24, fontSize: 'clamp(16px, 1.7vw, 20px)', fontFamily: "'Space Grotesk'", 
             backdropFilter: 'blur(10px)', border: '1px solid var(--border-color)', 
             width: 'max-content', maxWidth: 320, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
           }}>
@@ -245,9 +224,9 @@ export default function Home() {
           display: 'flex', justifyContent: 'center'
         }}>
           <p style={{
-            fontFamily: "'Space Grotesk', sans-serif", fontSize: 10,
+            fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(12px, 1.2vw, 16px)',
             color: 'var(--text-muted)', letterSpacing: '.1em'
-          }}>&#169; 2025 REKOV SYSTEMS</p>
+          }}>&#169; 2025 CureX</p>
         </div>
       </main>
     </>

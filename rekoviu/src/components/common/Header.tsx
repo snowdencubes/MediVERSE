@@ -1,7 +1,7 @@
 'use client';
 
-import { RekovNav } from './RekovNav';
+import { MediVERSENav } from './MediVERSENav';
 
 export function Header({ currentModule }: { currentModule: string }) {
-  return <RekovNav currentModule={currentModule} />;
+  return <MediVERSENav currentModule={currentModule} />;
 }

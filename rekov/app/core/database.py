@@ -4,9 +4,18 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 import json
 
-# Ensure data directories exist
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-DATA_DIR = os.path.join(ROOT_DIR, "data", "database")
+# Ensure data directories exist across local and containerized environments
+ENV_DATA_DIR = os.getenv("DATA_DIR")
+if ENV_DATA_DIR:
+    DATA_DIR = ENV_DATA_DIR
+else:
+    CWD_DATA_DIR = os.path.join(os.getcwd(), "data", "database")
+    if os.path.exists(CWD_DATA_DIR):
+        DATA_DIR = CWD_DATA_DIR
+    else:
+        ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        DATA_DIR = os.path.join(ROOT_DIR, "data", "database")
+
 os.makedirs(DATA_DIR, exist_ok=True)
 
 DB_PATH = os.path.join(DATA_DIR, "local.db")
@@ -90,6 +99,18 @@ def seed_doctors(db):
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    from sqlalchemy import inspect, text
+    try:
+        inspector = inspect(engine)
+        if "tickets" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("tickets")]
+            if "patient_phone" not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE tickets ADD COLUMN patient_phone VARCHAR"))
+                    conn.commit()
+    except Exception as e:
+        print(f"Migration check warning: {e}")
+
     db = SessionLocal()
     try:
         seed_doctors(db)
