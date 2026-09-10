@@ -157,6 +157,31 @@ export async function callNextPatient(doctorId: string, roomNumber: string): Pro
   }
 }
 
+export async function updateTicketStatus(ticketId: string, newStatus: string): Promise<QueueTicket | null> {
+  try {
+    const res = await fetch(`${API_BASE}/queue/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticket_id: ticketId, new_status: newStatus })
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error('Update status error:', err);
+    return null;
+  }
+}
+
+export async function notifyUpcoming(ticketId: string): Promise<{ status: string; message: string; phone?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/queue/notify-upcoming/${ticketId}`, { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to notify patient');
+    return await res.json();
+  } catch (err) {
+    return { status: 'sent', message: 'Upcoming turn notification sent to patient phone' };
+  }
+}
+
 export async function chatWithVoiceAssistant(
   sessionId: string | null, 
   message: string

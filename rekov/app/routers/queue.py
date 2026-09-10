@@ -29,3 +29,11 @@ def get_single_ticket(ticket_id: str):
     if not t:
         raise HTTPException(status_code=404, detail="Ticket not found")
     return t
+
+@router.post("/notify-upcoming/{ticket_id}")
+def notify_upcoming_patient(ticket_id: str):
+    res = queue_service.notify_upcoming(ticket_id)
+    if res.get("status") == "error":
+        raise HTTPException(status_code=404, detail=res.get("message"))
+    return res
+

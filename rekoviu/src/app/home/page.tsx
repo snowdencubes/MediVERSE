@@ -114,6 +114,28 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  // 30-second idle timer to auto-load Queue Board TV display
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let idleTimer: NodeJS.Timeout;
+
+    const resetIdleTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        router.push('/queue-board');
+      }, 30000); // 30 seconds idle
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach(e => window.addEventListener(e, resetIdleTimer));
+    resetIdleTimer();
+
+    return () => {
+      clearTimeout(idleTimer);
+      events.forEach(e => window.removeEventListener(e, resetIdleTimer));
+    };
+  }, [router]);
+
 
   useEffect(() => {
     const pollWhatsapp = async () => {
@@ -311,7 +333,7 @@ export default function Home() {
           <p style={{
             fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(12px, 1.2vw, 16px)',
             color: 'var(--text-muted)', letterSpacing: '.1em'
-          }}>&#169; 2025 CureX</p>
+          }}>&#169; 2025 MediVERSE | Built by pheonix14</p>
         </div>
       </main>
     </>

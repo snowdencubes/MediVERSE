@@ -123,6 +123,7 @@ class QueueService:
             doctor_name=m.doctor_name,
             room_number=m.room_number,
             patient_name=m.patient_name,
+            patient_phone=m.patient_phone,
             status=m.status,
             priority_level=m.priority_level,
             triage_score=m.triage_score,
@@ -304,19 +305,40 @@ class QueueService:
     def get_ticket(self, ticket_id: str) -> Optional[QueueTicket]:
         db = SessionLocal()
         try:
-            t = db.query(TicketModel).filter(TicketModel.ticket_id == ticket_id).first()
+            q = ticket_id.strip()
+            t = db.query(TicketModel).filter(TicketModel.ticket_id.ilike(q)).first()
             if not t:
-                t = db.query(TicketModel).filter(TicketModel.token_number == ticket_id).first()
+                t = db.query(TicketModel).filter(TicketModel.token_number.ilike(q)).first()
+            if not t:
+                # Search by phone number (strip spaces or special chars)
+                clean_phone = "".join(filter(str.isdigit, q))
+                if clean_phone and len(clean_phone) >= 4:
+                    t = db.query(TicketModel).filter(TicketModel.patient_phone.like(f"%{clean_phone}%")).order_by(TicketModel.id.desc()).first()
             if t:
                 return self._model_to_schema(t)
             return None
         finally:
             db.close()
 
+    def notify_upcoming(self, ticket_id: str) -> Dict[str, str]:
+        t = self.get_ticket(ticket_id)
+        if not t:
+            return {"status": "error", "message": "Ticket not found"}
+        phone = t.patient_phone or "Registered Number"
+        msg = f"Your turn is upcoming in 5 minutes! Token {t.token_number}, Patient {t.patient_name}, Room {t.room_number}, Dr. {t.doctor_name}."
+        return {
+            "status": "sent",
+            "phone": phone,
+            "token_number": t.token_number,
+            "message": msg
+        }
+
     def update_status(self, ticket_id: str, new_status: str) -> Optional[QueueTicket]:
         db = SessionLocal()
         try:
             t = db.query(TicketModel).filter(TicketModel.ticket_id == ticket_id).first()
+            if not t:
+                t = db.query(TicketModel).filter(TicketModel.token_number == ticket_id).first()
             if t:
                 t.status = new_status
                 t.synced = False

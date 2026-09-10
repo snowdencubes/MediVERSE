@@ -83,7 +83,8 @@ class QueueTicket(BaseModel):
     doctor_name: str
     room_number: str
     patient_name: str
-    status: str  # WAITING, IN_CONSULTATION, COMPLETED, CANCELLED
+    patient_phone: Optional[str] = None
+    status: str  # WAITING, IN_CONSULTATION, COMPLETED, CANCELLED, SKIPPED
     priority_level: str  # EMERGENCY, URGENT, STANDARD
     triage_score: int
     combos_selected: List[str] = Field(default_factory=list)

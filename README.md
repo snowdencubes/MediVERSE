@@ -55,7 +55,7 @@ This project is built and maintained by **Team CureX**:
 - **Showden (Krish Kumar)**: *Lead Developer, UI/UX Design & Frontend Architecture*  
   Led the frontend initiatives (Next.js), universal usability design (Kiosk & Mobile), and integrated the sophisticated 22-language translation engine.
 
-- **Ryu**: *Backend Architecture & AI Integration*  
+- **pheonix14**: *Backend Architecture & AI Integration*  
   Engineered the core Python/FastAPI backend, managed the AI/LLM parsing logic for medical summaries, and developed the custom voice-assistant engine.
 
 - **Dipankar Roy**: *Cloud Infrastructure, Database Design, & DevOps*  
