@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { QRCodeSVG } from 'qrcode.react';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { chatWithVoiceAssistant, createTicket } from '@/services/api';
 
@@ -43,6 +44,7 @@ export default function VoiceAssistantPage() {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAbhaModal, setShowAbhaModal] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -137,16 +139,21 @@ export default function VoiceAssistantPage() {
       speakText(res.reply);
 
       // Handle actions
-      if (res.action === 'BOOK_TICKET' && res.action_data) {
+      if (res.action === 'UPLOAD_ABHA_DOCUMENTS') {
+        setShowAbhaModal(true);
+      } else if (res.action === 'GO_BACK') {
+        setShowAbhaModal(false);
+      } else if (res.action === 'BOOK_TICKET' && res.action_data) {
         addMessage('system', 'Booking your appointment...');
         try {
+          const registeredPhone = localStorage.getItem('whatsapp_phone') || 'N/A';
           const ticket = await createTicket({
             department_id: res.action_data.dept_id || 'dep_gen',
             doctor_id: res.action_data.doctor_id || '',
             patient: {
               national_id: 'GUEST-000',
               full_name: res.action_data.patient_name || 'Guest Patient',
-              phone: 'N/A',
+              phone: registeredPhone,
               age: 25,
               gender: 'O',
               insurance_member: false
@@ -401,6 +408,32 @@ export default function VoiceAssistantPage() {
             </p>
           </div>
 
+          {/* Submenu Options List */}
+          <div style={{
+            padding: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-color)',
+            borderRadius: 8, width: '100%', display: 'flex', flexDirection: 'column', gap: 6
+          }}>
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: '#888', letterSpacing: '.1em', textTransform: 'uppercase' }}>SUBMENU OPTIONS</p>
+            <button
+              onClick={() => handleSend('I want to upload ABHA card or medical documents')}
+              style={{ padding: '8px 12px', background: 'transparent', border: '1px solid #444', color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 13, cursor: 'pointer', textAlign: 'left' }}
+            >
+              1. UPLOAD ABHA / REPORTS
+            </button>
+            <button
+              onClick={() => handleSend('Tell me available doctors')}
+              style={{ padding: '8px 12px', background: 'transparent', border: '1px solid #444', color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 13, cursor: 'pointer', textAlign: 'left' }}
+            >
+              2. LIST DOCTORS & FEES
+            </button>
+            <button
+              onClick={() => handleSend('back')}
+              style={{ padding: '8px 12px', background: 'transparent', border: '1px solid #444', color: '#888', fontFamily: "'Space Grotesk'", fontSize: 13, cursor: 'pointer', textAlign: 'left' }}
+            >
+              3. GO BACK TO MAIN MENU
+            </button>
+          </div>
+
           {/* Back button */}
           <button
             onClick={() => router.push('/home')}
@@ -415,6 +448,56 @@ export default function VoiceAssistantPage() {
           </button>
         </div>
       </div>
+
+      {/* ABHA & Document Upload Modal */}
+      {showAbhaModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.85)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{
+            background: '#111', border: '1px solid #333', padding: 32, maxWidth: 440, width: '100%',
+            borderRadius: 8, color: '#fff', fontFamily: "'Space Grotesk'", textAlign: 'center', position: 'relative'
+          }}>
+            <button
+              onClick={() => setShowAbhaModal(false)}
+              style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#999', fontSize: 20, cursor: 'pointer' }}
+            >
+              ✕
+            </button>
+            
+            <h2 style={{ fontFamily: "'Bebas Neue'", fontSize: 32, letterSpacing: '0.05em', color: '#fff', marginBottom: 8 }}>
+              SMART ABHA & DOCUMENT UPLOAD
+            </h2>
+            <p style={{ fontSize: 13, color: '#aaa', marginBottom: 20 }}>
+              Scan this QR code to upload your ABHA card or medical records. It will auto-fill your details instantly.
+            </p>
+
+            <div style={{ background: '#fff', padding: 20, display: 'inline-block', borderRadius: 8, marginBottom: 20 }}>
+              <QRCodeSVG value={`${typeof window !== 'undefined' ? window.location.origin : ''}/kiosk?abha_ref=${sessionId}`} size={160} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                onClick={() => {
+                  localStorage.setItem('whatsapp_phone', '9876543210');
+                  addMessage('system', 'ABHA Card Scanned: Patient details auto-filled');
+                  setShowAbhaModal(false);
+                }}
+                style={{ padding: '12px', background: '#D91636', color: '#fff', border: 'none', fontFamily: "'Bebas Neue'", fontSize: 20, cursor: 'pointer' }}
+              >
+                SIMULATE ABHA AUTO-FILL SCAN
+              </button>
+              <button
+                onClick={() => setShowAbhaModal(false)}
+                style={{ padding: '10px', background: 'transparent', border: '1px solid #444', color: '#aaa', fontFamily: "'Space Grotesk'", fontSize: 14, cursor: 'pointer' }}
+              >
+                CLOSE & RETURN TO CHAT
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

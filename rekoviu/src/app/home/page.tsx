@@ -55,6 +55,54 @@ export default function Home() {
 
   const [slideIdx, setSlideIdx] = useState(0);
   const [transcript, setTranscript] = useState('');
+  const [wakePromptOpen, setWakePromptOpen] = useState(false);
+  const [wakeWords, setWakeWords] = useState<string[]>([
+    'wake up', 'hello', 'jaag jao', 'jaag jao prashant', 'wake up prashant', 'hey prashant', 'prashant'
+  ]);
+  const [confirmWords, setConfirmWords] = useState<string[]>([
+    'yes', 'haan', 'ha', 'sure', 'continue', 'ok', 'okay'
+  ]);
+
+  useEffect(() => {
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:8000/api/v1`;
+    fetch(`${apiUrl}/ai_voice/keywords`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.wake_words) setWakeWords(d.wake_words);
+        if (d.confirm_words) setConfirmWords(d.confirm_words);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+
+    const recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-IN';
+
+    recognition.onresult = (event: any) => {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const text = event.results[i][0].transcript.toLowerCase();
+        const detectedWake = wakeWords.some(w => text.includes(w.toLowerCase()));
+        if (detectedWake) {
+          setWakePromptOpen(true);
+        }
+        const detectedConfirm = confirmWords.some(c => text.includes(c.toLowerCase()));
+        if (wakePromptOpen && detectedConfirm) {
+          router.push('/voice-assistant');
+        }
+      }
+    };
+
+    try { recognition.start(); } catch (e) {}
+
+    return () => { try { recognition.stop(); } catch (e) {} };
+  }, [wakeWords, confirmWords, wakePromptOpen, router]);
 
   const prevSlide = () => setSlideIdx(i => (i - 1 + FEATURE_SLIDES.length) % FEATURE_SLIDES.length);
   const nextSlide = () => setSlideIdx(i => (i + 1) % FEATURE_SLIDES.length);
@@ -70,7 +118,8 @@ export default function Home() {
   useEffect(() => {
     const pollWhatsapp = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:8000/api/v1`;
+        const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:8000/api/v1`;
         const res = await fetch(`${apiUrl}/kiosk/whatsapp/latest`);
         if (res.ok) {
           const data = await res.json();
@@ -215,6 +264,42 @@ export default function Home() {
             width: 'max-content', maxWidth: 320, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
           }}>
             {transcript}
+          </div>
+        )}
+
+        {/* Wake Phrase Overlay */}
+        {wakePromptOpen && (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: 24, textAlign: 'center', backdropFilter: 'blur(10px)'
+          }}>
+            <h2 style={{ fontFamily: "'Bebas Neue'", fontSize: 42, color: '#fff', letterSpacing: '0.05em', marginBottom: 12 }}>
+              WAKE PHRASE DETECTED
+            </h2>
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 18, color: '#aaa', marginBottom: 28, maxWidth: 400 }}>
+              Say &quot;YES&quot; or &quot;HAAN&quot; or tap below to continue with MediVERSE Voice Assistant.
+            </p>
+            <div style={{ display: 'flex', gap: 16 }}>
+              <button
+                onClick={() => router.push('/voice-assistant')}
+                style={{
+                  padding: '14px 28px', background: '#D91636', color: '#fff', border: 'none',
+                  fontFamily: "'Bebas Neue'", fontSize: 24, letterSpacing: '0.05em', cursor: 'pointer'
+                }}
+              >
+                CONTINUE TO VOICE ASSISTANT
+              </button>
+              <button
+                onClick={() => setWakePromptOpen(false)}
+                style={{
+                  padding: '14px 24px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
+                  fontFamily: "'Space Grotesk'", fontSize: 16, cursor: 'pointer'
+                }}
+              >
+                CANCEL
+              </button>
+            </div>
           </div>
         )}
 

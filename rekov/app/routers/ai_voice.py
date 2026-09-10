@@ -43,3 +43,18 @@ def get_chat_history(session_id: str):
         session_id=session_id,
         messages=[ChatMessage(role=m["role"], content=m["content"]) for m in history]
     )
+
+@router.get("/keywords")
+@router.get("/keywords/")
+def get_voice_keywords():
+    """Retrieve dynamic list of wake words and confirm keywords."""
+    import os, json
+    kw_path = os.path.join(os.getcwd(), "data", "keywords.json")
+    if os.path.exists(kw_path):
+        with open(kw_path, encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "wake_words": ["wake up", "hello", "jaag jao", "jaag jao prashant", "wake up prashant", "hey prashant", "prashant"],
+        "confirm_words": ["yes", "haan", "ha", "sure", "continue", "ok"],
+        "back_words": ["back", "peeche", "wapas", "main menu"]
+    }

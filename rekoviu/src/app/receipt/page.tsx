@@ -127,11 +127,14 @@ function ReceiptContent() {
     );
   }
 
+  const registeredPhone = ticket.patient_phone || (typeof window !== 'undefined' ? localStorage.getItem('whatsapp_phone') : '') || '';
+  const cleanPhone = registeredPhone.replace(/[^0-9]/g, '');
+
   const shareText = getShareText();
-  const whatsappUrl = `https://wa.me/?text=${shareText}`;
+  const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${shareText}` : `https://wa.me/?text=${shareText}`;
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${shareText}`;
-  const smsUrl = `sms:?body=${shareText}`;
-  const smartQrValue = `${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}&channel=auto`;
+  const smsUrl = cleanPhone ? `sms:${cleanPhone}?body=${shareText}` : `sms:?body=${shareText}`;
+  const smartQrValue = `${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}&phone=${cleanPhone}`;
 
   return (
     <>

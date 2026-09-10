@@ -398,6 +398,27 @@ def _offline_flow(sid: str, history: List[dict], user_message: str) -> dict:
     action = None
     action_data = None
 
+    # Handle Back / Main Menu Intent
+    back_words = ["back", "peeche", "wapas", "cancel", "main menu", "home", "start over"]
+    if any(bw in lower for bw in back_words):
+        _offline_state[sid] = {"step": "greeting", "dept_id": None, "doctor": None, "lang": lang}
+        return {
+            "session_id": sid,
+            "reply": "Returned to main menu. How can I help you today?",
+            "action": "GO_BACK",
+            "action_data": None
+        }
+
+    # Handle ABHA & Medical Document Upload Intent
+    abha_words = ["abha", "document", "upload", "record", "report", "abha card", "card"]
+    if any(aw in lower for aw in abha_words):
+        return {
+            "session_id": sid,
+            "reply": "Please scan the QR code to upload your ABHA card or medical documents. It will auto-fill your details instantly.",
+            "action": "UPLOAD_ABHA_DOCUMENTS",
+            "action_data": {"ref_id": sid}
+        }
+
     # Handle greetings / generic hellos
     greet_words = ["hi", "hello", "hey", "hii", "hiii", "namaste", "namaskar", "help", "helo",
                    "namaskaram", "vanakkam", "sat sri akal", "assalam", "salam"]
