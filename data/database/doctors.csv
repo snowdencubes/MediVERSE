@@ -1,5 +1,43 @@
 id,name,department_id,specialty,room_number,is_available,estimated_wait_minutes,consultation_fee,rating,experience_years,arrival_time,pin,shift_schedule
-doc_1,Dr. Amit Sharma,dep_gen,Family Medicine,Room 101,True,5,35.0,4.9,12,08:00,1234,08:00 AM - 04:00 PM
-doc_2,Dr. Priya Patel,dep_card,Cardiologist,Room 204,True,10,65.0,4.95,16,08:30,1234,08:30 AM - 04:30 PM
-doc_3,Dr. Rahul Verma,dep_ortho,Orthopedics,Room 105,True,15,50.0,4.8,10,09:00,1234,09:00 AM - 05:00 PM
-doc_4,Dr. Neha Singh,dep_ped,Pediatrics,Room 106,True,5,40.0,4.9,8,09:30,1234,09:30 AM - 05:30 PM
+doc_1,Dr. Amit Sharma,dep_gen,Family Medicine & Internal Care,Room 101,True,5,35.0,4.9,12,08:00,1234,08:00 AM - 04:00 PM
+doc_2,Dr. Priya Patel,dep_card,Cardiologist & ECG Specialist,Room 204,True,10,65.0,4.95,16,08:30,1234,08:30 AM - 04:30 PM
+doc_3,Dr. Rahul Verma,dep_ortho,Orthopedic Surgeon & Joint Specialist,Room 105,True,15,50.0,4.8,10,09:00,1234,09:00 AM - 05:00 PM
+doc_4,Dr. Neha Singh,dep_ped,Pediatrician & Child Health Specialist,Room 106,True,5,40.0,4.9,8,09:30,1234,09:30 AM - 05:30 PM
+doc_5,Dr. Rajesh Iyer,dep_gen,General Physician & Diabetologist,Room 102,True,8,35.0,4.85,14,08:00,1234,08:00 AM - 04:00 PM
+doc_6,Dr. Sunita Rao,dep_gen,Senior Internal Medicine Consultant,Room 103,True,6,40.0,4.92,18,09:00,1234,09:00 AM - 05:00 PM
+doc_7,Dr. Vikram Malhotra,dep_gen,Preventive Health Specialist,Room 104,True,10,35.0,4.78,9,10:00,1234,10:00 AM - 06:00 PM
+doc_8,Dr. Ananya Roy,dep_card,Interventional Cardiologist,Room 201,True,12,70.0,4.96,20,08:30,1234,08:30 AM - 04:30 PM
+doc_9,Dr. Koushik Das,dep_card,Cardiovascular Diagnostician,Room 202,True,15,60.0,4.88,13,09:00,1234,09:00 AM - 05:00 PM
+doc_10,Dr. Meera Nambiar,dep_ped,Pediatric Specialist & Neonatologist,Room 107,True,6,45.0,4.91,15,08:00,1234,08:00 AM - 04:00 PM
+doc_11,Dr. Sanjay Gupta,dep_ped,Child Growth & Immunization Specialist,Room 108,True,10,40.0,4.83,11,09:30,1234,09:30 AM - 05:30 PM
+doc_12,Dr. Aris Thorne,dep_ortho,Spine & Joint Replacement Specialist,Room 205,True,18,60.0,4.9,17,08:30,1234,08:30 AM - 04:30 PM
+doc_13,Dr. Kavita Reddy,dep_ortho,Sports Injury & Fracture Specialist,Room 206,True,14,55.0,4.87,12,09:00,1234,09:00 AM - 05:00 PM
+doc_14,Dr. Devendra Joshi,dep_neuro,Senior Neurologist & Stroke Consultant,Room 301,True,15,75.0,4.97,22,08:00,1234,08:00 AM - 04:00 PM
+doc_15,Dr. Shalini Saxena,dep_neuro,Neuro-Physician & Epilepsy Specialist,Room 302,True,20,70.0,4.89,16,09:00,1234,09:00 AM - 05:00 PM
+doc_16,Dr. Arvind Pillai,dep_ophta,Ophthalmologist & Cataract Specialist,Room 303,True,8,45.0,4.93,19,08:30,1234,08:30 AM - 04:30 PM
+doc_17,Dr. Ritu Agarwal,dep_ophta,Retina & Glaucoma Specialist,Room 304,True,12,50.0,4.86,13,09:30,1234,09:30 AM - 05:30 PM
+doc_18,Dr. Alok Chatterjee,dep_ent,ENT Surgeon & Sinus Specialist,Room 305,True,10,45.0,4.91,15,08:00,1234,08:00 AM - 04:00 PM
+doc_19,Dr. Bhavna Deshmukh,dep_ent,Audiology & Voice Care Consultant,Room 306,True,8,40.0,4.82,10,09:00,1234,09:00 AM - 05:00 PM
+doc_20,Dr. Sameer Khan,dep_derm,Dermatologist & Laser Specialist,Room 307,True,10,50.0,4.94,14,08:30,1234,08:30 AM - 04:30 PM
+doc_21,Dr. Pooja Bhatt,dep_derm,Cosmetic Dermatologist & Hair Care,Room 308,True,12,55.0,4.88,11,09:30,1234,09:30 AM - 05:30 PM
+doc_22,Dr. Varun Kapur,dep_derm,Skin Allergy & Pediatric Derm,Room 309,True,15,45.0,4.8,8,10:00,1234,10:00 AM - 06:00 PM
+doc_23,Dr. Rekha Menon,dep_gyn,Senior Obstetrician & Gynecologist,Room 401,True,12,60.0,4.98,24,08:00,1234,08:00 AM - 04:00 PM
+doc_24,Dr. Tanvi Kulkarni,dep_gyn,Maternal Fetal Care Specialist,Room 402,True,15,55.0,4.9,15,08:30,1234,08:30 AM - 04:30 PM
+doc_25,Dr. Vandana Swaminathan,dep_gyn,Fertility & Gynec Laparoscopist,Room 403,True,10,65.0,4.87,13,09:00,1234,09:00 AM - 05:00 PM
+doc_26,Dr. Hemant Bhardwaj,dep_gastro,Gastroenterologist & Endoscopist,Room 404,True,14,65.0,4.92,18,08:30,1234,08:30 AM - 04:30 PM
+doc_27,Dr. Shruti Banerjee,dep_gastro,Hepatologist & Liver Care Consultant,Room 405,True,16,60.0,4.85,12,09:30,1234,09:30 AM - 05:30 PM
+doc_28,Dr. Ashok Singhal,dep_onc,Surgical Oncologist & Tumor Expert,Room 406,True,22,90.0,4.99,26,08:00,1234,08:00 AM - 04:00 PM
+doc_29,Dr. Nisha Mahajan,dep_onc,Medical Oncologist & Chemotherapy Consultant,Room 407,True,20,85.0,4.91,19,09:00,1234,09:00 AM - 05:00 PM
+doc_30,Dr. Tarun Saxena,dep_pulm,Pulmonologist & Sleep Apnea Consultant,Room 408,True,10,55.0,4.93,17,08:00,1234,08:00 AM - 04:00 PM
+doc_31,Dr. Deepa Nair,dep_pulm,Respiratory & Chest Disease Specialist,Room 409,True,12,50.0,4.86,11,09:00,1234,09:00 AM - 05:00 PM
+doc_32,Dr. Harish Bhasin,dep_psych,Senior Psychiatrist & Behavioral Therapist,Room 410,True,15,60.0,4.94,21,08:30,1234,08:30 AM - 04:30 PM
+doc_33,Dr. Meenakshi Soni,dep_psych,Clinical Psychologist & Stress Counselor,Room 411,True,18,55.0,4.89,14,09:30,1234,09:30 AM - 05:30 PM
+doc_34,Dr. Nikhil Choudhury,dep_uro,Urologist & Kidney Stone Surgeon,Room 412,True,14,65.0,4.92,16,08:00,1234,08:00 AM - 04:00 PM
+doc_35,Dr. Jyoti Tripathi,dep_uro,Uro-Gynae & Dialysis Specialist,Room 413,True,16,60.0,4.84,10,09:00,1234,09:00 AM - 05:00 PM
+doc_36,Dr. Ramesh Kakar,dep_pharm,Senior Clinical Pharmacist,Room RX-1,True,3,25.0,4.9,20,08:00,1234,08:00 AM - 08:00 PM
+doc_37,Dr. Preeti Bajaj,dep_pharm,Dispensing & Medication Specialist,Room RX-2,True,4,25.0,4.85,12,09:00,1234,09:00 AM - 09:00 PM
+doc_38,Dr. Gaurav Mittal,dep_pharm,Emergency Prescription Specialist,Room RX-3,True,2,25.0,4.88,8,10:00,1234,10:00 AM - 10:00 PM
+doc_39,Dr. Marcus Vance,dep_emg,Emergency Medicine & Trauma Director,Room EMG-1,True,0,0.0,4.98,22,24 Hours,1234,24 Hours Shift
+doc_40,Dr. Elena Rostova,dep_emg,Acute Resuscitation Specialist,Room EMG-2,True,0,0.0,4.96,18,24 Hours,1234,24 Hours Shift
+doc_41,Dr. Sarah Jenkins,dep_emg,Triage & Critical Care Surgeon,Room EMG-3,True,0,0.0,4.94,15,24 Hours,1234,24 Hours Shift
+doc_42,Dr. Kiran Mazumdar,dep_gen,General Wellness & Immunity Specialist,Room 109,True,5,35.0,4.82,9,09:00,1234,09:00 AM - 05:00 PM

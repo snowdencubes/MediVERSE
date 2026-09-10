@@ -1,7 +1,17 @@
 id,name,code,description,active_doctors_count,wait_time_minutes
-dep_gen,General Clinic,GEN,General health consultations,3,5
-dep_card,Cardiology,CARD,Heart health & ECG,2,12
-dep_ped,Pediatrics,PED,Child health,2,8
-dep_ortho,Orthopedics,ORTH,Bone & joint consults,1,15
-dep_pharm,Express Pharmacy,RX,Fast prescription pickup,4,3
-dep_emg,Emergency Triage,EMG,Immediate acute care,3,0
+dep_gen,General Medicine,GEN,Routine checkups fever & general illness,4,5
+dep_card,Cardiology,CARD,Heart health ECG & cardiovascular consults,3,10
+dep_ped,Pediatrics,PED,Infant child health & vaccinations,3,8
+dep_ortho,Orthopedics,ORTH,Bone fractures joint pain & spine care,3,12
+dep_neuro,Neurology,NEUR,Brain nerve paralysis & headache care,2,15
+dep_ophta,Ophthalmology,EYE,Eye vision cataract & optical checkups,2,10
+dep_ent,ENT Care,ENT,Ear nose throat & sinus consultations,2,8
+dep_derm,Dermatology,DERM,Skin rash allergy hair & cosmetic care,3,10
+dep_gyn,Gynecology,GYN,Maternity pregnancy & women health,3,12
+dep_gastro,Gastroenterology,GAST,Stomach liver digestion & acidity,2,14
+dep_onc,Oncology,ONC,Cancer screening tumor & chemotherapy,2,20
+dep_pulm,Pulmonology,PULM,Chest asthma breathlessness & lungs,2,10
+dep_psych,Psychiatry,PSYC,Mental wellness stress anxiety & sleep,2,15
+dep_uro,Urology,URO,Kidney stones urinary & bladder care,2,14
+dep_pharm,Express Pharmacy,RX,Fast medicine pickup & refill,3,3
+dep_emg,Emergency Triage,EMG,Immediate acute trauma & critical care,3,0

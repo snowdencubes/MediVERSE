@@ -107,25 +107,67 @@ def _detect_language(text: str) -> str:
     return "en"
 
 
-# Keyword-to-department mapping covering English + Hindi + common Hinglish + regional
+# Keyword-to-department mapping covering English + Hindi + common Hinglish + regional dialects
 _DEPT_KEYWORDS = {
+    "dep_emg": {
+        "en": ["emergency", "accident", "bleeding", "unconscious", "breathless", "heart attack", "stroke",
+                "seizure", "faint", "collapse", "critical", "ambulance", "dying"],
+        "hi": ["emergency", "hadsa", "khoon", "behosh", "saans nahi", "heart attack", "gir gaya",
+                "bahut kharab", "jaldi", "turant", "trauma"],
+    },
     "dep_card": {
         "en": ["heart", "chest", "cardiac", "cardio", "palpitation", "bp", "blood pressure"],
-        "hi": ["dil", "seena", "dhadkan", "dharkan", "saans", "blood pressure", "hart", "chhati"],
+        "hi": ["dil", "seena", "dhadkan", "dharkan", "saans", "blood pressure", "hart", "chhati", "chhati me dard", "dil me dard"],
         "bn": ["hridoy", "buk", "chhati"],
         "ta": ["idhayam", "nenju"],
         "te": ["gunde", "chhathi"],
     },
     "dep_ortho": {
-        "en": ["bone", "joint", "back", "knee", "fracture", "spine", "shoulder", "leg", "arm", "hip"],
-        "hi": ["haddi", "jodon", "pair", "kamar", "ghutna", "toot", "haath", "ped", "back pain"],
+        "en": ["bone", "joint", "back", "knee", "fracture", "spine", "shoulder", "leg", "arm", "hip", "ankle"],
+        "hi": ["haddi", "jodon", "pair", "kamar", "ghutna", "toot", "haath", "ped", "back pain", "haath toot gya", "tang me dard", "moch", "toot gaya"],
         "bn": ["har", "gora", "hatu"],
         "ta": ["elumbu", "moottu"],
         "te": ["emuka", "mokalu"],
     },
+    "dep_neuro": {
+        "en": ["brain", "nerve", "headache", "paralysis", "migraine", "fits", "numbness", "seizure"],
+        "hi": ["dimaag", "sar dard", "sir dard", "chakkar", "lakwa", "nass", "migraine", "dora", "chakar aa raha", "suuna parna"],
+    },
+    "dep_ophta": {
+        "en": ["eye", "vision", "cataract", "optical", "sight", "blind", "glaucoma"],
+        "hi": ["aankh", "ankhon", "aakh", "dhundhla", "chashma", "ankhon me chhubhan", "eye pain"],
+    },
+    "dep_ent": {
+        "en": ["ear", "nose", "throat", "sinus", "snoring", "deaf", "hearing", "tonsil"],
+        "hi": ["kaan", "naak", "gala", "kan me dard", "naak band", "gala kharab", "tonsil"],
+    },
+    "dep_derm": {
+        "en": ["skin", "rash", "allergy", "itch", "pimple", "hair", "dermatology", "fungal"],
+        "hi": ["chamdi", "khujli", "daane", "rashes", "bal jhar", "chehre pe daane", "skin allergy"],
+    },
+    "dep_gyn": {
+        "en": ["pregnancy", "period", "women", "maternity", "pcos", "ovary"],
+        "hi": ["mahila", "period", "mc problem", "pregnancy", "garbh", "pet me dard lady"],
+    },
+    "dep_gastro": {
+        "en": ["stomach", "liver", "digestion", "acidity", "gas", "constipation", "diarrhea", "ulcer"],
+        "hi": ["pet", "gas", "acidity", "kabz", "khana nahi pach raha", "pet dard", "kabaj"],
+    },
+    "dep_pulm": {
+        "en": ["asthma", "lungs", "breathing", "wheezing", "chest tightness", "respiratory"],
+        "hi": ["dama", "asthma", "saans lene me dikkat", "phapra", "saans phulna"],
+    },
+    "dep_psych": {
+        "en": ["stress", "anxiety", "depression", "sleep", "mental", "behavior", "insomnia"],
+        "hi": ["tension", "stress", "depression", "nind nahi aana", "dimag me pareshani"],
+    },
+    "dep_uro": {
+        "en": ["kidney", "urine", "bladder", "stone", "prostate", "dialysis"],
+        "hi": ["kidney", "pathri", "peshab", "peshab me jalan", "kidney stone"],
+    },
     "dep_ped": {
         "en": ["child", "kid", "baby", "infant", "pediatric", "toddler", "newborn", "son", "daughter"],
-        "hi": ["bacha", "bachcha", "bache", "bacchi", "beta", "beti", "chhota", "nanhi", "shishu"],
+        "hi": ["bacha", "bachcha", "bache", "bacchi", "beta", "beti", "chhota", "nanhi", "shishu", "bache ko bukhar"],
         "bn": ["bachcha", "chhele", "meye"],
         "ta": ["kuzhanthai", "pillai"],
         "te": ["pillalu", "bidda"],
@@ -136,22 +178,16 @@ _DEPT_KEYWORDS = {
                 "throat", "flu", "allergy", "rash", "skin", "ache", "hurts"],
         "hi": ["bukhar", "sardi", "khansi", "khasi", "sir dard", "pet", "ulti", "dard", "bimar",
                 "tabiyat", "kamzori", "thakan", "gala", "jukham", "bimari", "dawai", "ilaj",
-                "pet dard", "sar dard", "chakkar", "pasina"],
+                "pet dard", "sar dard", "chakkar", "pasina", "tang me dard"],
         "bn": ["jor", "thanda", "kashi", "matha", "pet", "bomi"],
         "ta": ["kaichal", "jalam", "iruma", "thalai", "vayiru"],
         "te": ["jwaram", "daggu", "tala", "kallu"],
     },
-    "dep_emg": {
-        "en": ["emergency", "accident", "bleeding", "unconscious", "breathless", "heart attack", "stroke",
-                "seizure", "faint", "collapse", "critical", "ambulance", "dying"],
-        "hi": ["emergency", "hadsa", "khoon", "behosh", "saans nahi", "heart attack", "gir gaya",
-                "bahut kharab", "jaldi", "turant"],
-    },
 }
 
-# Replies in detected language
+# Replies in detected language (ZERO EMOJIS)
 _GREETINGS = {
-    "en": "Hello! I'm the MediVERSE AI assistant. What health issue can I help you with today?",
+    "en": "Hello! I am the MediVERSE AI assistant. What health issue can I help you with today?",
     "hi": "नमस्ते! मैं MediVERSE AI सहायक हूँ। आज मैं आपकी क्या मदद कर सकता हूँ?",
     "bn": "নমস্কার! আমি MediVERSE AI সহায়ক। আজ আপনার কী সমস্যা?",
     "ta": "வணக்கம்! நான் MediVERSE AI உதவியாளர். இன்று என்ன உதவி வேண்டும்?",
@@ -166,12 +202,15 @@ _GREETINGS = {
 
 
 def _match_department(text: str, lang: str) -> str | None:
-    """Match user text to a department ID using keyword lists."""
+    """Match user text to a department ID using comprehensive symptom rules."""
     lower = text.lower()
-    # Check emergency first (highest priority)
-    for dept_id in ["dep_emg", "dep_card", "dep_ortho", "dep_ped", "dep_gen"]:
+    # Check all departments in prioritized clinical order
+    dept_order = ["dep_emg", "dep_card", "dep_ortho", "dep_neuro", "dep_pulm", "dep_gastro",
+                  "dep_ophta", "dep_ent", "dep_derm", "dep_gyn", "dep_psych", "dep_uro",
+                  "dep_ped", "dep_gen"]
+    for dept_id in dept_order:
         keywords = _DEPT_KEYWORDS.get(dept_id, {})
-        for kw_lang in [lang, "en", "hi"]:  # check user's lang, then en, then hi
+        for kw_lang in [lang, "en", "hi", "bn", "ta", "te"]:
             for kw in keywords.get(kw_lang, []):
                 if kw in lower:
                     return dept_id
@@ -197,7 +236,7 @@ def _get_best_doctor(dept_id: str) -> dict | None:
 
 
 def _offline_reply(lang: str, key: str, **kwargs) -> str:
-    """Generate localized replies for the offline flow."""
+    """Generate localized replies for the offline flow with ZERO emojis."""
     templates = {
         "suggest_dept": {
             "en": "Based on your symptoms, I recommend the **{dept}** department. {doctor_info} Shall I book an appointment?",
@@ -208,7 +247,7 @@ def _offline_reply(lang: str, key: str, **kwargs) -> str:
             "hi": "डॉ. {name} उपलब्ध हैं (कमरा {room}, शुल्क: ₹{fee}, प्रतीक्षा: ~{wait} मिनट)।",
         },
         "confirm_book": {
-            "en": "Great! What is your name please? I'll book your ticket right away.",
+            "en": "Great! What is your name please? I will book your ticket right away.",
             "hi": "बढ़िया! कृपया अपना नाम बताएं, मैं तुरंत आपका टिकट बुक करता हूँ।",
         },
         "booking_done": {
@@ -216,11 +255,10 @@ def _offline_reply(lang: str, key: str, **kwargs) -> str:
             "hi": "डॉ. {doctor} के साथ {dept} में आपकी अपॉइंटमेंट बुक हो रही है...",
         },
         "ask_symptom": {
-            "en": "Could you tell me what health problem you're experiencing? For example: fever, headache, chest pain, or bone/joint pain.",
+            "en": "Could you tell me what health problem you are experiencing? For example: fever, headache, chest pain, or bone/joint pain.",
             "hi": "कृपया बताएं आपको क्या तकलीफ़ है? जैसे: बुखार, सिर दर्द, छाती में दर्द, या हड्डी/जोड़ का दर्द।",
         },
         "emergency": {
-            "en": "🚨 This sounds like an EMERGENCY. I'm routing you to the Emergency department with highest priority immediately!",
             "hi": "🚨 यह EMERGENCY लग रहा है। मैं आपको तुरंत इमरजेंसी विभाग में सर्वोच्च प्राथमिकता पर भेज रहा हूँ!",
         },
         "not_understood": {

@@ -28,6 +28,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+from datetime import datetime, timedelta
+
 class TicketModel(Base):
     __tablename__ = "tickets"
 
@@ -47,6 +49,7 @@ class TicketModel(Base):
     combos_selected = Column(String, default="[]") # JSON string
     total_fee = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=24))
     estimated_call_time = Column(String)
     synced = Column(Boolean, default=False) # For offline -> Supabase sync
 
@@ -104,10 +107,18 @@ def init_db():
         inspector = inspect(engine)
         if "tickets" in inspector.get_table_names():
             columns = [c["name"] for c in inspector.get_columns("tickets")]
-            if "patient_phone" not in columns:
-                with engine.connect() as conn:
+            with engine.connect() as conn:
+                if "patient_phone" not in columns:
                     conn.execute(text("ALTER TABLE tickets ADD COLUMN patient_phone VARCHAR"))
-                    conn.commit()
+                if "expires_at" not in columns:
+                    conn.execute(text("ALTER TABLE tickets ADD COLUMN expires_at DATETIME"))
+                conn.commit()
+            
+            # Clean up expired receipts older than 24 hours
+            now_iso = datetime.utcnow().isoformat()
+            with engine.connect() as conn:
+                conn.execute(text("DELETE FROM tickets WHERE expires_at IS NOT NULL AND expires_at < :now"), {"now": now_iso})
+                conn.commit()
     except Exception as e:
         print(f"Migration check warning: {e}")
 

@@ -17,11 +17,10 @@ function ReceiptContent() {
   const [ticket, setTicket] = useState<QueueTicket | null>(null);
   const [error, setError] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [whatsappSent, setWhatsappSent] = useState(false);
+  const [showChannelModal, setShowChannelModal] = useState(false);
   const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Helper to try loading from localStorage
     const tryLocalStorage = () => {
       try {
         const savedStr = localStorage.getItem('current_ticket');
@@ -56,7 +55,7 @@ function ReceiptContent() {
         localStorage.setItem('current_ticket', JSON.stringify(d));
       })
       .catch((err) => {
-        console.warn('API ticket lookup failed, attempting local fallback:', err);
+        console.warn('API ticket lookup failed, using local fallback:', err);
         if (!tryLocalStorage()) {
           setError(true);
         }
@@ -85,22 +84,17 @@ function ReceiptContent() {
     }
   };
 
-  const sendToWhatsApp = () => {
-    if (!ticket) return;
-    const phone = localStorage.getItem('whatsapp_phone') || '';
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
-    const text = encodeURIComponent(
-      `🏥 *MediVERSE Digital Receipt*\n` +
-      `🎟️ *Token:* ${ticket.token_number}\n` +
-      `👤 *Patient:* ${ticket.patient_name}\n` +
-      `🏢 *Dept:* ${ticket.department_name}\n` +
-      `👨‍⚕️ *Doctor:* ${ticket.doctor_name} (${ticket.room_number})\n` +
-      `⏱️ *Est. Wait:* ${ticket.estimated_call_time}\n` +
-      `🔗 *Receipt Link:* ${window.location.href}`
+  const getShareText = () => {
+    if (!ticket) return '';
+    return encodeURIComponent(
+      `MediVERSE Digital Receipt\n` +
+      `Token: ${ticket.token_number}\n` +
+      `Patient: ${ticket.patient_name}\n` +
+      `Department: ${ticket.department_name}\n` +
+      `Doctor: ${ticket.doctor_name} (${ticket.room_number})\n` +
+      `Est. Call Time: ${ticket.estimated_call_time}\n` +
+      `Receipt URL: ${typeof window !== 'undefined' ? window.location.href : ''}`
     );
-    const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${text}` : `https://wa.me/?text=${text}`;
-    window.open(url, '_blank');
-    setWhatsappSent(true);
   };
 
   if (error) {
@@ -109,7 +103,7 @@ function ReceiptContent() {
         <MediVERSENav currentModule="home" />
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: "'Space Grotesk'", textAlign: 'center', padding: 20 }}>
           <h2 style={{ fontSize: 24, marginBottom: 12, color: '#D91636' }}>Receipt Not Available</h2>
-          <p style={{ color: '#888', marginBottom: 24 }}>The ticket session could not be found or has expired.</p>
+          <p style={{ color: '#888', marginBottom: 24 }}>The ticket session has expired or is not found.</p>
           <button 
             onClick={() => router.push('/kiosk')}
             style={{ padding: '12px 24px', background: '#D91636', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontFamily: "'Bebas Neue'", fontSize: 20, letterSpacing: '0.05em' }}
@@ -133,50 +127,56 @@ function ReceiptContent() {
     );
   }
 
+  const shareText = getShareText();
+  const whatsappUrl = `https://wa.me/?text=${shareText}`;
+  const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${shareText}`;
+  const smsUrl = `sms:?body=${shareText}`;
+  const smartQrValue = `${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}&channel=auto`;
+
   return (
     <>
       <MediVERSENav currentModule="home" />
       <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 20px 40px' }}>
         
-        {/* Action Bar */}
+        {/* Action Bar (Zero Emojis) */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             onClick={generatePDF}
             disabled={downloading}
             style={{
-              padding: '10px 20px', background: downloading ? '#666' : '#D91636', color: '#fff',
+              padding: '12px 24px', background: downloading ? '#666' : '#D91636', color: '#fff',
               border: 'none', fontWeight: 700, fontFamily: "'Space Grotesk'", cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s'
+              letterSpacing: '0.05em'
             }}
           >
-            📥 {downloading ? 'GENERATING PDF...' : 'DOWNLOAD PDF RECEIPT'}
+            {downloading ? 'GENERATING PDF...' : 'DOWNLOAD PDF RECEIPT'}
           </button>
 
           <button
-            onClick={sendToWhatsApp}
+            onClick={() => setShowChannelModal(true)}
             style={{
-              padding: '10px 20px', background: '#25D366', color: '#fff',
+              padding: '12px 24px', background: '#25D366', color: '#fff',
               border: 'none', fontWeight: 700, fontFamily: "'Space Grotesk'", cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 8
+              letterSpacing: '0.05em'
             }}
           >
-            💬 {whatsappSent ? 'SENT TO WHATSAPP' : 'SEND TO WHATSAPP'}
+            SEND TO BOT (WHATSAPP / TELEGRAM / SMS)
           </button>
 
           <button
             onClick={() => window.print()}
             style={{
-              padding: '10px 20px', background: 'rgba(255,255,255,0.1)', color: '#fff',
-              border: '1px solid rgba(255,255,255,0.2)', fontWeight: 700, fontFamily: "'Space Grotesk'", cursor: 'pointer'
+              padding: '12px 24px', background: 'rgba(255,255,255,0.1)', color: '#fff',
+              border: '1px solid rgba(255,255,255,0.2)', fontWeight: 700, fontFamily: "'Space Grotesk'", cursor: 'pointer',
+              letterSpacing: '0.05em'
             }}
           >
-            🖨️ PRINT
+            PRINT RECEIPT
           </button>
         </div>
 
         {/* The receipt element to capture & print */}
         <div ref={receiptRef} style={{ background: '#fff', color: '#000', padding: '40px 32px', width: '100%', maxWidth: 420, position: 'relative', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
-          {/* Top Decorative Border */}
           <div style={{
             position: 'absolute', top: 0, left: 0, width: '100%', height: 6, background: '#D91636'
           }} />
@@ -222,13 +222,83 @@ function ReceiptContent() {
             </div>
           )}
 
-          <div style={{ marginTop: 24, paddingTop: 20, borderTop: '2px dashed #ccc', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <QRCodeSVG value={`${typeof window !== 'undefined' ? window.location.origin : ''}/receipt?id=${ticket.ticket_id}`} size={110} style={{ marginBottom: 12 }} />
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: '#777', letterSpacing: '.1em', textTransform: 'uppercase', textAlign: 'center' }}>
-              Scan QR code to track live queue position
+          {/* Unified Smart Multi-Channel QR Code */}
+          <div 
+            onClick={() => setShowChannelModal(true)}
+            style={{ marginTop: 24, paddingTop: 20, borderTop: '2px dashed #ccc', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <QRCodeSVG value={smartQrValue} size={130} style={{ marginBottom: 12 }} />
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: '#111', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', textAlign: 'center' }}>
+              UNIFIED SMART QR CODE
+            </p>
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 10, color: '#777', letterSpacing: '.05em', textAlign: 'center', marginTop: 2 }}>
+              Scan or tap to open bot in WhatsApp, Telegram, or SMS
             </p>
           </div>
         </div>
+
+        {/* Multi-Channel Bot Modal */}
+        {showChannelModal && (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.85)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+          }}>
+            <div style={{
+              background: '#111', border: '1px solid #333', padding: 32, maxWidth: 440, width: '100%',
+              borderRadius: 8, color: '#fff', fontFamily: "'Space Grotesk'", position: 'relative'
+            }}>
+              <button
+                onClick={() => setShowChannelModal(false)}
+                style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#999', fontSize: 20, cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+
+              <h3 style={{ fontFamily: "'Bebas Neue'", fontSize: 28, letterSpacing: '0.05em', marginBottom: 8, color: '#fff' }}>
+                RECEIPT BOT CHANNELS
+              </h3>
+              <p style={{ fontSize: 14, color: '#aaa', marginBottom: 24 }}>
+                Select your preferred channel to receive instant ticket updates and notifications:
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block', padding: '14px', background: '#25D366', color: '#fff',
+                    textAlign: 'center', fontWeight: 700, textDecoration: 'none', borderRadius: 4
+                  }}
+                >
+                  OPEN IN WHATSAPP BOT
+                </a>
+
+                <a
+                  href={telegramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block', padding: '14px', background: '#0088cc', color: '#fff',
+                    textAlign: 'center', fontWeight: 700, textDecoration: 'none', borderRadius: 4
+                  }}
+                >
+                  OPEN IN TELEGRAM BOT
+                </a>
+
+                <a
+                  href={smsUrl}
+                  style={{
+                    display: 'block', padding: '14px', background: '#4A5568', color: '#fff',
+                    textAlign: 'center', fontWeight: 700, textDecoration: 'none', borderRadius: 4
+                  }}
+                >
+                  SEND VIA SMS TEXT
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </>
