@@ -301,6 +301,18 @@ class QueueService:
         finally:
             db.close()
 
+    def get_ticket(self, ticket_id: str) -> Optional[QueueTicket]:
+        db = SessionLocal()
+        try:
+            t = db.query(TicketModel).filter(TicketModel.ticket_id == ticket_id).first()
+            if not t:
+                t = db.query(TicketModel).filter(TicketModel.token_number == ticket_id).first()
+            if t:
+                return self._model_to_schema(t)
+            return None
+        finally:
+            db.close()
+
     def update_status(self, ticket_id: str, new_status: str) -> Optional[QueueTicket]:
         db = SessionLocal()
         try:
