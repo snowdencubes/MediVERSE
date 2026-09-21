@@ -4,18 +4,9 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 import json
 
-# Ensure data directories exist across local and containerized environments
-ENV_DATA_DIR = os.getenv("DATA_DIR")
-if ENV_DATA_DIR:
-    DATA_DIR = ENV_DATA_DIR
-else:
-    CWD_DATA_DIR = os.path.join(os.getcwd(), "data", "database")
-    if os.path.exists(CWD_DATA_DIR):
-        DATA_DIR = CWD_DATA_DIR
-    else:
-        ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        DATA_DIR = os.path.join(ROOT_DIR, "data", "database")
-
+# Canonical database directory: always rekov/data/database
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.getenv("DATA_DIR") or os.path.join(BACKEND_DIR, "data", "database")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 DB_PATH = os.path.join(DATA_DIR, "local.db")
@@ -157,3 +148,9 @@ def purge_stale_sessions(max_age_hours: int = 24):
         print(f"Failed to purge stale sessions: {e}")
     finally:
         db.close()
+
+# Auto-initialize and migrate schema on module import
+try:
+    init_db()
+except Exception as e:
+    print(f"Auto init_db warning: {e}")

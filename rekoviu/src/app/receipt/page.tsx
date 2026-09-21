@@ -194,6 +194,7 @@ function ReceiptContent() {
             {[
               ['Reference ID', ticket.ticket_id],
               ['Patient Name', ticket.patient_name],
+              ['Patient Mobile', ticket.patient_phone || 'N/A'],
               ['Department', ticket.department_name],
               ['Assigned Doctor', ticket.doctor_name],
               ['Room Number', ticket.room_number],

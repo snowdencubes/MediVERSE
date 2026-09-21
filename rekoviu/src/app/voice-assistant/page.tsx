@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { chatWithVoiceAssistant, createTicket, synthesizeTTSAudio } from '@/services/api';
+import { QueueTicket } from '@/types';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -41,6 +42,7 @@ export default function VoiceAssistantPage() {
   const router = useRouter();
   const [sessionId, setSessionId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [latestTicket, setLatestTicket] = useState<QueueTicket | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -233,9 +235,12 @@ export default function VoiceAssistantPage() {
       } else if (res.action === 'GO_BACK') {
         setShowAbhaModal(false);
       } else if (res.action === 'BOOK_TICKET' && res.action_data) {
-        addMessage('system', 'Booking your appointment...');
+        addMessage('system', 'Booking your appointment and generating digital receipt...');
         try {
-          const registeredPhone = typeof window !== 'undefined' ? localStorage.getItem('whatsapp_phone') || 'N/A' : 'N/A';
+          const pName = res.action_data.patient_name || 'Patient';
+          const pPhone = res.action_data.patient_phone || (typeof window !== 'undefined' ? localStorage.getItem('whatsapp_phone') || '' : '') || '9876543210';
+          const pAge = Number(res.action_data.patient_age) || 30;
+
           const ticket = await createTicket({
             department_id: res.action_data.dept_id || 'dep_gen',
             doctor_id: res.action_data.doctor_id || '',
@@ -243,17 +248,29 @@ export default function VoiceAssistantPage() {
             payment_method: 'CASH',
             patient: {
               national_id: 'GUEST-000',
-              full_name: res.action_data.patient_name || 'Voice Patient',
-              phone: registeredPhone,
-              age: 30,
+              full_name: pName,
+              phone: pPhone,
+              age: pAge,
               gender: 'O',
               insurance_member: false
             }
           });
           if (ticket) {
-            const confirmMsg = `Appointment confirmed! Your Token is ${ticket.token_number} (${ticket.department_name}).`;
+            // Save to localStorage so receipt page always renders immediately
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('current_ticket', JSON.stringify(ticket));
+              localStorage.setItem('whatsapp_phone', ticket.patient_phone || pPhone);
+            }
+            setLatestTicket(ticket);
+
+            const confirmMsg = `Appointment confirmed! Your Token is ${ticket.token_number} (${ticket.department_name}). Opening your digital receipt now.`;
             addMessage('assistant', confirmMsg);
             speakText(confirmMsg);
+
+            // Seamless auto-redirect to digital receipt page
+            setTimeout(() => {
+              router.push(`/receipt?id=${ticket.ticket_id}`);
+            }, 2600);
           }
         } catch (err) {
           console.error('Ticket booking error:', err);
@@ -285,7 +302,8 @@ export default function VoiceAssistantPage() {
       recognition = new SR();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-IN';
+      // Set hi-IN as primary locale for high accuracy on Hindi + English/Hinglish
+      recognition.lang = 'hi-IN';
       recognitionRef.current = recognition;
 
       let debounceTimer: any = null;
@@ -310,7 +328,7 @@ export default function VoiceAssistantPage() {
           transcriptRef.current = currentText;
           setLiveTranscript(currentText);
 
-          // Auto-send when user pauses speech for 1.4 seconds
+          // Auto-send when user pauses speech for 900ms
           if (debounceTimer) clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
             const textToSend = transcriptRef.current.trim();
@@ -319,7 +337,7 @@ export default function VoiceAssistantPage() {
               setLiveTranscript('');
               handleSend(textToSend);
             }
-          }, 1400);
+          }, 900);
         }
       };
 
@@ -332,7 +350,7 @@ export default function VoiceAssistantPage() {
           setLiveTranscript('');
           handleSend(text);
         } else if (!isProcessingRef.current && !isSpeakingRef.current) {
-          setTimeout(() => startListening(), 350);
+          setTimeout(() => startListening(), 250);
         }
       };
 
@@ -340,7 +358,7 @@ export default function VoiceAssistantPage() {
         isListeningRef.current = false;
         setIsListening(false);
         if (event.error !== 'not-allowed' && !isProcessingRef.current && !isSpeakingRef.current) {
-          setTimeout(() => startListening(), 800);
+          setTimeout(() => startListening(), 400);
         }
       };
     }
@@ -534,6 +552,49 @@ export default function VoiceAssistantPage() {
             <div ref={chatEndRef} />
           </div>
 
+          {/* Latest Ticket Digital Receipt Banner */}
+          {latestTicket && (
+            <div style={{
+              margin: '0 24px 10px 24px',
+              padding: '14px 20px',
+              background: 'linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(0, 176, 255, 0.15))',
+              border: '2px solid #00e676',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 0 20px rgba(0, 230, 118, 0.3)',
+              animation: 'pulse 2s infinite'
+            }}>
+              <div>
+                <div style={{ fontFamily: "'Bebas Neue'", fontSize: 24, color: '#00e676', letterSpacing: '.05em' }}>
+                  TOKEN ISSUED: {latestTicket.token_number}
+                </div>
+                <div style={{ fontFamily: "'Space Grotesk'", fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>
+                  Patient: {latestTicket.patient_name} | {latestTicket.doctor_name} ({latestTicket.department_name})
+                </div>
+              </div>
+              <button
+                onClick={() => router.push(`/receipt?id=${latestTicket.ticket_id}`)}
+                style={{
+                  padding: '10px 20px',
+                  background: '#00e676',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontFamily: "'Space Grotesk'",
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  letterSpacing: '.05em',
+                  boxShadow: '0 0 15px rgba(0,230,118,0.5)'
+                }}
+              >
+                📄 VIEW RECEIPT NOW →
+              </button>
+            </div>
+          )}
+
           {/* Text input fallback */}
           <div style={{
             padding: '12px 24px', borderTop: '1px solid var(--border-color)',
@@ -725,16 +786,21 @@ export default function VoiceAssistantPage() {
 
           {/* Back button */}
           <button
-            onClick={() => router.push('/home')}
+            onClick={() => {
+              cancelAudio();
+              stopListening();
+              router.push('/home');
+            }}
             style={{
               width: '100%',
-              padding: '10px 16px', background: 'transparent',
-              border: '1px solid var(--border-color)', color: 'var(--text-secondary)',
+              padding: '12px 16px', background: 'rgba(217,22,54,0.15)',
+              border: '1px solid #D91636', color: '#fff',
               borderRadius: 8, fontFamily: "'Space Grotesk'", fontSize: 13,
-              cursor: 'pointer', letterSpacing: '.05em', transition: 'all 0.2s'
+              fontWeight: 600, cursor: 'pointer', letterSpacing: '.05em', transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
             }}
           >
-            BACK TO HOME
+            ← BACK TO HOME
           </button>
         </div>
       </div>

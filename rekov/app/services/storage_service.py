@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 
 load_dotenv()
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+load_dotenv(os.path.join(ROOT_DIR, ".env"))
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
@@ -32,5 +34,10 @@ def upload_receipt(file_path: str, bucket_name: str, destination_path: str) -> s
         url = supabase.storage.from_(bucket_name).get_public_url(destination_path)
         return url
     except Exception as e:
-        print(f"Failed to upload receipt to Supabase: {e}")
+        err_msg = str(e)
+        if "Bucket not found" in err_msg or "404" in err_msg:
+            # Bucket does not exist in Supabase yet (local PDFs are preserved in data/receipts)
+            pass
+        else:
+            print(f"Failed to upload receipt to Supabase: {e}")
         return None

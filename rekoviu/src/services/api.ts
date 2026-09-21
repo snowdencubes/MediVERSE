@@ -83,6 +83,7 @@ export async function createTicket(payload: TicketCreateRequest): Promise<QueueT
       doctor_name: payload.doctor_id ? 'Dr. Marcus Vance' : 'Duty Specialist',
       room_number: 'Room 101',
       patient_name: payload.patient.full_name,
+      patient_phone: payload.patient.phone || '',
       status: 'WAITING',
       priority_level: payload.vitals && payload.vitals.pain_score > 6 ? 'EMERGENCY' : 'STANDARD',
       triage_score: payload.vitals ? payload.vitals.pain_score : 2,

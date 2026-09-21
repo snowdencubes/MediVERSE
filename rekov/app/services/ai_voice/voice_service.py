@@ -2,6 +2,7 @@ import os
 import csv
 import json
 import uuid
+import re
 import requests
 from pathlib import Path
 from typing import Dict, List
@@ -384,6 +385,69 @@ def classify_speech_intent(user_message: str, hf_api_token: str | None) -> dict:
     return {"intent": "QUERY", "is_nonsense": False, "lang": lang}
 
 
+def _extract_name_from_text(text: str) -> str:
+    """Extract patient name from user utterance."""
+    cleaned = text.strip()
+    patterns = [
+        r"(?:mera\s+naam|my\s+name\s+is|i\s+am|myself|naam\s+mera)\s+([a-zA-Z\u0900-\u097F\s]+)",
+        r"([a-zA-Z\u0900-\u097F\s]+)\s+(?:mera\s+naam|naam\s+hai)"
+    ]
+    for pat in patterns:
+        m = re.search(pat, cleaned, re.IGNORECASE)
+        if m:
+            extracted = m.group(1).strip()
+            extracted = re.sub(r"\b(hai|ji|h|sir|madam)\b", "", extracted, flags=re.IGNORECASE).strip()
+            if len(extracted) >= 2:
+                return extracted.title()
+    words = [w for w in cleaned.split() if w.lower() not in ["hai", "mera", "naam", "my", "name", "is", "ji", "h", "bhi"]]
+    if words:
+        return " ".join(words).title()
+    return cleaned.title() if len(cleaned) >= 2 else "Patient"
+
+
+def _extract_phone_from_text(text: str) -> str:
+    """Extract 10-digit mobile number from digits or spoken number words."""
+    digits = re.sub(r"\D", "", text)
+    if len(digits) >= 10:
+        return digits[-10:]
+    num_map = {
+        "zero": "0", "shunya": "0", "sunya": "0", "one": "1", "ek": "1", "two": "2", "do": "2",
+        "three": "3", "teen": "3", "four": "4", "char": "4", "chaar": "4",
+        "five": "5", "paanch": "5", "panch": "5", "six": "6", "chhah": "6", "che": "6",
+        "seven": "7", "saat": "7", "sat": "7", "eight": "8", "aath": "8", "ath": "8",
+        "nine": "9", "nau": "9", "no": "9"
+    }
+    extracted_digits = []
+    for w in text.lower().replace("-", " ").replace(",", " ").split():
+        if w in num_map:
+            extracted_digits.append(num_map[w])
+        elif w.isdigit():
+            extracted_digits.append(w)
+    combined = "".join(extracted_digits)
+    if len(combined) >= 10:
+        return combined[-10:]
+    elif len(combined) >= 4:
+        return combined
+    return digits if digits else "9876543210"
+
+
+def _extract_age_from_text(text: str) -> int:
+    """Extract age in years from user text."""
+    m = re.search(r"\b(\d{1,2})\b", text)
+    if m:
+        val = int(m.group(1))
+        if 1 <= val <= 110:
+            return val
+    age_words = {
+        "bees": 20, "pachees": 25, "tees": 30, "paintees": 35, "chalis": 40,
+        "paintalis": 45, "pachas": 50, "saath": 60, "sattar": 70, "assi": 80
+    }
+    for w in text.lower().split():
+        if w in age_words:
+            return age_words[w]
+    return 30
+
+
 def generate_voice_response(session_id: str | None, user_message: str) -> dict:
     """
     Main entry point. Takes a session_id and new user message.
@@ -403,56 +467,134 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
     is_nonsense = classification.get("is_nonsense", False)
     lang = classification.get("lang", _detect_language(user_message))
 
-    # 2. Handle Off-Topic / Shit-Talk / Nonsense Guardrail
-    if is_nonsense or intent == "OFF_TOPIC":
-        if lang in ["hi", "hinglish"]:
-            reply = "Main MediVERSE hospital assistant hoon. Kya aapko kisi bimari ya doctor se milna hai? Kripya Haan ya Naa kahein."
-        else:
-            reply = "I am the MediVERSE hospital assistant. Are you looking to see a doctor or get a check-in token today? Please say Yes or No."
-        
+    # 2. Handle Off-Topic / Shit-Talk Guardrail (Only for actual abusive trolling)
+    if is_nonsense and any(aw in user_message.lower() for aw in ["fuck", "chutiya", "madarchod", "bhosdike", "gandu"]):
+        reply = "Main MediVERSE hospital assistant hoon. Kripya apni bimari ya doctor ke bare mein bataein. Haan ya Naa kahein." if lang in ["hi", "hinglish"] else "I am the MediVERSE hospital assistant. Please describe your health symptom or doctor query."
         history.append({"role": "assistant", "content": reply})
-        return {
-            "session_id": sid,
-            "reply": reply,
-            "action": None,
-            "action_data": None
-        }
+        return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
 
-    # 3. Handle Confirmation ("YES", "HAAN", "PROCEED") to pending recommendation
-    if intent == "CONFIRM" and sess_data.get("pending_action"):
-        pending = sess_data["pending_action"]
-        sess_data["pending_action"] = None
-        action = pending.get("action", "BOOK_TICKET")
-        action_data = pending.get("action_data")
+    # 3. Handle Active Multi-Turn Patient Registration State Machine
+    pending = sess_data.get("pending_action")
 
-        if lang in ["hi", "hinglish"]:
-            reply = "Aapka ticket book kar diya gaya hai! Token number screen par aa raha hai. Kya aapko kuch aur jankari chahiye? Haan ya Naa kahein."
-        else:
-            reply = "Your appointment token is booked and confirmed! Do you need help with anything else? Say Yes or No."
-
-        history.append({"role": "assistant", "content": reply})
-        return {
-            "session_id": sid,
-            "reply": reply,
-            "action": action,
-            "action_data": action_data
-        }
-
-    # 4. Handle Rejection ("NO", "NAHI", "CANCEL")
-    if intent == "DENY" and sess_data.get("pending_action"):
+    # Rejection ("NO", "NAHI", "CANCEL") at any stage
+    if intent == "DENY" and pending:
         sess_data["pending_action"] = None
         if lang in ["hi", "hinglish"]:
             reply = "Theek hai, booking cancel kar di gayi hai. Kya aap kisi aur doctor ya department ko dekhna chahte hain? Haan ya Naa kahein."
         else:
-            reply = "Understood, cancelled. Would you like to check another department or doctor? Say Yes or No."
+            reply = "Understood, booking cancelled. Would you like to check another department or doctor? Say Yes or No."
+        history.append({"role": "assistant", "content": reply})
+        return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
+
+    # Step A: Collecting Patient Name
+    if pending and pending.get("stage") == "COLLECT_NAME":
+        patient_name = _extract_name_from_text(user_message)
+        pending["patient_name"] = patient_name
+        pending["stage"] = "COLLECT_PHONE"
+        if lang in ["hi", "hinglish"]:
+            reply = f"Dhanyawad {patient_name} ji! Kripya apna 10 ankon ka Mobile Number bataein."
+        else:
+            reply = f"Thank you {patient_name}. Please provide your 10-digit mobile phone number."
+        history.append({"role": "assistant", "content": reply})
+        return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
+
+    # Step B: Collecting Patient Phone Number
+    if pending and pending.get("stage") == "COLLECT_PHONE":
+        patient_phone = _extract_phone_from_text(user_message)
+        pending["patient_phone"] = patient_phone
+        pending["stage"] = "COLLECT_AGE"
+        if lang in ["hi", "hinglish"]:
+            reply = "Aapki Umar kitne saal hai?"
+        else:
+            reply = "What is your Age in years?"
+        history.append({"role": "assistant", "content": reply})
+        return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
+
+    # Step C: Collecting Patient Age
+    if pending and pending.get("stage") == "COLLECT_AGE":
+        patient_age = _extract_age_from_text(user_message)
+        pending["patient_age"] = patient_age
+        pending["stage"] = "CONFIRM_SUMMARY"
+        
+        p_name = pending.get("patient_name", "Patient")
+        p_phone = pending.get("patient_phone", "N/A")
+        doc_name = pending.get("doctor_name", "Doctor")
+        dept_name = _get_dept_name(pending.get("dept_id", "dep_gen"))
+
+        if lang in ["hi", "hinglish"]:
+            reply = f"{p_name} ji, Phone: {p_phone}, Umar: {patient_age} saal. Kya main Dr. {doc_name} ({dept_name}) ke liye ticket confirm kar doon? Haan ya Naa kahein."
+        else:
+            reply = f"Booking for {p_name}, Phone: {p_phone}, Age: {patient_age} with Dr. {doc_name} ({dept_name}). Confirm appointment? Say Yes or No."
+        history.append({"role": "assistant", "content": reply})
+        return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
+
+    # Step D: Final Booking Confirmation ("YES", "HAAN")
+    if pending and pending.get("stage") == "CONFIRM_SUMMARY" and intent == "CONFIRM":
+        p_name = pending.get("patient_name", "Patient")
+        p_phone = pending.get("patient_phone", "N/A")
+        p_age = pending.get("patient_age", 30)
+        dept_id = pending.get("dept_id", "dep_gen")
+        doc_id = pending.get("doctor_id", "")
+        doc_name = pending.get("doctor_name", "Duty Specialist")
+        dept_name = _get_dept_name(dept_id)
+
+        action_data = {
+            "dept_id": dept_id,
+            "doctor_id": doc_id,
+            "doctor_name": doc_name,
+            "department_name": dept_name,
+            "patient_name": p_name,
+            "patient_phone": p_phone,
+            "patient_age": p_age,
+            "priority": pending.get("priority", "STANDARD")
+        }
+        sess_data["pending_action"] = None
+
+        if lang in ["hi", "hinglish"]:
+            reply = f"Badhai ho {p_name} ji! Aapka ticket {dept_name} mein confirm ho gaya hai. Token number aur raseed screen par khul rahi hai."
+        else:
+            reply = f"Congratulations {p_name}! Your ticket in {dept_name} is confirmed. Generating your digital token receipt now."
 
         history.append({"role": "assistant", "content": reply})
         return {
             "session_id": sid,
             "reply": reply,
-            "action": None,
-            "action_data": None
+            "action": "BOOK_TICKET",
+            "action_data": action_data
         }
+
+    # Step E: Handle Confirmation ("YES", "HAAN", "PROCEED") to pending doctor recommendation
+    if intent == "CONFIRM":
+        if not pending:
+            # If no pending recommendation existed, create default appointment triage
+            dept_matched = _match_department(user_message, lang) or "dep_gen"
+            doc = _get_best_doctor(dept_matched)
+            pending = {
+                "action": "BOOK_TICKET",
+                "stage": "COLLECT_NAME",
+                "dept_id": dept_matched,
+                "doctor_id": doc.get("id", "") if doc else "",
+                "doctor_name": doc.get("name", "Duty Specialist") if doc else "Duty Specialist",
+                "patient_name": "",
+                "patient_phone": "",
+                "patient_age": 30,
+                "priority": "EMERGENCY" if dept_matched == "dep_emg" else "STANDARD"
+            }
+            sess_data["pending_action"] = pending
+            if lang in ["hi", "hinglish"]:
+                reply = "Bahut badhiya! Kripya apna Poora Naam bataein taaki main aapka ticket book kar saku."
+            else:
+                reply = "Great! Please tell me your Full Name so I can book your appointment token."
+            history.append({"role": "assistant", "content": reply})
+            return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
+        elif pending.get("stage") == "AWAITING_CONFIRM":
+            pending["stage"] = "COLLECT_NAME"
+            if lang in ["hi", "hinglish"]:
+                reply = "Bahut badhiya! Kripya apna Poora Naam bataein taaki main aapka ticket book kar saku."
+            else:
+                reply = "Great! Please tell me your Full Name so I can book your appointment token."
+            history.append({"role": "assistant", "content": reply})
+            return {"session_id": sid, "reply": reply, "action": None, "action_data": None}
 
     if not hf_api_token:
         print("[AI Voice] No HuggingFace API key found, falling back to offline mode")
@@ -559,18 +701,22 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
         action_data = {"ref_id": sid}
 
     # If Qwen suggested a doctor/department without emitting the immediate tag, store as pending action
-    dept_matched = _match_department(clean_reply, lang)
-    if not action and dept_matched:
-        doc = _get_best_doctor(dept_matched)
+    dept_matched = _match_department(clean_reply, lang) or _match_department(user_message, lang)
+    if not action and (dept_matched or any(w in clean_reply.lower() for w in ["dr.", "doctor", "department", "book", "token", "triage", "karein", "chahiye"])):
+        final_dept = dept_matched or "dep_gen"
+        doc = _get_best_doctor(final_dept)
         doc_id = doc.get("id", "") if doc else ""
+        doc_name = doc.get("name", "Duty Specialist") if doc else "Duty Specialist"
         sess_data["pending_action"] = {
             "action": "BOOK_TICKET",
-            "action_data": {
-                "dept_id": dept_matched,
-                "doctor_id": doc_id,
-                "priority": "EMERGENCY" if dept_matched == "dep_emg" else "STANDARD",
-                "patient_name": "Guest Patient"
-            }
+            "stage": "AWAITING_CONFIRM",
+            "dept_id": final_dept,
+            "doctor_id": doc_id,
+            "doctor_name": doc_name,
+            "patient_name": "",
+            "patient_phone": "",
+            "patient_age": 30,
+            "priority": "EMERGENCY" if final_dept == "dep_emg" else "STANDARD"
         }
 
     history.append({"role": "assistant", "content": clean_reply})
@@ -716,28 +862,72 @@ def _offline_flow(sid: str, history: List[dict], user_message: str) -> dict:
                 state["step"] = "confirm_name"
 
     elif state["step"] == "confirm_name":
-        # User provides their name — now book
-        patient_name = user_message.strip()
-        if len(patient_name) < 2:
-            patient_name = "Guest Patient"
+        patient_name = _extract_name_from_text(user_message)
+        state["patient_name"] = patient_name
+        state["step"] = "confirm_phone"
+        if lang in ["hi", "hinglish"]:
+            reply = f"Dhanyawad {patient_name} ji! Kripya apna 10 ankon ka Mobile Number bataein."
+        else:
+            reply = f"Thank you {patient_name}. Please provide your 10-digit mobile phone number."
 
-        dept_id = state.get("dept_id") or "dep_gen"
+    elif state["step"] == "confirm_phone":
+        patient_phone = _extract_phone_from_text(user_message)
+        state["patient_phone"] = patient_phone
+        state["step"] = "confirm_age"
+        if lang in ["hi", "hinglish"]:
+            reply = "Aapki Umar kitne saal hai?"
+        else:
+            reply = "What is your Age in years?"
+
+    elif state["step"] == "confirm_age":
+        patient_age = _extract_age_from_text(user_message)
+        state["patient_age"] = patient_age
+        state["step"] = "confirm_summary"
+        
+        p_name = state.get("patient_name", "Patient")
+        p_phone = state.get("patient_phone", "N/A")
         doctor = state.get("doctor")
-        doctor_id = doctor.get("id", "") if doctor else ""
         doc_name = doctor.get("name", "Duty Specialist") if doctor else "Duty Specialist"
-        dept_name = _get_dept_name(dept_id)
-        priority = "EMERGENCY" if dept_id == "dep_emg" else "STANDARD"
+        dept_name = _get_dept_name(state.get("dept_id") or "dep_gen")
 
-        reply = _offline_reply(lang, "booking_done", doctor=doc_name, dept=dept_name)
-        action = "BOOK_TICKET"
-        action_data = {
-            "dept_id": dept_id,
-            "doctor_id": doctor_id,
-            "priority": priority,
-            "patient_name": patient_name
-        }
-        # Reset state for next conversation
-        state["step"] = "done"
+        if lang in ["hi", "hinglish"]:
+            reply = f"{p_name} ji, Phone: {p_phone}, Umar: {patient_age} saal. Kya main Dr. {doc_name} ({dept_name}) ke liye ticket confirm kar doon? Haan ya Naa kahein."
+        else:
+            reply = f"Booking for {p_name}, Phone: {p_phone}, Age: {patient_age} with Dr. {doc_name} ({dept_name}). Confirm appointment? Say Yes or No."
+
+    elif state["step"] == "confirm_summary":
+        yes_words = ["yes", "haan", "ha", "ok", "sure", "book", "theek", "thik", "acha", "accha", "kar do", "karo", "please", "ji", "haa"]
+        if any(w in lower for w in yes_words):
+            patient_name = state.get("patient_name", "Patient")
+            patient_phone = state.get("patient_phone", "N/A")
+            patient_age = state.get("patient_age", 30)
+            dept_id = state.get("dept_id") or "dep_gen"
+            doctor = state.get("doctor")
+            doctor_id = doctor.get("id", "") if doctor else ""
+            doc_name = doctor.get("name", "Duty Specialist") if doctor else "Duty Specialist"
+            dept_name = _get_dept_name(dept_id)
+            priority = "EMERGENCY" if dept_id == "dep_emg" else "STANDARD"
+
+            if lang in ["hi", "hinglish"]:
+                reply = f"Badhai ho {patient_name} ji! Aapka ticket {dept_name} mein confirm ho gaya hai. Token number aur raseed screen par khul rahi hai."
+            else:
+                reply = f"Congratulations {patient_name}! Your ticket in {dept_name} is confirmed. Generating your digital token receipt now."
+
+            action = "BOOK_TICKET"
+            action_data = {
+                "dept_id": dept_id,
+                "doctor_id": doctor_id,
+                "doctor_name": doc_name,
+                "department_name": dept_name,
+                "patient_name": patient_name,
+                "patient_phone": patient_phone,
+                "patient_age": patient_age,
+                "priority": priority
+            }
+            state["step"] = "done"
+        else:
+            state["step"] = "ask_symptom"
+            reply = "Theek hai, booking cancel kar di gayi hai. Aapko kya pareshani hai?" if lang in ["hi", "hinglish"] else "Understood, booking cancelled. What health issue can I help with?"
 
     else:
         # Done or unknown — restart

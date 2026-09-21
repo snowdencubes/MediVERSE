@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
 
 const NAV_ITEMS = [
+  { href: '/home', label: 'Home', symbol: '⌂' },
   { href: '/kiosk', label: 'Kiosk', symbol: '\u25C8' },
   { href: '/queue-board', label: 'Queue', symbol: '\u25C9' },
   { href: '/doctor-desk', label: 'Desk', symbol: '\u25CE' },
@@ -105,7 +106,7 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
   return (
     <>
       <nav className={`MediVERSE-nav ${scrolled ? 'scrolled' : ''}`} style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" className="MediVERSE-logo" onClick={() => setMobileOpen(false)}>MediVERSE</Link>
+        <Link href="/home" className="MediVERSE-logo" onClick={() => setMobileOpen(false)}>MediVERSE</Link>
 
         {/* Navbar-Centered Burger Menu Button */}
         <button 

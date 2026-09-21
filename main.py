@@ -12,6 +12,29 @@ _ERROR_KEYWORDS = {"traceback", "error:", "exception:", "failed", "fatal", "crit
 _INFO_KEYWORDS = {"info:", "started", "startup", "running on", "waiting for", "complete", "ready"}
 
 
+import socket
+import urllib.request
+
+def _is_port_in_use(port: int) -> bool:
+    """Check if a TCP port is currently accepting connections."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.5)
+            return s.connect_ex(("127.0.0.1", port)) == 0
+    except Exception:
+        return False
+
+
+def _is_service_healthy(url: str) -> bool:
+    """Check if an HTTP service responds with a successful status."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "RekovLauncher"})
+        with urllib.request.urlopen(req, timeout=1.5) as res:
+            return res.status in (200, 304, 307, 308)
+    except Exception:
+        return False
+
+
 def _kill_port(port: int):
     """Kill any process listening on the given port (Windows only)."""
     try:
@@ -76,10 +99,30 @@ def main():
     sys_logger.info("  Backend + Frontend launched together.")
     sys_logger.info("")
 
-    # ---- 0. Kill stale processes on our ports ----
-    sys_logger.info("[CLEANUP] Freeing ports 3000 & 4040...")
-    _kill_port(3000)
-    _kill_port(4040)
+    # ---- 0. Check if services are already up and running ----
+    api_alive = _is_service_healthy("http://127.0.0.1:4040/api/v1/health") or _is_service_healthy("http://127.0.0.1:4040/")
+    ui_alive = _is_service_healthy("http://127.0.0.1:3000/")
+
+    if api_alive and ui_alive:
+        sys_logger.success("[ONLINE] Services are ALREADY online and healthy on ports 3000 & 4040!")
+        sys_logger.info("")
+        sys_logger.info("  -> http://localhost:3000         (Application)")
+        sys_logger.info("  -> http://localhost:3000/kiosk    (Self-Service)")
+        sys_logger.info("  -> http://localhost:4040/docs     (API Docs)")
+        sys_logger.info("")
+        sys_logger.info("  Keeping existing instances running. Press Ctrl+C to exit launcher.")
+        try:
+            while True:
+                time.sleep(2)
+        except KeyboardInterrupt:
+            sys_logger.info("Launcher stopped (services remain active in background).")
+        return
+
+    # Clean up only unresponsive ports
+    if not ui_alive and _is_port_in_use(3000):
+        _kill_port(3000)
+    if not api_alive and _is_port_in_use(4040):
+        _kill_port(4040)
     time.sleep(0.5)
 
     root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -89,7 +132,7 @@ def main():
     is_win = sys.platform == "win32"
 
     # ---- 1. Backend dependencies ----
-    sys_logger.info("[SETUP] Installing backend dependencies...")
+    sys_logger.info("[SETUP] Checking backend dependencies...")
     try:
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-r", "requirements.txt", "--quiet"],
@@ -102,7 +145,7 @@ def main():
         sys.exit(1)
 
     # ---- 2. Frontend dependencies ----
-    sys_logger.info("[SETUP] Installing frontend dependencies...")
+    sys_logger.info("[SETUP] Checking frontend dependencies...")
     try:
         npm_cmd = "npm.cmd" if is_win else "npm"
         subprocess.run([npm_cmd, "install", "--silent"], cwd=frontend_dir, check=True, shell=is_win)
@@ -111,13 +154,12 @@ def main():
         sys_logger.error(f"[SETUP] Frontend dependencies failed: {e}")
         sys.exit(1)
 
-    # ---- 3. Launch both services ----
-    backend_cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4040"]
+    # ---- 3. Launch both services with --reload for instant updates ----
+    backend_cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4040", "--reload"]
     frontend_cmd = "npm run dev" if is_win else ["npm", "run", "dev"]
 
-    backend_process = run_process(backend_cmd, backend_dir, "API")
-    frontend_process = run_process(frontend_cmd, frontend_dir, "UI", shell=is_win)
-
+    backend_process = run_process(backend_cmd, backend_dir, "API") if not api_alive else None
+    frontend_process = run_process(frontend_cmd, frontend_dir, "UI", shell=is_win) if not ui_alive else None
 
     sys_logger.success("==================================================")
     sys_logger.success("  ALL SYSTEMS ONLINE")
@@ -134,11 +176,14 @@ def main():
     try:
         while True:
             if backend_process and backend_process.poll() is not None:
-                sys_logger.error(f"API process exited (code {backend_process.returncode})")
-                break
+                if backend_process.returncode != 0:
+                    sys_logger.error(f"API process exited (code {backend_process.returncode})")
+                    break
             if frontend_process and frontend_process.poll() is not None:
-                sys_logger.error(f"UI process exited (code {frontend_process.returncode})")
-                break
+                # If node continues listening on port 3000, don't crash the system
+                if not _is_port_in_use(3000):
+                    sys_logger.error(f"UI process exited (code {frontend_process.returncode})")
+                    break
             time.sleep(1)
     except KeyboardInterrupt:
         sys_logger.warning("Shutting down...")
