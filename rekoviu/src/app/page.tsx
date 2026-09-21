@@ -73,8 +73,12 @@ export default function Home() {
         
         {/* SEGMENT 1 (LEFT): Language Selection */}
         <div style={{ flex: '1 1 340px', maxWidth: 440, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
+            <img src="/favicon.ico" alt="MediVERSE Logo" style={{ width: 84, height: 84, borderRadius: 20, marginBottom: 16, boxShadow: '0 8px 32px rgba(217, 22, 54, 0.25)' }} />
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 8vw, 84px)', margin: 0, letterSpacing: '.1em', color: 'var(--text-primary)', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>MediVERSE</h2>
+          </div>
           <h1 style={{
-            fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 6vw, 64px)',
+            fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(28px, 5vw, 42px)',
             letterSpacing: '.08em', marginBottom: 8, textAlign: 'center', transition: 'all 0.3s'
           }}>
             {t('select_language')}
