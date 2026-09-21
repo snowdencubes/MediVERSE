@@ -9,6 +9,7 @@ import threading
 import time
 from app.core.database import init_db, purge_stale_sessions
 from app.services.sync_service import start_sync_service
+from app.services.backupverifier import start_backup_verifier
 
 def purge_worker():
     while True:
@@ -32,6 +33,13 @@ async def lifespan(app: FastAPI):
         print("[SUCCESS] Offline Sync Service started.")
     except Exception as e:
         print(f"[FAILED] Offline Sync Service: {e}")
+
+    # Startup Backup Verifier (CSV <-> Supabase bi-directional sync)
+    try:
+        start_backup_verifier()
+        print("[SUCCESS] BackupVerifier started (CSV <-> Supabase bi-directional sync).")
+    except Exception as e:
+        print(f"[FAILED] BackupVerifier: {e}")
     
     # Start session purger
     try:
@@ -64,7 +72,7 @@ app.add_middleware(
 )
 
 # Include Routers
-from app.routers import kiosk, queue, doctor, health, auth, receptionist, settings as settings_router, ai, ai_voice
+from app.routers import kiosk, queue, doctor, health, auth, receptionist, settings as settings_router, ai, ai_voice, sync as sync_router
 from rekovbot.telegram.router import router as telegram_router
 from rekovbot.whatsapp.router import router as whatsapp_router
 
@@ -75,6 +83,7 @@ app.include_router(doctor.router, prefix=settings.API_V1_STR)
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(receptionist.router, prefix=f"{settings.API_V1_STR}/receptionist")
 app.include_router(settings_router.router, prefix=f"{settings.API_V1_STR}/settings")
+app.include_router(sync_router.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(ai.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(ai_voice.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(telegram_router, prefix=f"{settings.API_V1_STR}/bot")

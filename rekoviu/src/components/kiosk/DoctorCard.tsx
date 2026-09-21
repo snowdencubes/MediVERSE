@@ -1,5 +1,6 @@
 import React from 'react';
 import { Doctor } from '@/types';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface DoctorCardProps {
   doctor: Doctor;
@@ -8,6 +9,7 @@ interface DoctorCardProps {
 }
 
 export const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isSelected, onSelect }) => {
+  const { formatPrice } = useCurrency();
   return (
     <button
       onClick={() => onSelect(doctor.id)}
@@ -52,7 +54,7 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isSelected, onSe
         <span style={{
           fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', fontWeight: 700,
           color: 'var(--text-primary)', marginTop: 12
-        }}>${doctor.consultation_fee}</span>
+        }}>{formatPrice(doctor.consultation_fee)}</span>
       </div>
     </button>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { HealthComboPackage } from '@/types';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface ComboCartProps {
   combos: HealthComboPackage[];
@@ -9,6 +10,7 @@ interface ComboCartProps {
 }
 
 export const ComboCart: React.FC<ComboCartProps> = ({ combos, selectedComboIds, onToggleCombo, baseFee }) => {
+  const { formatPrice } = useCurrency();
   const selectedCombos = combos.filter(c => selectedComboIds.includes(c.id));
   const comboTotal = selectedCombos.reduce((sum, c) => sum + c.price, 0);
   const grandTotal = baseFee + comboTotal;
@@ -56,7 +58,7 @@ export const ComboCart: React.FC<ComboCartProps> = ({ combos, selectedComboIds, 
                   <h4 style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', fontWeight: 700, color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     {combo.title}
                   </h4>
-                  <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', fontWeight: 700, color: '#D91636', marginLeft: 8 }}>${combo.price}</span>
+                  <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', fontWeight: 700, color: '#D91636', marginLeft: 8 }}>{formatPrice(combo.price)}</span>
                 </div>
                 <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', color: 'var(--text-muted)', lineHeight: 1.4, marginBottom: 6 }}>{combo.description}</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -76,14 +78,14 @@ export const ComboCart: React.FC<ComboCartProps> = ({ combos, selectedComboIds, 
 
       <div style={{ padding: 20, borderTop: '1px solid var(--border-color)', background: 'var(--bg-main)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--text-secondary)', marginBottom: 6 }}>
-          <span>Base Fee</span><span>${baseFee.toFixed(2)}</span>
+          <span>Base Fee</span><span>{formatPrice(baseFee)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--text-secondary)', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--border-color)' }}>
-          <span>Add-ons</span><span>${comboTotal.toFixed(2)}</span>
+          <span>Add-ons</span><span>{formatPrice(comboTotal)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', fontWeight: 700, color: 'var(--text-primary)' }}>Total</span>
-          <span style={{ fontFamily: "'Bebas Neue'", fontSize: 28, color: '#D91636', letterSpacing: '.04em' }}>${grandTotal.toFixed(2)}</span>
+          <span style={{ fontFamily: "'Bebas Neue'", fontSize: 28, color: '#D91636', letterSpacing: '.04em' }}>{formatPrice(grandTotal)}</span>
         </div>
       </div>
     </div>

@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
+import { useCurrency, Currency } from '@/contexts/CurrencyContext';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', symbol: '⌂' },
@@ -19,13 +20,16 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   
-  // Use the global LanguageContext instead of local state
+  // Global contexts
   const { lang, setLang } = useLanguage();
-  
+  const { currency, setCurrency } = useCurrency();
   const { enabled: gestureEnabled, setEnabled: setGestureEnabled, status: gestureStatus } = useGesture();
+
   const [theme, setTheme] = useState('DARK');
-  const [currency, setCurrency] = useState('INR');
   const [hfToken, setHfToken] = useState('');
+  const [hfStatus, setHfStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid' | 'empty'>('idle');
+  const [hfUsername, setHfUsername] = useState<string>('');
+  const verifyTimerRef = useRef<any>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -33,30 +37,57 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Load currency from localStorage on mount, then try backend
-  useEffect(() => {
-    const savedCurrency = localStorage.getItem('MediVERSE_currency');
-    if (savedCurrency) setCurrency(savedCurrency);
-
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:4040/api/v1`;
-    fetch(`${apiUrl}/settings/currency`)
+  const checkHfToken = (tokenToTest: string) => {
+    const trimmed = (tokenToTest || '').trim();
+    if (!trimmed) {
+      setHfStatus('empty');
+      setHfUsername('');
+      return;
+    }
+    setHfStatus('checking');
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:4040/api/v1`;
+    fetch(`${apiUrl}/settings/hf_token/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: trimmed })
+    })
       .then(r => r.json())
       .then(d => {
-        if (d.currency) {
-          setCurrency(d.currency);
-          localStorage.setItem('MediVERSE_currency', d.currency);
+        if (d.status === 'valid') {
+          setHfStatus('valid');
+          setHfUsername(d.username || '');
+        } else if (d.status === 'invalid') {
+          setHfStatus('invalid');
+          setHfUsername('');
+        } else {
+          setHfStatus('invalid');
+          setHfUsername('');
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setHfStatus('invalid');
+      });
+  };
+
+  // Load HF token and run initial verification
+  useEffect(() => {
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:4040/api/v1`;
 
     fetch(`${apiUrl}/settings/hf_token`)
       .then(r => r.json())
       .then(d => {
         if (d.token) {
           setHfToken(d.token);
+          checkHfToken(d.token);
+        } else {
+          setHfStatus('empty');
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setHfStatus('empty');
+      });
   }, []);
 
   // Load theme from localStorage
@@ -76,25 +107,26 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
   };
 
   const handleCurrencyChange = (newCurrency: string) => {
-    setCurrency(newCurrency);
-    localStorage.setItem('MediVERSE_currency', newCurrency);
-    // Also persist to backend
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:4040/api/v1`;
-    fetch(`${apiUrl}/settings/currency`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currency: newCurrency })
-    }).catch(() => {});
+    setCurrency(newCurrency as Currency);
   };
 
   const handleHfTokenChange = (newToken: string) => {
     setHfToken(newToken);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:4040/api/v1`;
-    fetch(`${apiUrl}/settings/hf_token`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: newToken })
-    }).catch(() => {});
+    setHfStatus('checking');
+
+    // Debounce save & verify
+    if (verifyTimerRef.current) clearTimeout(verifyTimerRef.current);
+    verifyTimerRef.current = setTimeout(() => {
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:4040/api/v1`;
+      fetch(`${apiUrl}/settings/hf_token`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: newToken })
+      }).catch(() => {});
+
+      checkHfToken(newToken);
+    }, 400);
   };
 
   const isLight = theme === 'LIGHT';
@@ -248,24 +280,75 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
                   onChange={(e) => handleCurrencyChange(e.target.value)}
                   style={{ background: 'var(--bg-main)', border: `1px solid ${borderColor}`, color: '#D91636', padding: '4px 8px', fontSize: 13, fontFamily: "'Space Grotesk'", borderRadius: 4, cursor: 'pointer', outline: 'none' }}
                 >
+                  <option value="INR">INR (&#8377; - Rupees)</option>
                   <option value="USD">USD ($)</option>
-                  <option value="INR">INR (&#8377;)</option>
                   <option value="EUR">EUR (&euro;)</option>
                   <option value="GBP">GBP (&pound;)</option>
                   <option value="JPY">JPY (&yen;)</option>
                 </select>
               </div>
 
-              {/* HF API Token (Visible plain text) */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 16, borderTop: `1px solid ${borderColor}` }}>
-                <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: textColor, fontWeight: 600 }}>HF API Token</span>
-                <input 
-                  type="text"
-                  value={hfToken}
-                  onChange={(e) => handleHfTokenChange(e.target.value)}
-                  placeholder="hf_..."
-                  style={{ background: 'var(--bg-main)', border: `1px solid ${borderColor}`, color: '#D91636', padding: '6px 10px', fontSize: 13, fontFamily: "'Space Grotesk'", borderRadius: 4, outline: 'none', width: '160px' }}
-                />
+              {/* HF API Token (with Live Health Indicator: Green / Yellow / Red) */}
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${borderColor}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: textColor, fontWeight: 600 }}>HF API Token</span>
+                  
+                  {/* Status Indicator Pill */}
+                  {hfStatus === 'valid' && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(0,230,118,0.15)', border: '1px solid #00e676', color: '#00e676', padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700, fontFamily: "'Space Grotesk'" }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00e676', boxShadow: '0 0 6px #00e676' }} />
+                      CONNECTED {hfUsername ? `(${hfUsername})` : ''}
+                    </span>
+                  )}
+                  {hfStatus === 'checking' && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,193,7,0.15)', border: '1px solid #ffc107', color: '#ffc107', padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700, fontFamily: "'Space Grotesk'" }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ffc107' }} />
+                      CHECKING...
+                    </span>
+                  )}
+                  {hfStatus === 'invalid' && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(217,22,54,0.15)', border: '1px solid #D91636', color: '#ff4757', padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700, fontFamily: "'Space Grotesk'" }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#D91636', boxShadow: '0 0 6px #D91636' }} />
+                      INVALID / ERROR
+                    </span>
+                  )}
+                  {hfStatus === 'empty' && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.06)', border: `1px solid ${borderColor}`, color: mutedColor, padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 600, fontFamily: "'Space Grotesk'" }}>
+                      NO TOKEN
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input 
+                    type="text"
+                    value={hfToken}
+                    onChange={(e) => handleHfTokenChange(e.target.value)}
+                    placeholder="hf_..."
+                    style={{ 
+                      flex: 1,
+                      background: 'var(--bg-main)', 
+                      border: `1px solid ${hfStatus === 'valid' ? 'rgba(0,230,118,0.6)' : hfStatus === 'invalid' ? 'rgba(217,22,54,0.6)' : borderColor}`, 
+                      color: '#D91636', padding: '6px 10px', fontSize: 13, fontFamily: "'Space Grotesk'", borderRadius: 4, outline: 'none' 
+                    }}
+                  />
+                  <button
+                    onClick={() => checkHfToken(hfToken)}
+                    title="Test Token with Hugging Face API"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: `1px solid ${borderColor}`,
+                      color: textColor,
+                      borderRadius: 4,
+                      padding: '0 10px',
+                      fontSize: 12,
+                      fontFamily: "'Space Grotesk'",
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Test
+                  </button>
+                </div>
               </div>
 
               {/* Gestures */}

@@ -5,6 +5,7 @@ import { BackgroundLayer } from '@/components/common/BackgroundLayer';
 import { PageLoader } from '@/components/common/PageLoader';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { GestureProvider } from '@/contexts/GestureContext';
+import { CurrencyProvider } from '@/contexts/CurrencyContext';
 import { GestureCursor } from '@/components/common/GestureCursor';
 
 export const metadata: Metadata = {
@@ -56,16 +57,18 @@ export default function RootLayout({
       <body>
         <GestureProvider>
           <LanguageProvider>
-            <PageLoader />
-            <CursorEffect />
-            <GestureCursor />
-            <BackgroundLayer />
-            <div className="bg-grain"></div>
-            <div className="vignette"></div>
-            <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>MediVERSE</div>
-            <div style={{ position: 'relative', zIndex: 10 }}>
-              {children}
-            </div>
+            <CurrencyProvider>
+              <PageLoader />
+              <CursorEffect />
+              <GestureCursor />
+              <BackgroundLayer />
+              <div className="bg-grain"></div>
+              <div className="vignette"></div>
+              <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>MediVERSE</div>
+              <div style={{ position: 'relative', zIndex: 10 }}>
+                {children}
+              </div>
+            </CurrencyProvider>
           </LanguageProvider>
         </GestureProvider>
       </body>

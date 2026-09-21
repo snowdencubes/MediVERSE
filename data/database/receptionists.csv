@@ -1,3 +1,4 @@
 id,name,pin
-rec_1,Admin Receptionist,admin
-rec_2,Anjali Desai,1234
+rec,Head Receptionist,12345
+rec_1,Admin Receptionist,12345
+rec_2,Anjali Desai,12345

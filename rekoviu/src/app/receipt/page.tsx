@@ -8,8 +8,10 @@ import { QueueTicket } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 function ReceiptContent() {
+  const { formatPrice } = useCurrency();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const router = useRouter();
@@ -198,7 +200,7 @@ function ReceiptContent() {
               ['Department', ticket.department_name],
               ['Assigned Doctor', ticket.doctor_name],
               ['Room Number', ticket.room_number],
-              ['Total Fee', `₹${ticket.total_fee || 35.0}`],
+              ['Total Fee', formatPrice(ticket.total_fee || 35.0)],
               ['Est. Call Time', ticket.estimated_call_time || '~5 mins'],
               ['Date & Time', ticket.created_at || new Date().toLocaleTimeString()]
             ].map(([label, value]) => (

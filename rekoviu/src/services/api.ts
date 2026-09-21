@@ -227,14 +227,46 @@ export async function synthesizeTTSAudio(
   }
 }
 
+export async function fetchSyncStatus(): Promise<any> {
+  try {
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}/sync/status`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch sync status');
+    return await res.json();
+  } catch (err) {
+    console.warn('Sync status fetch error:', err);
+    return {
+      supabase_configured: false,
+      supabase_connected: false,
+      total_tickets: 0,
+      synced_count: 0,
+      unsynced_count: 0,
+      offline_backups_count: 0,
+      recent_tickets: []
+    };
+  }
+}
+
+export async function triggerSync(): Promise<any> {
+  const baseUrl = getApiBase();
+  const res = await fetch(`${baseUrl}/sync/trigger`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error('Trigger sync failed');
+  return await res.json();
+}
+
 export const api = {
   get: async (path: string) => {
-    const res = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}${path}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`API GET ${path} failed`);
     return await res.json();
   },
   post: async (path: string, body: any) => {
-    const res = await fetch(`${API_BASE}${path}`, {
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)

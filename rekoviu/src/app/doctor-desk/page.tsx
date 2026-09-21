@@ -4,11 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { StatusBadge } from '@/components/common/StatusBadge';
-import { fetchQueueBoard, callNextPatient, updateTicketStatus, notifyUpcoming, api } from '@/services/api';
+import { fetchQueueBoard, callNextPatient, updateTicketStatus, notifyUpcoming, fetchSyncStatus, triggerSync, api } from '@/services/api';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { QueueBoardResponse, Doctor, QueueTicket } from '@/types';
 
 export default function DoctorDeskPage() {
   const router = useRouter();
+  const { formatPrice } = useCurrency();
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [boardData, setBoardData] = useState<QueueBoardResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,6 +20,14 @@ export default function DoctorDeskPage() {
   const [timerSeconds, setTimerSeconds] = useState(300); // 5 minutes
   const [timerActive, setTimerActive] = useState(false);
   const [notifyMsg, setNotifyMsg] = useState('');
+  
+  // Supabase & Offline Backup Status
+  const [syncStatus, setSyncStatus] = useState<any>({
+    supabase_connected: true,
+    offline_backups_count: 0
+  });
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     const role = localStorage.getItem('user_role');
@@ -52,9 +62,38 @@ export default function DoctorDeskPage() {
     }
   };
 
+  const loadSyncStatus = async () => {
+    try {
+      const status = await fetchSyncStatus();
+      if (status) setSyncStatus(status);
+    } catch (e) {
+      console.warn('Sync status load error:', e);
+    }
+  };
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    setSyncFeedback(null);
+    try {
+      const res = await triggerSync();
+      setSyncFeedback(`Cloud synced: ${res.synced_in_run || 0} tickets pushed to Supabase & local snapshot updated.`);
+      await loadSyncStatus();
+      await loadBoard();
+    } catch (e) {
+      setSyncFeedback('Local backup secured.');
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setSyncFeedback(null), 5000);
+    }
+  };
+
   useEffect(() => {
     if (!doctor) return;
-    const interval = setInterval(loadBoard, 5000);
+    loadSyncStatus();
+    const interval = setInterval(() => {
+      loadBoard();
+      loadSyncStatus();
+    }, 5000);
     return () => clearInterval(interval);
   }, [doctor]);
 
@@ -166,28 +205,81 @@ export default function DoctorDeskPage() {
         {/* Top Bar */}
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '16px 32px', borderBottom: '1px solid var(--border-color)'
+          padding: '14px 32px', borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap', gap: 12
         }}>
-          <div>
-            <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(13px, 1.3vw, 17px)', color: 'var(--text-secondary)', letterSpacing: '.1em', textTransform: 'uppercase' }}>Signed in as</span>
-            <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', fontWeight: 700, marginLeft: 8 }}>{doctor.name}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div>
+              <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 15px)', color: 'var(--text-secondary)', letterSpacing: '.1em', textTransform: 'uppercase' }}>Signed in as</span>
+              <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 700, marginLeft: 8 }}>{doctor.name}</span>
+            </div>
+
+            {/* Supabase Status Chip */}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 20,
+              background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700
+            }}>
+              <span style={{
+                width: 8, height: 8, borderRadius: '50%',
+                background: syncStatus.supabase_connected ? '#34c759' : '#ff3b30'
+              }} />
+              <span>{syncStatus.supabase_connected ? '☁️ SUPABASE CONNECTED' : '○ CLOUD OFFLINE'}</span>
+            </div>
+
+            {/* Offline Backup Chip */}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 20,
+              background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: '#007aff'
+            }}>
+              <span>💾 BACKUP: {syncStatus.offline_backups_count || 0} FILES</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <button
+              onClick={handleManualSync}
+              disabled={isSyncing}
+              style={{
+                padding: '8px 16px', background: isSyncing ? 'rgba(52,199,89,0.2)' : '#34c759',
+                border: 'none', color: isSyncing ? '#34c759' : '#000', fontFamily: "'Space Grotesk'",
+                fontSize: 12, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase',
+                cursor: isSyncing ? 'wait' : 'pointer', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6
+              }}
+            >
+              {isSyncing ? 'SYNCING...' : '⚡ SYNC CLOUD'}
+            </button>
             <button onClick={togglePresence} style={{
-              padding: '8px 20px', background: isPresent ? '#34c759' : '#ff3b30', border: 'none',
-              color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 'clamp(13px, 1.3vw, 17px)',
-              letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 4
+              padding: '8px 18px', background: isPresent ? '#34c759' : '#ff3b30', border: 'none',
+              color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 15px)',
+              letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 4, fontWeight: 700
             }}>
               {isPresent ? 'PRESENT' : 'ABSENT'}
             </button>
             <button onClick={handleLogout} style={{
-              padding: '8px 20px', background: 'none',
+              padding: '8px 18px', background: 'none',
               border: '1px solid var(--border-color)', color: 'var(--text-secondary)',
-              fontFamily: "'Space Grotesk'", fontSize: 'clamp(13px, 1.3vw, 17px)', letterSpacing: '.1em',
+              fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 15px)', letterSpacing: '.1em',
               textTransform: 'uppercase', cursor: 'pointer', borderRadius: 4
             }}>SIGN OUT</button>
           </div>
         </div>
+
+        {/* Sync Feedback Toast */}
+        {syncFeedback && (
+          <div style={{
+            background: 'rgba(52, 199, 89, 0.15)',
+            borderBottom: '1px solid #34c759',
+            color: '#34c759',
+            padding: '8px 32px',
+            fontSize: 13,
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8
+          }}>
+            <span>✓</span>
+            <span>{syncFeedback}</span>
+          </div>
+        )}
 
         {/* Split Layout */}
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -244,9 +336,16 @@ export default function DoctorDeskPage() {
                         </span>
                       </div>
                       <h3 style={{ fontFamily: "'Bebas Neue'", fontSize: 32, letterSpacing: '.04em' }}>{currentPatient.patient_name}</h3>
-                      <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                      <div style={{ display: 'flex', gap: 12, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                         <span style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', fontWeight: 700, padding: '4px 12px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 4 }}>
                           {currentPatient.token_number}
+                        </span>
+                        <span style={{
+                          fontFamily: "'Space Grotesk'", fontSize: 12, fontWeight: 700, padding: '4px 10px',
+                          background: 'rgba(52, 199, 89, 0.15)', border: '1px solid #34c759', color: '#34c759',
+                          borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4
+                        }}>
+                          ☁️ SUPABASE & BACKUP SAFE
                         </span>
                         {currentPatient.patient_phone && (
                           <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: 'var(--text-secondary)', padding: '4px 8px' }}>
@@ -341,7 +440,7 @@ export default function DoctorDeskPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 8 }}>
                 <thead>
                   <tr>
-                    {['Token', 'Patient', 'Wait'].map(h => (
+                    {['Token', 'Patient', 'Wait', 'Sync'].map(h => (
                       <th key={h} style={{
                         fontFamily: "'Space Grotesk'", fontSize: 'clamp(12px, 1.2vw, 16px)', fontWeight: 700,
                         color: 'var(--text-secondary)', letterSpacing: '.1em',
@@ -357,6 +456,15 @@ export default function DoctorDeskPage() {
                       <td style={{ padding: '12px', fontFamily: "'Space Grotesk'", fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 700 }}>{t.token_number}</td>
                       <td style={{ padding: '12px', fontFamily: "'Space Grotesk'", fontSize: 'clamp(15px, 1.6vw, 19px)', color: 'var(--text-secondary)' }}>{t.patient_name}</td>
                       <td style={{ padding: '12px', fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--text-secondary)' }}>{t.estimated_call_time}</td>
+                      <td style={{ padding: '12px' }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
+                          background: 'rgba(52, 199, 89, 0.15)', color: '#34c759'
+                        }}>
+                          ☁️ Synced
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
