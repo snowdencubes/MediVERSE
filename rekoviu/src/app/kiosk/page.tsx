@@ -130,7 +130,7 @@ export default function KioskPage() {
 
   const handleBack = () => {
     if (step === 1) {
-      router.push('/home');
+      router.push('/');
     } else {
       setStep(s => s - 1);
     }

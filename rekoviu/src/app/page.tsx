@@ -6,6 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
 import { speakBilingualText, cancelCurrentTTS } from '@/services/tts';
+import { MediVERSENav } from '@/components/common/MediVERSENav';
 
 const LANG_GROUPS = [
   { id: 'primary', tLabel: 'primary_lang', items: [
@@ -293,15 +294,17 @@ export default function Home() {
   }, [router, lang]);
 
   const handleSelect = (l: Language) => { setLang(l); };
-  const handleContinue = () => { router.push('/home'); };
+  const handleContinue = () => { router.push('/kiosk'); };
 
   return (
-    <div style={{
-      position: 'relative', zIndex: 10,
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'transparent', color: 'var(--text-primary)', padding: '40px 24px',
-      overflowY: 'auto'
-    }}>
+    <>
+      <MediVERSENav currentModule="home" />
+      <div style={{
+        position: 'relative', zIndex: 10,
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'transparent', color: 'var(--text-primary)', padding: '90px 24px 40px 24px',
+        overflowY: 'auto'
+      }}>
       
       {/* 3-Segment Wrapper */}
       <div style={{
@@ -755,5 +758,6 @@ export default function Home() {
         </div>
       )}
     </div>
+    </>
   );
 }

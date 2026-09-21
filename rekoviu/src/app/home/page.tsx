@@ -40,7 +40,11 @@ const cardStyle: React.CSSProperties = {
 
 export default function Home() {
   const router = useRouter();
-      const { lang, t } = useLanguage();
+  const { lang, t } = useLanguage();
+
+  useEffect(() => {
+    router.replace('/');
+  }, [router]);
 
   const getFallbackLang = (l: string) => {
     if (l === 'EN') return 'HI';

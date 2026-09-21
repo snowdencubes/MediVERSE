@@ -789,7 +789,7 @@ export default function VoiceAssistantPage() {
             onClick={() => {
               cancelAudio();
               stopListening();
-              router.push('/home');
+              router.push('/');
             }}
             style={{
               width: '100%',

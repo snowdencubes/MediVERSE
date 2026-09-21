@@ -6,12 +6,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
 
 const NAV_ITEMS = [
-  { href: '/home', label: 'Home', symbol: '⌂' },
-  { href: '/kiosk', label: 'Kiosk', symbol: '\u25C8' },
-  { href: '/queue-board', label: 'Queue', symbol: '\u25C9' },
-  { href: '/doctor-desk', label: 'Desk', symbol: '\u25CE' },
-  { href: '/receptionist', label: 'Receptionist', symbol: '\u25A3' },
-  { href: '/history', label: 'History', symbol: '\u25B6' },
+  { href: '/', label: 'Home', symbol: '⌂' },
+  { href: '/kiosk', label: 'Kiosk', symbol: '◈' },
+  { href: '/queue-board', label: 'Queue', symbol: '◉' },
+  { href: '/doctor-desk', label: 'Desk', symbol: '◍' },
+  { href: '/receptionist', label: 'Receptionist', symbol: '▣' },
+  { href: '/history', label: 'History', symbol: '▶' },
 ];
 
 export function MediVERSENav({ currentModule }: { currentModule: string }) {
@@ -106,7 +106,7 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
   return (
     <>
       <nav className={`MediVERSE-nav ${scrolled ? 'scrolled' : ''}`} style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/home" className="MediVERSE-logo" onClick={() => setMobileOpen(false)}>MediVERSE</Link>
+        <Link href="/" className="MediVERSE-logo" onClick={() => setMobileOpen(false)}>MediVERSE</Link>
 
         {/* Navbar-Centered Burger Menu Button */}
         <button 
@@ -175,25 +175,30 @@ export function MediVERSENav({ currentModule }: { currentModule: string }) {
                 Navigation
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-                {NAV_ITEMS.map(item => (
-                  <Link 
-                    key={item.href}
-                    href={item.href} 
-                    onClick={() => setMobileOpen(false)}
-                    style={{ 
-                      background: currentModule === item.href.slice(1) ? 'rgba(217,22,54,0.18)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${currentModule === item.href.slice(1) ? '#D91636' : borderColor}`,
-                      padding: '16px 12px', borderRadius: 12, textDecoration: 'none',
-                      color: currentModule === item.href.slice(1) ? '#D91636' : textColor,
-                      fontFamily: "'Bebas Neue'", fontSize: 24, letterSpacing: '.08em',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      transition: 'all 0.2s', textAlign: 'center'
-                    }}
-                  >
-                    <span>{item.symbol}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
+                {NAV_ITEMS.map(item => {
+                  const isItemActive = item.href === '/'
+                    ? (currentModule === '' || currentModule === 'home')
+                    : currentModule === item.href.slice(1);
+                  return (
+                    <Link 
+                      key={item.href}
+                      href={item.href} 
+                      onClick={() => setMobileOpen(false)}
+                      style={{ 
+                        background: isItemActive ? 'rgba(217,22,54,0.18)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${isItemActive ? '#D91636' : borderColor}`,
+                        padding: '16px 12px', borderRadius: 12, textDecoration: 'none',
+                        color: isItemActive ? '#D91636' : textColor,
+                        fontFamily: "'Bebas Neue'", fontSize: 24, letterSpacing: '.08em',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                        transition: 'all 0.2s', textAlign: 'center'
+                      }}
+                    >
+                      <span>{item.symbol}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
