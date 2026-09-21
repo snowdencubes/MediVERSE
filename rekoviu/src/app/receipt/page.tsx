@@ -255,9 +255,9 @@ function ReceiptContent() {
             }}>
               <button
                 onClick={() => setShowChannelModal(false)}
-                style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#999', fontSize: 20, cursor: 'pointer' }}
+                style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#999', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
               >
-                ✕
+                X
               </button>
 
               <h3 style={{ fontFamily: "'Bebas Neue'", fontSize: 28, letterSpacing: '0.05em', marginBottom: 8, color: '#fff' }}>

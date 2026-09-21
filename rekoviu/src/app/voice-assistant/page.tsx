@@ -116,7 +116,7 @@ export default function VoiceAssistantPage() {
                 textAlign: 'center', margin: 'auto 0', color: 'var(--text-secondary)',
                 fontFamily: "'Space Grotesk', sans-serif"
               }}>
-                <div style={{ fontSize: 44, marginBottom: 12 }}>🎙️</div>
+                <div style={{ fontSize: 44, marginBottom: 12 }}>Mic</div>
                 <h3 style={{ fontSize: 22, color: 'var(--text-primary)', marginBottom: 6 }}>
                   MediVERSE Voice Assistant
                 </h3>
@@ -258,7 +258,7 @@ export default function VoiceAssistantPage() {
                   fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
                 }}
               >
-                🖐 INTERRUPT AI
+                [HALT] INTERRUPT AI
               </button>
             )}
 

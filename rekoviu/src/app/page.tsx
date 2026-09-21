@@ -359,31 +359,83 @@ export default function Home() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 18 }}>🖐</span>
-                <span>Enable Gestures (No Screen Touch Method)</span>
+                <div style={{
+                  width: 10, height: 10, borderRadius: '50%',
+                  background: gestureEnabled ? '#00e676' : '#D91636',
+                  boxShadow: gestureEnabled ? '0 0 8px #00e676' : 'none'
+                }} />
+                <span>Touchless Gestures (No-Touch Interaction)</span>
               </div>
-              <span style={{ color: '#D91636', transform: isGestureSectionOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▶</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 12, color: gestureEnabled ? '#00e676' : 'var(--text-secondary)', fontWeight: 600 }}>
+                  {gestureEnabled ? '[ACTIVE]' : '[OFF]'}
+                </span>
+                <span style={{ color: '#D91636', transform: isGestureSectionOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▶</span>
+              </div>
             </button>
 
             {isGestureSectionOpen && (
-              <div style={{ padding: '0 24px 20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-secondary)', fontSize: 13, margin: 0 }}>
-                  Gesture mode uses your camera. No data is stored.
-                </p>
+              <div style={{ padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-secondary)', fontSize: 13, margin: 0 }}>
+                    Control the kiosk without touching the glass using camera-based AI vision. Zero data recorded.
+                  </p>
+                  <button
+                    onClick={() => setGestureEnabled(!gestureEnabled)}
+                    style={{
+                      padding: '10px 20px',
+                      background: gestureEnabled ? 'rgba(0,230,118,0.15)' : '#D91636',
+                      border: `1px solid ${gestureEnabled ? '#00e676' : '#D91636'}`,
+                      borderRadius: 10, color: gestureEnabled ? '#00e676' : '#fff',
+                      fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700,
+                      cursor: 'pointer', transition: 'all 0.2s', letterSpacing: '.04em'
+                    }}
+                  >
+                    {gestureEnabled ? 'DISABLE GESTURES' : 'ENABLE GESTURES NOW'}
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => setGestureEnabled(!gestureEnabled)}
-                  style={{
-                    width: '100%', padding: '12px 20px',
-                    background: gestureEnabled ? 'rgba(0,230,118,0.15)' : 'rgba(217, 22, 54, 0.15)',
-                    border: `1px solid ${gestureEnabled ? '#00e676' : '#D91636'}`,
-                    borderRadius: 12, color: gestureEnabled ? '#00e676' : '#ff4757',
-                    fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700,
-                    cursor: 'pointer', transition: 'all 0.2s'
-                  }}
-                >
-                  {gestureEnabled ? 'DISABLE GESTURES' : 'ENABLE GESTURES NOW'}
-                </button>
+                {/* Bilingual Instructions Box */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16,
+                  marginTop: 8
+                }}>
+                  {/* English Instructions */}
+                  <div style={{
+                    background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#D91636', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 10 }}>
+                      [GUIDE] English Instructions
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: 'var(--text-primary)' }}>
+                      <div><strong>1. Face Alignment:</strong> Look towards the front camera. The facial tracking frame locks in automatically.</div>
+                      <div><strong>2. Palm Cursor:</strong> Raise open palm facing the screen. The on-screen pointer will track your hand movement.</div>
+                      <div><strong>3. Pinch to Click:</strong> Bring thumb and index finger tips together to click any button without touching.</div>
+                      <div><strong>4. Swipe Navigation:</strong> Move your hand horizontally left or right to switch departments or flip views.</div>
+                    </div>
+                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)' }}>
+                      [Privacy] 100% on-device vision processing. No photos or video streams are stored or uploaded.
+                    </div>
+                  </div>
+
+                  {/* Hindi Instructions */}
+                  <div style={{
+                    background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#00e676', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 10 }}>
+                      [निर्देश] हिन्दी गाइड (Hindi)
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: 'var(--text-primary)' }}>
+                      <div><strong>1. चेहरा संरेखण:</strong> सीधे कैमरे की ओर देखें। फेशियल ट्रैकिंग स्वचालित रूप से लॉक हो जाएगी।</div>
+                      <div><strong>2. हथेली कर्सर:</strong> खुली हथेली स्क्रीन के सामने उठाएं। स्क्रीन पर लेज़र कर्सर आपके हाथ के साथ चलेगा।</div>
+                      <div><strong>3. पिंच क्लिक:</strong> बटन पर क्लिक करने के लिए अंगूठे और तर्जनी उंगली के सिरों को आपस में मिलाएं।</div>
+                      <div><strong>4. स्वाइप नेविगेशन:</strong> पेज बदलने या विभाग बदलने के लिए हाथ को बाईं या दाईं ओर घुमाएं।</div>
+                    </div>
+                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)' }}>
+                      [गोपनीयता] ऑन-डिवाइस विज़न प्रोसेसिंग। कोई फोटो या वीडियो रिकॉर्ड या सेव नहीं किया जाता।
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

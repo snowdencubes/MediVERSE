@@ -150,7 +150,7 @@ export const VoiceCallOverlay: React.FC = () => {
                 fontWeight: 700
               }}
             >
-              🖐
+              HALT
             </button>
           )}
 
@@ -169,11 +169,12 @@ export const VoiceCallOverlay: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              fontSize: '15px',
+              fontSize: '11px',
+              fontWeight: 700,
               transition: 'transform 0.15s ease'
             }}
           >
-            {isMuted ? '🔇' : '🎙️'}
+            {isMuted ? 'OFF' : 'MIC'}
           </button>
 
           {/* Expand / Full Assistant Page Button */}
@@ -192,10 +193,11 @@ export const VoiceCallOverlay: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '10px',
+                fontWeight: 700
               }}
             >
-              💬
+              CHAT
             </button>
           )}
 
@@ -220,7 +222,7 @@ export const VoiceCallOverlay: React.FC = () => {
               boxShadow: '0 2px 10px rgba(255, 45, 85, 0.4)'
             }}
           >
-            <span>📞</span> END
+            <span>END CALL</span>
           </button>
         </div>
       </div>

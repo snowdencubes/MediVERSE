@@ -66,7 +66,7 @@ export default function LoginPage() {
         {/* Quick-Access Pills */}
         <div style={{ marginBottom: 24 }}>
           <span style={{ fontFamily: "'Space Grotesk'", fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.05em', display: 'block', marginBottom: 8, textAlign: 'center' }}>
-            ⚡ 1-Click Quick Login
+            [QUICK ACCESS] 1-Click Login
           </span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
             <button
@@ -77,7 +77,7 @@ export default function LoginPage() {
                 padding: '6px 12px', borderRadius: 16, fontSize: 12, fontWeight: 700, fontFamily: "'Space Grotesk'", cursor: 'pointer'
               }}
             >
-              👩‍💼 Receptionist (rec)
+              Receptionist (rec)
             </button>
             <button
               type="button"
@@ -87,7 +87,7 @@ export default function LoginPage() {
                 padding: '6px 10px', borderRadius: 16, fontSize: 12, fontWeight: 600, fontFamily: "'Space Grotesk'", cursor: 'pointer'
               }}
             >
-              🩺 General (gen)
+              General (gen)
             </button>
             <button
               type="button"
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 padding: '6px 10px', borderRadius: 16, fontSize: 12, fontWeight: 600, fontFamily: "'Space Grotesk'", cursor: 'pointer'
               }}
             >
-              ❤️ Cardio (card)
+              Cardio (card)
             </button>
             <button
               type="button"
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 padding: '6px 10px', borderRadius: 16, fontSize: 12, fontWeight: 600, fontFamily: "'Space Grotesk'", cursor: 'pointer'
               }}
             >
-              👶 Pediatric (ped)
+              Pediatric (ped)
             </button>
             <button
               type="button"
@@ -117,7 +117,7 @@ export default function LoginPage() {
                 padding: '6px 10px', borderRadius: 16, fontSize: 12, fontWeight: 600, fontFamily: "'Space Grotesk'", cursor: 'pointer'
               }}
             >
-              🦴 Ortho (ortho)
+              Ortho (ortho)
             </button>
             <button
               type="button"
@@ -127,7 +127,7 @@ export default function LoginPage() {
                 padding: '6px 10px', borderRadius: 16, fontSize: 12, fontWeight: 600, fontFamily: "'Space Grotesk'", cursor: 'pointer'
               }}
             >
-              🚨 Emergency (emg)
+              Emergency (emg)
             </button>
           </div>
         </div>

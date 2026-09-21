@@ -345,11 +345,10 @@ def main():
     # ── 4. Launch services ───────────────────────────────────────────────────
     backend_cmd  = [sys.executable, "-m", "uvicorn", "main:app",
                     "--host", "0.0.0.0", "--port", "4040", "--reload"]
-    npm_exec = "npm.cmd" if is_win else "npm"
-    frontend_cmd = [npm_exec, "run", "dev"]
+    frontend_cmd = "npm run dev" if is_win else ["npm", "run", "dev"]
 
     backend_process  = run_process(backend_cmd,  backend_dir,  "API") if not api_alive else None
-    frontend_process = run_process(frontend_cmd, frontend_dir, "UI") if not ui_alive else None
+    frontend_process = run_process(frontend_cmd, frontend_dir, "UI", shell=is_win) if not ui_alive else None
 
     # ── 5. Startup banner ────────────────────────────────────────────────────
     sys_logger.info("")

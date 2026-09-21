@@ -288,7 +288,7 @@ def _offline_reply(lang: str, key: str, **kwargs) -> str:
             "hi": "कृपया बताएं आपको क्या तकलीफ़ है? जैसे: बुखार, सिर दर्द, छाती में दर्द, या हड्डी/जोड़ का दर्द।",
         },
         "emergency": {
-            "hi": "🚨 यह EMERGENCY लग रहा है। मैं आपको तुरंत इमरजेंसी विभाग में सर्वोच्च प्राथमिकता पर भेज रहा हूँ!",
+            "hi": "[EMERGENCY] यह EMERGENCY लग रहा है। मैं आपको तुरंत इमरजेंसी विभाग में सर्वोच्च प्राथमिकता पर भेज रहा हूँ!",
         },
         "not_understood": {
             "en": "I understand many languages! Could you describe your health issue? I can help book a doctor's appointment.",

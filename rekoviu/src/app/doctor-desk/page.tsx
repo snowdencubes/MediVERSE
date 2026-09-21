@@ -222,7 +222,7 @@ export default function DoctorDeskPage() {
                 width: 8, height: 8, borderRadius: '50%',
                 background: syncStatus.supabase_connected ? '#34c759' : '#ff3b30'
               }} />
-              <span>{syncStatus.supabase_connected ? '☁️ SUPABASE CONNECTED' : '○ CLOUD OFFLINE'}</span>
+              <span>{syncStatus.supabase_connected ? '[CLOUD] SUPABASE CONNECTED' : '[OFFLINE] CLOUD OFFLINE'}</span>
             </div>
 
             {/* Offline Backup Chip */}
@@ -230,7 +230,7 @@ export default function DoctorDeskPage() {
               display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 20,
               background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: '#007aff'
             }}>
-              <span>💾 BACKUP: {syncStatus.offline_backups_count || 0} FILES</span>
+              <span>[BACKUP]: {syncStatus.offline_backups_count || 0} FILES</span>
             </div>
           </div>
 
@@ -245,7 +245,7 @@ export default function DoctorDeskPage() {
                 cursor: isSyncing ? 'wait' : 'pointer', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6
               }}
             >
-              {isSyncing ? 'SYNCING...' : '⚡ SYNC CLOUD'}
+              {isSyncing ? 'SYNCING...' : 'SYNC CLOUD'}
             </button>
             <button onClick={togglePresence} style={{
               padding: '8px 18px', background: isPresent ? '#34c759' : '#ff3b30', border: 'none',
@@ -276,7 +276,7 @@ export default function DoctorDeskPage() {
             alignItems: 'center',
             gap: 8
           }}>
-            <span>✓</span>
+            <span>[OK]</span>
             <span>{syncFeedback}</span>
           </div>
         )}
@@ -345,7 +345,7 @@ export default function DoctorDeskPage() {
                           background: 'rgba(52, 199, 89, 0.15)', border: '1px solid #34c759', color: '#34c759',
                           borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4
                         }}>
-                          ☁️ SUPABASE & BACKUP SAFE
+                          [CLOUD] SUPABASE & BACKUP SAFE
                         </span>
                         {currentPatient.patient_phone && (
                           <span style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: 'var(--text-secondary)', padding: '4px 8px' }}>
@@ -462,7 +462,7 @@ export default function DoctorDeskPage() {
                           padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
                           background: 'rgba(52, 199, 89, 0.15)', color: '#34c759'
                         }}>
-                          ☁️ Synced
+                          [CLOUD] Synced
                         </span>
                       </td>
                     </tr>

@@ -163,7 +163,7 @@ export default function ReceptionistPage() {
               transition: 'all 0.2s'
             }}
           >
-            <span>{isSyncing ? '⏳ SYNCING DATA...' : '⚡ SYNC TO SUPABASE & BACKUP NOW'}</span>
+            <span>{isSyncing ? 'SYNCING DATA...' : 'SYNC TO SUPABASE & BACKUP NOW'}</span>
           </button>
         </div>
 
@@ -203,7 +203,7 @@ export default function ReceptionistPage() {
             <div>
               <div style={{ fontSize: 12, textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 700 }}>Local Offline Backups</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#007aff' }}>
-                💾 {syncStatus.offline_backups_count || 0} JSON Snapshots Active
+                [BACKUP] {syncStatus.offline_backups_count || 0} JSON Snapshots Active
               </div>
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function ReceptionistPage() {
             alignItems: 'center',
             gap: 12
           }}>
-            <span>✓</span>
+            <span>[OK]</span>
             <span>{syncFeedback}</span>
           </div>
         )}
@@ -261,11 +261,11 @@ export default function ReceptionistPage() {
         {/* Navigation Tabs */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 30, flexWrap: 'wrap' }}>
           {[
-            { id: 'queue', label: '📋 Live Queue & Sync' },
-            { id: 'scan', label: '📷 Scan Patient QR' },
-            { id: 'timetable', label: '👨‍⚕️ Doctor Timetables' },
-            { id: 'departments', label: '🏢 Dept Staff & Logins (12345)' },
-            { id: 'backup', label: '💾 Offline Backup System' }
+            { id: 'queue', label: 'Live Queue & Sync' },
+            { id: 'scan', label: 'Scan Patient QR' },
+            { id: 'timetable', label: 'Doctor Timetables' },
+            { id: 'departments', label: 'Dept Staff & Logins (12345)' },
+            { id: 'backup', label: 'Offline Backup System' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -301,7 +301,7 @@ export default function ReceptionistPage() {
                   padding: '8px 16px', borderRadius: 6, cursor: 'pointer', fontFamily: "'Space Grotesk'", fontWeight: 600
                 }}
               >
-                🔄 Refresh Queue
+                Refresh Queue
               </button>
             </div>
 
@@ -361,7 +361,7 @@ export default function ReceptionistPage() {
                             border: `1px solid ${ticket.synced ? '#34c759' : '#007aff'}`,
                             color: ticket.synced ? '#34c759' : '#007aff'
                           }}>
-                            {ticket.synced ? '☁️ SUPABASE SYNCED' : '💾 LOCAL BACKUP'}
+                            {ticket.synced ? '[CLOUD] SUPABASE SYNCED' : '[BACKUP] LOCAL BACKUP'}
                           </span>
                         </td>
                       </tr>
@@ -529,7 +529,7 @@ export default function ReceptionistPage() {
               <div style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 20 }}>
                 <div style={{ fontSize: 13, textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 700 }}>Supabase Synchronization</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: syncStatus.supabase_connected ? '#34c759' : '#ff3b30', marginTop: 10 }}>
-                  {syncStatus.supabase_connected ? '✓ Cloud Sync Operational' : '○ Standalone Local Mode'}
+                  {syncStatus.supabase_connected ? '[OK] Cloud Sync Operational' : '[OFFLINE] Standalone Local Mode'}
                 </div>
               </div>
             </div>
