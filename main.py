@@ -31,6 +31,9 @@ _SUCCESS_PATTERNS = {
     "[success]",
     "loaded env",
     "200 ok",
+    "starting...",
+    "[ok]",
+    "compiled /",
 }
 
 # Lines that mean an UPDATE/progress (blue)
@@ -96,6 +99,9 @@ _SUPPRESS_PATTERNS = {
     "at async",
     "},",
     "]",
+    "webpack-runtime.js",
+    "react-dom/cjs",
+    "react-server-dom-webpack",
 }
 
 # Lines that should just be INFO (cyan, neutral)
@@ -125,6 +131,13 @@ _INFO_PATTERNS = {
     "application startup",
     "127.0.0.1",
     "0.0.0.0",
+    "next.js",
+    "environments:",
+    ".env.local",
+    "local:",
+    "network:",
+    "rekoviu@",
+    "next dev",
 }
 
 
@@ -168,6 +181,8 @@ def read_stream(stream, name: str, is_stderr: bool = False):
         line = raw_line.decode("utf-8", errors="replace").rstrip()
         if not line.strip():
             continue
+        # Strip emojis requested by user
+        line = line.replace("✓", "[OK]").replace("▲", "*").replace("🚨", "[!]").replace("✨", "*")
         _classify_and_log(line, name)
     stream.close()
 
@@ -284,6 +299,11 @@ def main():
         _kill_port(4040)
     time.sleep(0.5)
 
+    # ── Re-check health after cleanup ─────────────────────────────────────────
+    api_alive = _is_service_healthy("http://127.0.0.1:4040/api/v1/health") or \
+                _is_service_healthy("http://127.0.0.1:4040/")
+    ui_alive  = _is_service_healthy("http://127.0.0.1:3000/")
+
     root_dir    = os.path.dirname(os.path.abspath(__file__))
     backend_dir = os.path.join(root_dir, "rekov")
     frontend_dir = os.path.join(root_dir, "rekoviu")
@@ -325,10 +345,11 @@ def main():
     # ── 4. Launch services ───────────────────────────────────────────────────
     backend_cmd  = [sys.executable, "-m", "uvicorn", "main:app",
                     "--host", "0.0.0.0", "--port", "4040", "--reload"]
-    frontend_cmd = "npm run dev" if is_win else ["npm", "run", "dev"]
+    npm_exec = "npm.cmd" if is_win else "npm"
+    frontend_cmd = [npm_exec, "run", "dev"]
 
     backend_process  = run_process(backend_cmd,  backend_dir,  "API") if not api_alive else None
-    frontend_process = run_process(frontend_cmd, frontend_dir, "UI",  shell=is_win) if not ui_alive else None
+    frontend_process = run_process(frontend_cmd, frontend_dir, "UI") if not ui_alive else None
 
     # ── 5. Startup banner ────────────────────────────────────────────────────
     sys_logger.info("")

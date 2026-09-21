@@ -1,11 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
-import { speakBilingualText, cancelCurrentTTS } from '@/services/tts';
+import { useVoiceCall } from '@/contexts/VoiceCallContext';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 
 const LANG_GROUPS = [
@@ -26,7 +26,7 @@ const LANG_GROUPS = [
     { code: 'MR', name: 'मराठी (Marathi)', local: 'MAR' },
     { code: 'GU', name: 'ગુજરાતી (Gujarati)', local: 'GUJ' },
     { code: 'UR', name: 'اردو (Urdu)', local: 'URD' },
-    { code: 'KN', name: 'ಕನ್ನಡ (Kannada)', local: 'KAN' },
+    { code: 'KN', name: '<ctrl42>ಕನ್ನಡ (Kannada)', local: 'KAN' },
     { code: 'ML', name: 'മലയാളം (Malayalam)', local: 'MAL' },
     { code: 'PA', name: 'ਪੰਜਾਬੀ (Punjabi)', local: 'PUN' },
   ]},
@@ -45,256 +45,16 @@ export default function Home() {
   const router = useRouter();
   const { lang, setLang, t } = useLanguage();
   const { enabled: gestureEnabled, setEnabled: setGestureEnabled } = useGesture();
-  
+  const { isCallActive, callStatus, liveTranscript, toggleCall, startCall } = useVoiceCall();
+
   const [expandedGroup, setExpandedGroup] = useState<string>('primary');
   const [isGestureSectionOpen, setIsGestureSectionOpen] = useState(false);
-  const [heardSpeech, setHeardSpeech] = useState<string>('');
-  const [showSpeechPrompt, setShowSpeechPrompt] = useState(false);
-  const [isListeningActive, setIsListeningActive] = useState(false);
-  const [isHearingSound, setIsHearingSound] = useState<boolean>(false);
-  const [micPermissionGranted, setMicPermissionGranted] = useState<boolean>(false);
-
-  const recognitionRef = useRef<any>(null);
-  const shouldKeepListeningRef = useRef(true);
-  const isStartedRef = useRef(false);
-  const isSpeakingTTSRef = useRef(false);
-  const lastTranscriptRef = useRef('');
-  const debounceTimerRef = useRef<any>(null);
-  const promptCooldownRef = useRef(0);
-  const showSpeechPromptRef = useRef(false);
-
-  useEffect(() => {
-    showSpeechPromptRef.current = showSpeechPrompt;
-  }, [showSpeechPrompt]);
-
-  const renderSmartWrap = (text: string) => text;
-
-  // Safe Start function
-  const safeStart = () => {
-    if (!shouldKeepListeningRef.current || isStartedRef.current || isSpeakingTTSRef.current) return;
-    try {
-      if (recognitionRef.current) {
-        recognitionRef.current.start();
-        isStartedRef.current = true;
-        setIsListeningActive(true);
-      }
-    } catch (e: any) {
-      if (e?.name === 'InvalidStateError') {
-        isStartedRef.current = true;
-        setIsListeningActive(true);
-      }
-    }
-  };
-
-  // Explicit Mic Permission Request on Click or Gesture
-  const requestMicAndStart = async () => {
-    try {
-      if (typeof window !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        setMicPermissionGranted(true);
-      }
-    } catch (err) {
-      console.warn('Microphone permission request:', err);
-    }
-    safeStart();
-  };
-
-  const speakPrompt = () => {
-    const now = Date.now();
-    if (now - promptCooldownRef.current < 4000) return;
-    promptCooldownRef.current = now;
-
-    isSpeakingTTSRef.current = true;
-    try {
-      if (recognitionRef.current) recognitionRef.current.stop();
-    } catch (e) {}
-
-    speakBilingualText({
-      text: "Did you say something? Say Yes or Proceed to continue, or No to cancel. क्या आपने कुछ कहा? आगे बढ़ने के लिए Yes कहें।",
-      lang: lang === 'HI' ? 'hi-IN' : 'en-IN',
-      onStart: () => {
-        isSpeakingTTSRef.current = true;
-      },
-      onEnd: () => {
-        isSpeakingTTSRef.current = false;
-        safeStart();
-      },
-      onError: () => {
-        isSpeakingTTSRef.current = false;
-        safeStart();
-      }
-    });
-  };
-
-  // 24/7 Speech Recognition Listener
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) return;
-
-    shouldKeepListeningRef.current = true;
-
-    const wakeWords = [
-      'wake up', 'wakeup', 'hello', 'hey mediverse', 'mediverse', 'assistant', 'voice',
-      'jaag jao', 'jag jao', 'bhai', 'doctor', 'help', 'madad', 'sunoo', 'suno', 'kaha', 'aaye',
-      'bukhar', 'fever', 'headache', 'ticket', 'appointment', 'check in', 'checkin', 'pain', 'dard',
-      'वेक अप', 'वेकअप', 'वैकाप', 'जाग जाओ', 'जग जाओ', 'हलो', 'हेलो', 'मेडिवर्स', 'भाई',
-      'डॉक्टर', 'डाक्टर', 'हेल्प', 'मदद', 'सुनो', 'बुखार', 'फीवर', 'सर दर्द', 'दर्द', 'टिकट', 'अपॉइंटमेंट'
-    ];
-
-    const selfEchoPhrases = [
-      'did you say something', 'क्या आपने कुछ कहा', 'क्या आप कुछ कह रहे हैं', 'heard speech',
-      'yes help me', 'हाँ सहायता करें', 'to continue or no to cancel', 'say yes or proceed'
-    ];
-
-    const recognition = new SR();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-IN';
-    recognitionRef.current = recognition;
-
-    recognition.onsoundstart = () => setIsHearingSound(true);
-    recognition.onsoundend = () => setIsHearingSound(false);
-    recognition.onspeechstart = () => setIsHearingSound(true);
-    recognition.onspeechend = () => setIsHearingSound(false);
-
-    recognition.onresult = (event: any) => {
-      if (isSpeakingTTSRef.current) return;
-
-      let interim = '';
-      let final = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          final += transcript;
-        } else {
-          interim += transcript;
-        }
-      }
-
-      const currentText = (final || interim).trim();
-      if (!currentText) return;
-
-      // Update live real-time caption immediately!
-      setHeardSpeech(currentText);
-      setIsHearingSound(true);
-      lastTranscriptRef.current = currentText;
-
-      const lower = currentText.toLowerCase();
-
-      // Filter self-echo
-      if (selfEchoPhrases.some(phrase => lower.includes(phrase))) {
-        return;
-      }
-
-      // Check for direct wake words or medical inquiry
-      const isWake = wakeWords.some(w => lower.includes(w.toLowerCase()));
-      if (isWake) {
-        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-        sessionStorage.setItem('initial_voice_query', currentText);
-        router.push('/voice-assistant');
-        return;
-      }
-
-      // If confirmation modal is open, check for voice confirm / dismiss
-      if (showSpeechPromptRef.current) {
-        const confirmWords = ['yes', 'haan', 'ha', 'sure', 'continue', 'ok', 'okay', 'proceed', 'aage badho', 'help'];
-        const dismissWords = ['no', 'nahi', 'nahin', 'cancel', 'stop', 'mat karo', 'ruko', 'dismiss'];
-
-        if (confirmWords.some(w => lower.includes(w))) {
-          if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-          setShowSpeechPrompt(false);
-          showSpeechPromptRef.current = false;
-          sessionStorage.setItem('initial_voice_query', currentText);
-          router.push('/voice-assistant');
-          return;
-        }
-        if (dismissWords.some(w => lower.includes(w))) {
-          if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-          setShowSpeechPrompt(false);
-          showSpeechPromptRef.current = false;
-          cancelCurrentTTS();
-          return;
-        }
-      }
-
-      // User speech pause detection: only prompt after user pauses speaking for 1.2s
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = setTimeout(() => {
-        const textToProcess = lastTranscriptRef.current.trim();
-        if (textToProcess.length > 2 && !isSpeakingTTSRef.current && !showSpeechPromptRef.current) {
-          setShowSpeechPrompt(true);
-          showSpeechPromptRef.current = true;
-          speakPrompt();
-        }
-        setIsHearingSound(false);
-      }, 1200);
-    };
-
-    recognition.onerror = (event: any) => {
-      isStartedRef.current = false;
-      if (event.error === 'not-allowed') {
-        setIsListeningActive(false);
-      } else if (shouldKeepListeningRef.current && !isSpeakingTTSRef.current) {
-        setTimeout(safeStart, 1000);
-      }
-    };
-
-    recognition.onend = () => {
-      isStartedRef.current = false;
-      if (shouldKeepListeningRef.current && !isSpeakingTTSRef.current) {
-        setTimeout(safeStart, 400);
-      }
-    };
-
-    // Watchdog Timer: keeps listening active 24/7 without sleeping
-    const watchdog = setInterval(() => {
-      if (shouldKeepListeningRef.current && !isStartedRef.current && !isSpeakingTTSRef.current) {
-        safeStart();
-      }
-    }, 2500);
-
-    // Any touch/click unlocks mic and starts listening
-    const handleScreenTouch = () => {
-      requestMicAndStart();
-    };
-    window.addEventListener('touchstart', handleScreenTouch, { passive: true });
-    window.addEventListener('click', handleScreenTouch, { passive: true });
-
-    // Initial check for granted permissions
-    if (typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query) {
-      navigator.permissions.query({ name: 'microphone' as any }).then(res => {
-        if (res.state === 'granted') {
-          setMicPermissionGranted(true);
-          safeStart();
-        }
-        res.onchange = () => {
-          if (res.state === 'granted') {
-            setMicPermissionGranted(true);
-            safeStart();
-          }
-        };
-      }).catch(() => {
-        safeStart();
-      });
-    } else {
-      safeStart();
-    }
-
-    return () => {
-      shouldKeepListeningRef.current = false;
-      clearInterval(watchdog);
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      window.removeEventListener('touchstart', handleScreenTouch);
-      window.removeEventListener('click', handleScreenTouch);
-      try { recognition.stop(); } catch (e) {}
-      cancelCurrentTTS();
-    };
-  }, [router, lang]);
 
   const handleSelect = (l: Language) => { setLang(l); };
   const handleContinue = () => { router.push('/kiosk'); };
+
+  const isUserSpeaking = callStatus === 'USER_SPEAKING';
+  const isAISpeaking = callStatus === 'AI_SPEAKING';
 
   return (
     <>
@@ -402,30 +162,29 @@ export default function Home() {
         {/* SEGMENT 2 (MIDDLE): 24/7 Voice AI Assistant Button */}
         <div style={{
           flex: '1 1 340px', maxWidth: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          background: 'var(--bg-card)', border: `1px solid ${isHearingSound ? 'rgba(0,230,118,0.6)' : 'rgba(217, 22, 54, 0.4)'}`, borderRadius: 24, padding: '32px 24px',
-          boxShadow: isHearingSound ? '0 8px 40px rgba(0, 230, 118, 0.25)' : '0 8px 32px rgba(217, 22, 54, 0.15)', textAlign: 'center', position: 'relative',
+          background: 'var(--bg-card)', border: `1px solid ${isCallActive ? '#30d158' : 'rgba(217, 22, 54, 0.4)'}`, borderRadius: 24, padding: '32px 24px',
+          boxShadow: isCallActive ? '0 8px 40px rgba(48, 209, 88, 0.3)' : '0 8px 32px rgba(217, 22, 54, 0.15)', textAlign: 'center', position: 'relative',
           transition: 'all 0.3s'
         }}>
           {/* Status Badge */}
           <div 
-            onClick={requestMicAndStart}
+            onClick={toggleCall}
             style={{
               cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 8,
-              background: isHearingSound ? 'rgba(0,230,118,0.2)' : isListeningActive ? 'rgba(0,230,118,0.1)' : 'rgba(217,22,54,0.15)',
-              border: `1px solid ${isHearingSound ? '#00e676' : isListeningActive ? 'rgba(0,230,118,0.4)' : 'rgba(217,22,54,0.4)'}`,
+              background: isCallActive ? 'rgba(48, 209, 88, 0.15)' : 'rgba(217, 22, 54, 0.15)',
+              border: `1px solid ${isCallActive ? '#30d158' : 'rgba(217, 22, 54, 0.4)'}`,
               padding: '6px 16px', borderRadius: 20, marginBottom: 16, transition: 'all 0.3s'
             }}
           >
             <div style={{
               width: 8, height: 8, borderRadius: '50%',
-              background: isHearingSound ? '#00e676' : isListeningActive ? '#00e676' : '#D91636',
-              boxShadow: isHearingSound ? '0 0 12px #00e676' : isListeningActive ? '0 0 8px #00e676' : '0 0 8px #D91636',
-              transform: isHearingSound ? 'scale(1.3)' : 'scale(1)',
-              transition: 'all 0.2s'
+              background: isCallActive ? '#30d158' : '#D91636',
+              boxShadow: isCallActive ? '0 0 12px #30d158' : '0 0 8px #D91636',
+              animation: isUserSpeaking || isAISpeaking ? 'pulse 1s infinite' : 'none'
             }} />
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: isHearingSound ? '#00e676' : isListeningActive ? '#00e676' : '#ff4757', letterSpacing: '.05em' }}>
-              {isHearingSound ? 'HEARING VOICE NOW' : isListeningActive ? 'LISTENING 24/7 ACTIVE' : 'TAP TO ACTIVATE MIC'}
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: isCallActive ? '#30d158' : '#ff4757', letterSpacing: '.05em' }}>
+              {isAISpeaking ? 'AI SPEAKING...' : isUserSpeaking ? 'LISTENING TO YOU...' : isCallActive ? 'VOICE CALL ACTIVE 24/7' : 'START VOICE CALL'}
             </span>
           </div>
 
@@ -439,18 +198,12 @@ export default function Home() {
           <p style={{
             fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-secondary)', fontSize: 'clamp(14px, 1.4vw, 17px)', marginBottom: 16
           }}>
-            Always active. Say a wake command or tap the microphone to interact instantly.
+            Always active Valorant-style open mic. Tap the call button or anywhere to speak instantly.
           </p>
 
-          {/* Interactive Voice Mic Circle with Sound-Triggered Pulsing Ring */}
+          {/* Interactive Voice Mic Circle */}
           <div 
-            onClick={() => {
-              if (!isListeningActive) {
-                requestMicAndStart();
-              } else {
-                router.push('/voice-assistant');
-              }
-            }}
+            onClick={toggleCall}
             style={{
               position: 'relative', cursor: 'pointer', margin: '8px 0 16px 0',
               display: 'flex', alignItems: 'center', justifyContent: 'center', width: 110, height: 110
@@ -458,305 +211,187 @@ export default function Home() {
           >
             <div style={{
               position: 'absolute', width: 100, height: 100, borderRadius: '50%',
-              background: isHearingSound ? 'rgba(0, 230, 118, 0.3)' : isListeningActive ? 'rgba(0, 230, 118, 0.15)' : 'rgba(217, 22, 54, 0.25)',
-              border: `2px solid ${isHearingSound ? '#00e676' : isListeningActive ? 'rgba(0, 230, 118, 0.5)' : 'rgba(217, 22, 54, 0.4)'}`,
-              boxShadow: isHearingSound ? '0 0 32px rgba(0,230,118,0.8)' : isListeningActive ? '0 0 18px rgba(0,230,118,0.4)' : '0 0 16px rgba(217,22,54,0.4)',
-              transform: isHearingSound ? 'scale(1.15)' : 'scale(1)',
+              background: isCallActive ? 'rgba(48, 209, 88, 0.25)' : 'rgba(217, 22, 54, 0.25)',
+              border: `2px solid ${isCallActive ? '#30d158' : 'rgba(217, 22, 54, 0.4)'}`,
+              boxShadow: isCallActive ? '0 0 32px rgba(48,209,88,0.8)' : '0 0 16px rgba(217,22,54,0.4)',
+              transform: isUserSpeaking || isAISpeaking ? 'scale(1.18)' : 'scale(1)',
               transition: 'all 0.2s ease-in-out'
             }} />
             <button 
               onClick={(e) => {
                 e.stopPropagation();
-                if (!isListeningActive) {
-                  requestMicAndStart();
-                } else {
-                  router.push('/voice-assistant');
-                }
+                toggleCall();
               }}
               style={{
                 position: 'relative', zIndex: 2, width: 72, height: 72, borderRadius: '50%',
-                background: isHearingSound ? 'linear-gradient(135deg, #00e676, #00b0ff)' : isListeningActive ? 'linear-gradient(135deg, #2ed573, #1e90ff)' : 'linear-gradient(135deg, #D91636, #ff2d55)',
+                background: isCallActive ? 'linear-gradient(135deg, #30d158, #00b0ff)' : 'linear-gradient(135deg, #D91636, #ff2d55)',
                 border: '2px solid rgba(255,255,255,0.6)',
                 color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: isHearingSound ? '0 0 30px rgba(0,230,118,0.8)' : isListeningActive ? '0 0 20px rgba(46,213,115,0.6)' : '0 0 24px rgba(217,22,54,0.6)',
-                cursor: 'pointer', transition: 'all 0.2s'
+                cursor: 'pointer', boxShadow: isCallActive ? '0 4px 24px rgba(48,209,88,0.5)' : '0 4px 20px rgba(217, 22, 54, 0.5)',
+                transition: 'transform 0.2s'
               }}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="9" y="2" width="6" height="11" rx="3"></rect>
-                <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="22"></line>
-                <line x1="8" y1="22" x2="16" y2="22"></line>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
               </svg>
             </button>
           </div>
 
-          {/* Real-time Live Speech Caption Display Box */}
-          <div 
-            onClick={requestMicAndStart}
-            style={{
-              margin: '16px 0', padding: '16px 20px', width: '100%',
-              background: isHearingSound ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255,255,255,0.06)',
-              border: `2px solid ${isHearingSound ? 'rgba(0, 230, 118, 0.8)' : isListeningActive ? 'rgba(0, 230, 118, 0.3)' : 'rgba(255,255,255,0.2)'}`,
-              borderRadius: 16, minHeight: 60, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              textAlign: 'center', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              cursor: !isListeningActive ? 'pointer' : 'default'
-            }}
-          >
+          {/* Realtime Live Caption */}
+          <div style={{
+            background: 'rgba(0,0,0,0.5)', border: `1px solid ${isCallActive ? '#30d158' : 'var(--border-color)'}`,
+            borderRadius: 12, padding: '10px 14px', width: '100%', minHeight: 48,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16
+          }}>
             <span style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(16px, 2vw, 22px)',
-              color: isHearingSound ? '#00e676' : isListeningActive ? 'var(--text-primary)' : '#ff6b81',
-              fontWeight: 700, letterSpacing: '0.5px'
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: 13,
+              color: liveTranscript ? '#64d2ff' : 'var(--text-secondary)', fontWeight: liveTranscript ? 600 : 400
             }}>
-              {heardSpeech 
-                ? `HEARD: "${heardSpeech}"` 
-                : isHearingSound 
-                ? 'HEARING VOICE NOW...' 
-                : isListeningActive 
-                ? 'LISTENING 24/7... (Say "Wake Up" or "जाग जाओ")' 
-                : '🎤 CLICK HERE TO ENABLE MICROPHONE'}
+              {liveTranscript ? `"${liveTranscript}"` : isCallActive ? 'LISTENING 24/7... (Speak now)' : 'VOICE CALL OFF — CLICK TO START'}
             </span>
           </div>
 
-          {/* Wake Words Hint Pills */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginBottom: 20 }}>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', padding: '4px 10px', borderRadius: 12, fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'Space Grotesk'" }}>
-              &quot;Wake Up&quot;
-            </span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', padding: '4px 10px', borderRadius: 12, fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'Space Grotesk'" }}>
-              &quot;Jaag Jao&quot;
-            </span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', padding: '4px 10px', borderRadius: 12, fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'Space Grotesk'" }}>
-              &quot;Hello&quot;
-            </span>
-          </div>
-
+          {/* Join / Start Call Primary Action Button */}
           <button
-            onClick={() => router.push('/voice-assistant')}
-            className="btn-continue-slide"
+            onClick={() => {
+              if (isCallActive) {
+                router.push('/voice-assistant');
+              } else {
+                startCall();
+              }
+            }}
             style={{
-              width: '100%', padding: '14px', background: '#D91636', color: '#fff', border: 'none', borderRadius: 32,
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(15px, 1.6vw, 18px)', fontWeight: 700, cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(217, 22, 54, 0.4)', transition: 'all 0.2s'
+              width: '100%', padding: '14px 24px',
+              background: isCallActive ? '#30d158' : '#D91636',
+              color: '#fff', border: 'none', borderRadius: 28,
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 700,
+              cursor: 'pointer', boxShadow: isCallActive ? '0 4px 20px rgba(48,209,88,0.4)' : '0 4px 20px rgba(217,22,54,0.4)',
+              transition: 'all 0.2s'
             }}
           >
-            START VOICE ASSIST
+            {isCallActive ? 'OPEN FULL VOICE CHAT UI' : 'START VOICE CALL NOW'}
           </button>
         </div>
 
         {/* Divider 2 */}
         <div style={{ width: 1, background: 'var(--border-color)', flexShrink: 0, alignSelf: 'stretch' }} className="mobile-hidden" />
 
-        {/* SEGMENT 3 (RIGHT): Instant Telegram & WhatsApp QR Card + Gesture Toggle */}
-        <div style={{ flex: '1 1 340px', maxWidth: 440, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {/* SEGMENT 3 (RIGHT): Chat Register & Gestures */}
+        <div style={{ flex: '1 1 340px', maxWidth: 440, display: 'flex', flexDirection: 'column', gap: 20 }}>
           
-          {/* Dual QR Register Card (Telegram Bot API & WhatsApp Chat) */}
+          {/* Chat Register Options (Telegram & WhatsApp) */}
           <div style={{
-            width: '100%', marginBottom: 20, background: 'var(--bg-card)',
-            border: '1px solid rgba(0, 136, 204, 0.4)', borderRadius: 20, padding: '20px 16px',
-            textAlign: 'center', boxShadow: '0 8px 32px rgba(0, 136, 204, 0.12)'
+            background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 20, padding: 24,
+            display: 'flex', flexDirection: 'column', gap: 16
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 4 }}>
-              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, letterSpacing: '.05em', color: 'var(--text-primary)', margin: 0 }}>
-                CHAT REGISTER (TELEGRAM &amp; WHATSAPP)
-              </h3>
-            </div>
-
-            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>
-              Scan QR to register via Telegram Bot API or WhatsApp &amp; receive instant appointment tickets!
-            </p>
-
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {/* Telegram Bot API QR */}
-              <div style={{
-                background: 'rgba(0, 136, 204, 0.08)', border: '1px solid rgba(0, 136, 204, 0.3)',
-                borderRadius: 14, padding: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '1 1 130px'
-              }}>
-                <div style={{ background: '#fff', padding: 6, borderRadius: 10, marginBottom: 6 }}>
-                  <QRCodeSVG value="https://t.me/MediVERSE_Health_Bot" size={90} level="H" />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#0088cc', fontWeight: 700, fontSize: 12, fontFamily: "'Space Grotesk'" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.56 8.16l-2.07 9.77c-.15.68-.56.85-1.13.53l-3.17-2.34-1.53 1.47c-.17.17-.31.31-.64.31l.23-3.23 5.87-5.3c.25-.23-.06-.35-.39-.13l-7.25 4.56-3.13-.98c-.68-.21-.69-.68.14-1l12.24-4.72c.57-.21 1.07.13.89.86z"/></svg>
-                  Telegram Bot
-                </div>
-              </div>
-
-              {/* WhatsApp Chat QR */}
-              <div style={{
-                background: 'rgba(37, 211, 102, 0.08)', border: '1px solid rgba(37, 211, 102, 0.3)',
-                borderRadius: 14, padding: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '1 1 130px'
-              }}>
-                <div style={{ background: '#fff', padding: 6, borderRadius: 10, marginBottom: 6 }}>
-                  <QRCodeSVG value="https://wa.me/919876543210?text=Hi%20MediVERSE%20Register" size={90} level="H" />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#25D366', fontWeight: 700, fontSize: 12, fontFamily: "'Space Grotesk'" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l.999 1.591-1.148 4.192 4.294-1.126 1.598 1.002z"/></svg>
-                  WhatsApp Chat
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setIsGestureSectionOpen(!isGestureSectionOpen)}
-            style={{
-              padding: '16px 28px',
-              background: 'var(--bg-card)',
-              border: `1px solid var(--border-color)`,
-              borderRadius: 32,
-              color: 'var(--text-primary)',
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: 'clamp(17px, 1.8vw, 21px)',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%'
-            }}
-          >
-            <span>{renderSmartWrap(t('gesture_off'))}</span>
-            <span style={{ color: '#D91636', transform: isGestureSectionOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▶</span>
-          </button>
-
-          <div className={`accordion-content ${isGestureSectionOpen ? 'expanded' : ''}`} style={{ width: '100%' }}>
-            <div style={{ 
-              marginTop: 20, 
-              background: 'var(--bg-card)', 
-              padding: '24px', 
-              borderRadius: 16,
-              border: '1px solid var(--border-color)',
-              textAlign: 'left',
-              fontFamily: "'Space Grotesk', sans-serif",
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
+            <h3 style={{
+              fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(22px, 3vw, 28px)',
+              letterSpacing: '.06em', color: 'var(--text-primary)', margin: 0, textAlign: 'center'
             }}>
-              
-              {/* ENABLE GESTURE BUTTON */}
-              <button
-                onClick={() => setGestureEnabled(!gestureEnabled)}
-                className="btn-continue-slide"
-                style={{
-                  padding: '12px 32px',
-                  background: gestureEnabled ? 'rgba(217, 22, 54, 0.2)' : '#D91636',
-                  border: gestureEnabled ? '1px solid #D91636' : 'none',
-                  borderRadius: 32,
-                  color: gestureEnabled ? '#D91636' : '#fff',
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 'clamp(16px, 1.7vw, 20px)',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  marginBottom: 24,
-                  width: '100%',
-                  justifyContent: 'center',
-                  boxShadow: gestureEnabled ? 'none' : '0 4px 16px rgba(217, 22, 54, 0.4)'
-                }}
-              >
-                <div style={{ 
-                  width: 12, height: 12, borderRadius: '50%', flexShrink: 0,
-                  background: gestureEnabled ? '#D91636' : '#fff',
-                  transition: 'background 0.3s',
-                  boxShadow: gestureEnabled ? '0 0 10px #D91636' : 'none'
-                }} />
-                <span>{gestureEnabled ? renderSmartWrap(t('gesture_on')) : 'START GESTURES'}</span>
-              </button>
+              CHAT REGISTER (TELEGRAM & WHATSAPP)
+            </h3>
+            <p style={{
+              fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-secondary)', fontSize: 13, margin: 0, textAlign: 'center'
+            }}>
+              Scan QR to register via Telegram bot API or WhatsApp & receive instant appointment tickets!
+            </p>
 
-              <p style={{ margin: '0 0 16px 0', fontSize: 'clamp(15px, 1.6vw, 19px)', color: '#D91636', fontWeight: 700, letterSpacing: '.05em', textAlign: 'center', textTransform: 'uppercase' }}>
-                {t('how_to_use')}
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
-                <div>
-                  <p style={{ margin: '0 0 4px 0', fontSize: 'clamp(15px, 1.6vw, 19px)', color: 'var(--text-secondary)' }}>&#9654; {t('step_1')}</p>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
+              {/* Telegram QR */}
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(45, 155, 255, 0.3)', borderRadius: 12, padding: 12
+              }}>
+                <div style={{ background: '#fff', padding: 6, borderRadius: 8 }}>
+                  <QRCodeSVG value="https://t.me/rekov_bot" size={90} />
                 </div>
-                <div>
-                  <p style={{ margin: '0 0 4px 0', fontSize: 'clamp(15px, 1.6vw, 19px)', color: 'var(--text-secondary)' }}>&#9654; {t('step_2')}</p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 4px 0', fontSize: 'clamp(15px, 1.6vw, 19px)', color: 'var(--text-secondary)' }}>&#9654; {t('step_3')}</p>
-                </div>
+                <a
+                  href="https://t.me/rekov_bot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#2d9bff', textDecoration: 'none', fontSize: 12, fontWeight: 700,
+                    fontFamily: "'Space Grotesk', sans-serif", display: 'flex', alignItems: 'center', gap: 4
+                  }}
+                >
+                  <span>Telegram Bot</span>
+                </a>
               </div>
-              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 16, marginTop: 16, width: '100%' }}>
-                <p style={{ margin: 0, fontSize: 'clamp(13px, 1.3vw, 17px)', color: '#D91636', fontWeight: 600, textAlign: 'center', textTransform: 'uppercase' }}>
-                  [!] {t('face_req')}
-                </p>
-                <p style={{ margin: '6px 0 0', fontSize: 'clamp(13px, 1.3vw, 17px)', color: 'var(--text-muted)', textAlign: 'center' }}>
-                  {t('no_touch')}
-                </p>
+
+              {/* WhatsApp QR */}
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(37, 211, 102, 0.3)', borderRadius: 12, padding: 12
+              }}>
+                <div style={{ background: '#fff', padding: 6, borderRadius: 8 }}>
+                  <QRCodeSVG value="https://wa.me/14155238886?text=join%20rekov" size={90} />
+                </div>
+                <a
+                  href="https://wa.me/14155238886?text=join%20rekov"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#25D366', textDecoration: 'none', fontSize: 12, fontWeight: 700,
+                    fontFamily: "'Space Grotesk', sans-serif", display: 'flex', alignItems: 'center', gap: 4
+                  }}
+                >
+                  <span>WhatsApp Chat</span>
+                </a>
               </div>
             </div>
           </div>
 
-          <div className={`accordion-content ${!isGestureSectionOpen ? 'expanded' : ''}`}>
-            <p style={{ marginTop: 24, fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--text-muted)', textAlign: 'center', maxWidth: 320 }}>
-              {t('gesture_desc')}
-            </p>
+          {/* Enable Gestures Accordion Box */}
+          <div style={{
+            background: 'var(--bg-card)', border: `1px solid ${gestureEnabled ? '#00e676' : 'var(--border-color)'}`,
+            borderRadius: 20, overflow: 'hidden', transition: 'all 0.3s'
+          }}>
+            <button
+              onClick={() => setIsGestureSectionOpen(!isGestureSectionOpen)}
+              style={{
+                width: '100%', padding: '18px 24px', background: 'transparent', border: 'none',
+                color: 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 700,
+                cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 18 }}>🖐</span>
+                <span>Enable Gestures (No Screen Touch Method)</span>
+              </div>
+              <span style={{ color: '#D91636', transform: isGestureSectionOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▶</span>
+            </button>
+
+            {isGestureSectionOpen && (
+              <div style={{ padding: '0 24px 20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", color: 'var(--text-secondary)', fontSize: 13, margin: 0 }}>
+                  Gesture mode uses your camera. No data is stored.
+                </p>
+
+                <button
+                  onClick={() => setGestureEnabled(!gestureEnabled)}
+                  style={{
+                    width: '100%', padding: '12px 20px',
+                    background: gestureEnabled ? 'rgba(0,230,118,0.15)' : 'rgba(217, 22, 54, 0.15)',
+                    border: `1px solid ${gestureEnabled ? '#00e676' : '#D91636'}`,
+                    borderRadius: 12, color: gestureEnabled ? '#00e676' : '#ff4757',
+                    fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700,
+                    cursor: 'pointer', transition: 'all 0.2s'
+                  }}
+                >
+                  {gestureEnabled ? 'DISABLE GESTURES' : 'ENABLE GESTURES NOW'}
+                </button>
+              </div>
+            )}
           </div>
+
         </div>
+
       </div>
 
-      {/* Speech Reaction Modal: "Are you saying something? / क्या आपने कुछ कहा?" */}
-      {showSpeechPrompt && (
-        <div style={{
-          position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 10000,
-          background: 'rgba(15, 15, 20, 0.95)', border: '1px solid #D91636', borderRadius: 20,
-          padding: '20px 28px', color: '#fff', width: '90%', maxWidth: 520, textAlign: 'center',
-          boxShadow: '0 12px 40px rgba(217, 22, 54, 0.4)', backdropFilter: 'blur(16px)',
-          animation: 'slideUp 0.3s ease-out'
-        }}>
-          <style>{`@keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }`}</style>
-          
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#00e676', boxShadow: '0 0 10px #00e676' }} />
-            <span style={{ fontFamily: "'Bebas Neue'", fontSize: 22, letterSpacing: '.05em', color: '#D91636' }}>
-              HEARD SPEECH / आवाज़ सुनी गई
-            </span>
-          </div>
-
-          <p style={{ fontFamily: "'Space Grotesk'", fontSize: 18, fontWeight: 700, margin: '4px 0 8px 0', color: '#fff' }}>
-            &quot;Did you say something? / क्या आप कुछ कह रहे हैं?&quot;
-          </p>
-
-          {heardSpeech && (
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', marginBottom: 16 }}>
-              Heard: &quot;{heardSpeech}&quot;
-            </p>
-          )}
-
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button
-              onClick={() => {
-                if (heardSpeech) sessionStorage.setItem('initial_voice_query', heardSpeech);
-                router.push('/voice-assistant');
-              }}
-              style={{
-                padding: '10px 24px', background: '#D91636', color: '#fff', border: 'none',
-                borderRadius: 24, fontFamily: "'Space Grotesk'", fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(217,22,54,0.4)'
-              }}
-            >
-              YES, HELP ME / हाँ, सहायता करें
-            </button>
-            <button
-              onClick={() => setShowSpeechPrompt(false)}
-              style={{
-                padding: '10px 20px', background: 'rgba(255,255,255,0.1)', color: '#aaa',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: 24, fontFamily: "'Space Grotesk'", fontSize: 14, cursor: 'pointer'
-              }}
-            >
-              CANCEL / बंद करें
-            </button>
-          </div>
-        </div>
-      )}
     </div>
     </>
   );

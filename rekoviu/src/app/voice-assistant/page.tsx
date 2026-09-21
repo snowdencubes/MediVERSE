@@ -4,18 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
-import { chatWithVoiceAssistant, createTicket, synthesizeTTSAudio } from '@/services/api';
-import { QueueTicket } from '@/types';
-
-interface Message {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: string;
-}
-
-function generateSessionId(): string {
-  return 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
-}
+import { useVoiceCall } from '@/contexts/VoiceCallContext';
 
 function MicIcon({ size = 24 }: { size?: number }) {
   return (
@@ -40,382 +29,61 @@ function SpeakerIcon({ size = 20 }: { size?: number }) {
 
 export default function VoiceAssistantPage() {
   const router = useRouter();
-  const [sessionId, setSessionId] = useState<string>('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [latestTicket, setLatestTicket] = useState<QueueTicket | null>(null);
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showAbhaModal, setShowAbhaModal] = useState(false);
-  const [liveTranscript, setLiveTranscript] = useState('');
+  const {
+    isCallActive,
+    callStatus,
+    isMuted,
+    liveTranscript,
+    messages,
+    latestTicket,
+    startCall,
+    endCall,
+    toggleCall,
+    toggleMute,
+    sendTextMessage,
+    interruptAI
+  } = useVoiceCall();
 
-  const recognitionRef = useRef<any>(null);
+  const [inputVal, setInputVal] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const transcriptRef = useRef('');
-  const isListeningRef = useRef(false);
-  const isSpeakingRef = useRef(false);
-  const isProcessingRef = useRef(false);
-  const sessionIdRef = useRef('');
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Keep sessionIdRef synced
+  // Auto-start call on mounting voice-assistant page if not active
   useEffect(() => {
-    sessionIdRef.current = sessionId;
-  }, [sessionId]);
+    if (!isCallActive) {
+      startCall();
+    }
+  }, []);
 
-  // Scroll chat to bottom
+  // Scroll chat to bottom on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, liveTranscript]);
 
-  const addMessage = (role: 'user' | 'assistant' | 'system', content: string) => {
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setMessages(prev => [...prev, { role, content, timestamp: now }]);
+  const handleTextSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputVal.trim()) return;
+    const txt = inputVal.trim();
+    setInputVal('');
+    sendTextMessage(txt);
   };
 
-  const startListening = () => {
-    if (isSpeakingRef.current || isProcessingRef.current || isListeningRef.current) return;
-    transcriptRef.current = '';
-    setLiveTranscript('');
-    try {
-      if (recognitionRef.current) {
-        recognitionRef.current.start();
-        isListeningRef.current = true;
-        setIsListening(true);
-      }
-    } catch (e: any) {
-      if (e?.name === 'InvalidStateError') {
-        isListeningRef.current = true;
-        setIsListening(true);
-      }
-    }
-  };
+  const isUserSpeaking = callStatus === 'USER_SPEAKING';
+  const isAISpeaking = callStatus === 'AI_SPEAKING';
+  const isThinking = callStatus === 'AI_THINKING';
 
-  const stopListening = () => {
-    isListeningRef.current = false;
-    setIsListening(false);
-    try {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    } catch (e) {}
-  };
-
-  const cancelAudio = () => {
-    if (currentAudioRef.current) {
-      try {
-        currentAudioRef.current.pause();
-        currentAudioRef.current.currentTime = 0;
-      } catch (e) {}
-      currentAudioRef.current = null;
-    }
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try { window.speechSynthesis.cancel(); } catch (e) {}
-    }
-  };
-
-  const toggleListen = () => {
-    if (isListeningRef.current) {
-      stopListening();
-    } else {
-      if (isSpeakingRef.current) {
-        cancelAudio();
-        isSpeakingRef.current = false;
-        setIsSpeaking(false);
-      }
-      startListening();
-    }
-  };
-
-  const fallbackTTS = (text: string, onEnd: () => void) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      onEnd();
-      return;
-    }
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      const hasDevanagari = /[\u0900-\u097F]/.test(text);
-      utterance.lang = hasDevanagari ? 'hi-IN' : 'en-IN';
-
-      const voices = window.speechSynthesis.getVoices();
-      const matchVoice = voices.find(v => 
-        (hasDevanagari && (v.lang.includes('hi') || v.name.includes('Hindi') || v.name.includes('Swara') || v.name.includes('Madhur'))) ||
-        (!hasDevanagari && (v.lang.includes('en-IN') || v.name.includes('India') || v.name.includes('Neerja') || v.name.includes('Prabhat'))) ||
-        v.lang.includes(utterance.lang)
-      ) || voices[0];
-      if (matchVoice) utterance.voice = matchVoice;
-      utterance.rate = 1.0;
-
-      utterance.onend = () => onEnd();
-      utterance.onerror = () => onEnd();
-
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      onEnd();
-    }
-  };
-
-  const speakText = (text: string, audioBase64?: string) => {
-    cancelAudio();
-    isSpeakingRef.current = true;
-    setIsSpeaking(true);
-    stopListening();
-
-    const onEnd = () => {
-      currentAudioRef.current = null;
-      isSpeakingRef.current = false;
-      setIsSpeaking(false);
-      // Auto-resume listening hands-free after AI finishes talking
-      setTimeout(() => {
-        if (!isProcessingRef.current && !isSpeakingRef.current) {
-          startListening();
-        }
-      }, 350);
-    };
-
-    if (audioBase64) {
-      try {
-        const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
-        currentAudioRef.current = audio;
-        audio.onended = onEnd;
-        audio.onerror = () => fallbackTTS(text, onEnd);
-        audio.play().catch(() => fallbackTTS(text, onEnd));
-        return;
-      } catch (e) {
-        fallbackTTS(text, onEnd);
-        return;
-      }
-    }
-
-    // On-the-fly Neural TTS synthesis (Edge-TTS Indian English & Hindi)
-    synthesizeTTSAudio(text)
-      .then((b64) => {
-        if (b64) {
-          try {
-            const audio = new Audio(`data:audio/mp3;base64,${b64}`);
-            currentAudioRef.current = audio;
-            audio.onended = onEnd;
-            audio.onerror = () => fallbackTTS(text, onEnd);
-            audio.play().catch(() => fallbackTTS(text, onEnd));
-            return;
-          } catch (e) {
-            fallbackTTS(text, onEnd);
-          }
-        } else {
-          fallbackTTS(text, onEnd);
-        }
-      })
-      .catch(() => fallbackTTS(text, onEnd));
-  };
-
-  const handleSend = async (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || isProcessingRef.current) return;
-
-    addMessage('user', trimmed);
-    isProcessingRef.current = true;
-    setIsProcessing(true);
-    stopListening();
-
-    try {
-      const currentSid = sessionIdRef.current;
-      const res = await chatWithVoiceAssistant(currentSid, trimmed);
-      if (res.session_id && res.session_id !== currentSid) {
-        setSessionId(res.session_id);
-        sessionIdRef.current = res.session_id;
-      }
-
-      addMessage('assistant', res.reply);
-      speakText(res.reply, res.audio_base64);
-
-      // Handle actions
-      if (res.action === 'UPLOAD_ABHA_DOCUMENTS') {
-        setShowAbhaModal(true);
-      } else if (res.action === 'GO_BACK') {
-        setShowAbhaModal(false);
-      } else if (res.action === 'BOOK_TICKET' && res.action_data) {
-        addMessage('system', 'Booking your appointment and generating digital receipt...');
-        try {
-          const pName = res.action_data.patient_name || 'Patient';
-          const pPhone = res.action_data.patient_phone || (typeof window !== 'undefined' ? localStorage.getItem('whatsapp_phone') || '' : '') || '9876543210';
-          const pAge = Number(res.action_data.patient_age) || 30;
-
-          const ticket = await createTicket({
-            department_id: res.action_data.dept_id || 'dep_gen',
-            doctor_id: res.action_data.doctor_id || '',
-            combo_package_ids: [],
-            payment_method: 'CASH',
-            patient: {
-              national_id: 'GUEST-000',
-              full_name: pName,
-              phone: pPhone,
-              age: pAge,
-              gender: 'O',
-              insurance_member: false
-            }
-          });
-          if (ticket) {
-            // Save to localStorage so receipt page always renders immediately
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('current_ticket', JSON.stringify(ticket));
-              localStorage.setItem('whatsapp_phone', ticket.patient_phone || pPhone);
-            }
-            setLatestTicket(ticket);
-
-            const confirmMsg = `Appointment confirmed! Your Token is ${ticket.token_number} (${ticket.department_name}). Opening your digital receipt now.`;
-            addMessage('assistant', confirmMsg);
-            speakText(confirmMsg);
-
-            // Seamless auto-redirect to digital receipt page
-            setTimeout(() => {
-              router.push(`/receipt?id=${ticket.ticket_id}`);
-            }, 2600);
-          }
-        } catch (err) {
-          console.error('Ticket booking error:', err);
-        }
-      }
-    } catch (err) {
-      console.error('Voice AI Error:', err);
-      const errMsg = 'I had trouble connecting to the hospital assistant. Please try again.';
-      addMessage('assistant', errMsg);
-      speakText(errMsg);
-    } finally {
-      isProcessingRef.current = false;
-      setIsProcessing(false);
-    }
-  };
-
-  // Init speech recognition & session once on mount
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const initialSid = generateSessionId();
-    setSessionId(initialSid);
-    sessionIdRef.current = initialSid;
-
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    let recognition: any = null;
-
-    if (SR) {
-      recognition = new SR();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      // Set hi-IN as primary locale for high accuracy on Hindi + English/Hinglish
-      recognition.lang = 'hi-IN';
-      recognitionRef.current = recognition;
-
-      let debounceTimer: any = null;
-
-      recognition.onresult = (event: any) => {
-        if (isSpeakingRef.current) return;
-
-        let interim = '';
-        let final = '';
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const t = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            final += t;
-          } else {
-            interim += t;
-          }
-        }
-
-        const currentText = (final || interim).trim();
-        if (currentText) {
-          transcriptRef.current = currentText;
-          setLiveTranscript(currentText);
-
-          // Auto-send when user pauses speech for 900ms
-          if (debounceTimer) clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            const textToSend = transcriptRef.current.trim();
-            if (textToSend.length > 0 && !isProcessingRef.current && !isSpeakingRef.current) {
-              transcriptRef.current = '';
-              setLiveTranscript('');
-              handleSend(textToSend);
-            }
-          }, 900);
-        }
-      };
-
-      recognition.onend = () => {
-        isListeningRef.current = false;
-        setIsListening(false);
-        const text = transcriptRef.current.trim();
-        if (text.length > 0 && !isProcessingRef.current && !isSpeakingRef.current) {
-          transcriptRef.current = '';
-          setLiveTranscript('');
-          handleSend(text);
-        } else if (!isProcessingRef.current && !isSpeakingRef.current) {
-          setTimeout(() => startListening(), 250);
-        }
-      };
-
-      recognition.onerror = (event: any) => {
-        isListeningRef.current = false;
-        setIsListening(false);
-        if (event.error !== 'not-allowed' && !isProcessingRef.current && !isSpeakingRef.current) {
-          setTimeout(() => startListening(), 400);
-        }
-      };
-    }
-
-    // Hands-Free Watchdog Timer: keeps mic listening 24/7
-    const watchdog = setInterval(() => {
-      if (!isListeningRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
-        startListening();
-      }
-    }, 2500);
-
-    // Process initial voice query if routed from home/landing, or speak initial greeting
-    const initialQuery = sessionStorage.getItem('initial_voice_query');
-    if (initialQuery && initialQuery.trim().length > 1) {
-      sessionStorage.removeItem('initial_voice_query');
-      setTimeout(() => {
-        handleSend(initialQuery.trim());
-      }, 500);
-    } else {
-      const greeting = "Hello, I am MediVERSE AI. How can I help you today?";
-      setTimeout(() => {
-        addMessage('assistant', greeting);
-        speakText(greeting);
-      }, 400);
-    }
-
-    // Touch screen unlock
-    const handleScreenTouch = () => {
-      if (!isListeningRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
-        startListening();
-      }
-    };
-    window.addEventListener('touchstart', handleScreenTouch, { passive: true });
-    window.addEventListener('click', handleScreenTouch, { passive: true });
-
-    return () => {
-      clearInterval(watchdog);
-      window.removeEventListener('touchstart', handleScreenTouch);
-      window.removeEventListener('click', handleScreenTouch);
-      if (recognition) {
-        try { recognition.stop(); } catch (e) {}
-      }
-      cancelAudio();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Status text & Word Detection Indicator
-  const statusText = isProcessing 
-    ? 'THINKING...' 
-    : isSpeaking 
-    ? 'AI SPEAKING...' 
-    : liveTranscript 
-    ? `WORD DETECTED: "${liveTranscript}"` 
-    : isListening 
-    ? 'HANDS-FREE LISTENING 24/7...' 
-    : 'AUTO-LISTENING ACTIVE';
+  const statusText = isMuted
+    ? 'MIC MUTED'
+    : isAISpeaking
+    ? 'AI SPEAKING...'
+    : isThinking
+    ? 'THINKING...'
+    : liveTranscript
+    ? `WORD DETECTED: "${liveTranscript}"`
+    : isUserSpeaking
+    ? 'HEARING SPEECH...'
+    : isCallActive
+    ? 'OPEN MIC LISTENING 24/7...'
+    : 'CALL INACTIVE';
 
   return (
     <>
@@ -438,11 +106,26 @@ export default function VoiceAssistantPage() {
           borderRight: '1px solid var(--border-color)',
           paddingTop: 80
         }}>
-          {/* Messages */}
+          {/* Messages Container */}
           <div style={{
             flex: 1, overflowY: 'auto', padding: '16px 24px',
             display: 'flex', flexDirection: 'column', gap: 12
           }}>
+            {messages.length === 0 && (
+              <div style={{
+                textAlign: 'center', margin: 'auto 0', color: 'var(--text-secondary)',
+                fontFamily: "'Space Grotesk', sans-serif"
+              }}>
+                <div style={{ fontSize: 44, marginBottom: 12 }}>🎙️</div>
+                <h3 style={{ fontSize: 22, color: 'var(--text-primary)', marginBottom: 6 }}>
+                  MediVERSE Voice Assistant
+                </h3>
+                <p style={{ fontSize: 14 }}>
+                  Speak naturally into your microphone or type a message below.
+                </p>
+              </div>
+            )}
+
             {messages.map((msg, i) => (
               <div key={i} style={{
                 display: 'flex',
@@ -450,101 +133,34 @@ export default function VoiceAssistantPage() {
                 alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start'
               }}>
                 <div style={{
-                  maxWidth: '75%',
-                  padding: '12px 16px',
-                  borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : msg.role === 'system' ? '8px' : '16px 16px 16px 4px',
-                  background: msg.role === 'user' 
-                    ? '#D91636' 
-                    : msg.role === 'system'
-                    ? 'rgba(255,45,85,0.1)'
-                    : 'var(--bg-card)',
-                  border: msg.role === 'system' ? '1px dashed rgba(255,45,85,0.3)' : '1px solid var(--border-color)',
-                  color: msg.role === 'user' ? '#fff' : 'var(--text-primary)',
+                  maxWidth: '80%',
+                  padding: '12px 18px',
+                  borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                  background: msg.role === 'user' ? 'rgba(217, 22, 54, 0.2)' : 'var(--bg-card)',
+                  border: msg.role === 'user' ? '1px solid rgba(217, 22, 54, 0.5)' : '1px solid var(--border-color)',
+                  color: 'var(--text-primary)',
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 15,
+                  lineHeight: 1.5,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                 }}>
-                  <p style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: 'clamp(16px, 1.7vw, 20px)', lineHeight: 1.5, margin: 0
-                  }}>{msg.content}</p>
-                  <p style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: 'clamp(12px, 1.2vw, 16px)', color: msg.role === 'user' ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)',
-                    marginTop: 4, textAlign: 'right'
-                  }}>{msg.timestamp}</p>
+                  {msg.content}
                 </div>
-                {msg.role === 'assistant' && i === messages.length - 1 && !isProcessing && (
-                  <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => handleSend('yes')}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: 20,
-                        background: 'rgba(46, 213, 115, 0.15)',
-                        border: '1px solid #2ed573',
-                        color: '#2ed573',
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <span>✓ YES / हाँ / PROCEED</span>
-                    </button>
-                    <button
-                      onClick={() => handleSend('no')}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: 20,
-                        background: 'rgba(255, 71, 87, 0.15)',
-                        border: '1px solid #ff4757',
-                        color: '#ff4757',
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <span>✗ NO / नहीं / CANCEL</span>
-                    </button>
-                  </div>
-                )}
+                <span style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 4, padding: '0 4px' }}>
+                  {msg.timestamp}
+                </span>
               </div>
             ))}
 
-            {/* Live transcript */}
+            {/* Live Interim Transcript */}
             {liveTranscript && (
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <div style={{
-                  maxWidth: '75%', padding: '12px 16px',
-                  borderRadius: '16px 16px 4px 16px',
-                  background: 'rgba(255,45,85,0.3)',
-                  border: '1px solid rgba(255,45,85,0.5)',
-                  color: '#fff'
+                  maxWidth: '80%', padding: '10px 16px', borderRadius: '18px 18px 4px 18px',
+                  background: 'rgba(100, 210, 255, 0.15)', border: '1px dashed #64d2ff',
+                  color: '#64d2ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14
                 }}>
-                  <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', margin: 0, fontStyle: 'italic' }}>
-                    {liveTranscript}...
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Processing indicator */}
-            {isProcessing && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div style={{
-                  padding: '12px 20px', borderRadius: '16px 16px 16px 4px',
-                  background: 'var(--bg-card)', border: '1px solid var(--border-color)'
-                }}>
-                  <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', color: 'var(--text-secondary)', margin: 0, animation: 'blink 1s infinite' }}>
-                    Thinking...
-                  </p>
+                  "{liveTranscript}"
                 </div>
               </div>
             )}
@@ -552,308 +168,159 @@ export default function VoiceAssistantPage() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Latest Ticket Digital Receipt Banner */}
-          {latestTicket && (
-            <div style={{
-              margin: '0 24px 10px 24px',
-              padding: '14px 20px',
-              background: 'linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(0, 176, 255, 0.15))',
-              border: '2px solid #00e676',
-              borderRadius: 12,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxShadow: '0 0 20px rgba(0, 230, 118, 0.3)',
-              animation: 'pulse 2s infinite'
-            }}>
-              <div>
-                <div style={{ fontFamily: "'Bebas Neue'", fontSize: 24, color: '#00e676', letterSpacing: '.05em' }}>
-                  TOKEN ISSUED: {latestTicket.token_number}
-                </div>
-                <div style={{ fontFamily: "'Space Grotesk'", fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>
-                  Patient: {latestTicket.patient_name} | {latestTicket.doctor_name} ({latestTicket.department_name})
-                </div>
-              </div>
-              <button
-                onClick={() => router.push(`/receipt?id=${latestTicket.ticket_id}`)}
-                style={{
-                  padding: '10px 20px',
-                  background: '#00e676',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontFamily: "'Space Grotesk'",
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  letterSpacing: '.05em',
-                  boxShadow: '0 0 15px rgba(0,230,118,0.5)'
-                }}
-              >
-                📄 VIEW RECEIPT NOW →
-              </button>
-            </div>
-          )}
-
-          {/* Text input fallback */}
-          <div style={{
-            padding: '12px 24px', borderTop: '1px solid var(--border-color)',
-            display: 'flex', gap: 8
+          {/* Bottom Text Input Bar */}
+          <form onSubmit={handleTextSubmit} style={{
+            padding: '14px 24px', borderTop: '1px solid var(--border-color)',
+            display: 'flex', gap: 12, background: 'rgba(0,0,0,0.4)'
           }}>
             <input
               type="text"
-              placeholder="Type a message (or use mic)..."
+              value={inputVal}
+              onChange={e => setInputVal(e.target.value)}
+              placeholder="Type your message or speak naturally..."
               style={{
-                flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)',
-                color: 'var(--text-primary)', padding: '12px 16px', borderRadius: 8,
-                fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 1.7vw, 20px)', outline: 'none'
-              }}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
-                  handleSend((e.target as HTMLInputElement).value);
-                  (e.target as HTMLInputElement).value = '';
-                }
+                flex: 1, padding: '12px 18px', borderRadius: 24,
+                background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+                color: 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 14, outline: 'none'
               }}
             />
             <button
-              onClick={toggleListen}
+              type="submit"
               style={{
-                width: 48, height: 48, borderRadius: '50%',
-                background: isListening ? '#D91636' : 'var(--bg-card)',
-                border: `2px solid ${isListening ? '#D91636' : 'var(--border-color)'}`,
-                color: isListening ? '#fff' : 'var(--text-primary)',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, transition: 'all 0.3s',
-                animation: isListening ? 'pulse 1.5s infinite' : 'none'
+                padding: '0 24px', borderRadius: 24, background: '#D91636', color: '#fff',
+                border: 'none', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
+                cursor: 'pointer'
               }}
             >
-              <MicIcon size={20} />
+              SEND
             </button>
-          </div>
+          </form>
         </div>
 
-        {/* RIGHT: Status Panel */}
+        {/* RIGHT: Voice Visualizer & Call Control Console */}
         <div style={{
-          flex: '0 0 340px', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'flex-start', padding: '24px 20px',
-          gap: 20, overflowY: 'auto', borderLeft: '1px solid var(--border-color)',
-          background: 'rgba(0,0,0,0.2)'
+          flex: '1 1 40%', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', padding: 32,
+          paddingTop: 90, background: 'rgba(0,0,0,0.2)'
         }}>
-          {/* Big Mic Button */}
-          <button
-            onClick={toggleListen}
+          {/* Main Visualizer Orb */}
+          <div
+            onClick={toggleCall}
             style={{
-              width: 120, height: 120, borderRadius: '50%',
-              background: isListening ? 'rgba(255,45,85,0.2)' : isSpeaking ? 'rgba(45,155,255,0.15)' : 'var(--bg-card)',
-              border: `3px solid ${isListening ? '#D91636' : isSpeaking ? '#2d9bff' : 'var(--border-color)'}`,
-              color: isListening ? '#D91636' : isSpeaking ? '#2d9bff' : 'var(--text-primary)',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.3s',
-              boxShadow: isListening ? '0 0 40px rgba(255,45,85,0.5)' : isSpeaking ? '0 0 40px rgba(45,155,255,0.4)' : 'none',
-              animation: (isListening || isSpeaking) ? 'pulse 1.5s infinite' : 'none'
+              position: 'relative', width: 220, height: 220, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', marginBottom: 32
             }}
           >
-            {isSpeaking ? <SpeakerIcon size={44} /> : <MicIcon size={44} />}
-          </button>
-
-          {/* Status */}
-          <div style={{ textAlign: 'center', width: '100%' }}>
-            <h2 style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: 24,
-              letterSpacing: '.08em', color: isListening ? '#ff4757' : isSpeaking ? '#2d9bff' : 'var(--text-primary)', marginBottom: 4
-            }}>{statusText}</h2>
-            <p style={{
-              fontFamily: "'Space Grotesk'", fontSize: 13,
-              color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0
-            }}>
-              Continuous 24/7 Voice Listening Active.<br/>
-              Speak in Hindi, English, or any language.
-            </p>
-          </div>
-
-          {/* Quick Voice Checkpoint Action Controls */}
-          <div style={{
-            width: '100%',
-            padding: '16px',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--border-color)',
-            borderRadius: 12,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10
-          }}>
+            {/* Outer Pulsing Glow Ring */}
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              fontSize: 11,
-              fontFamily: "'Space Grotesk'",
-              letterSpacing: '.08em',
-              fontWeight: 600,
-              color: '#00f2fe'
+              position: 'absolute', width: 220, height: 220, borderRadius: '50%',
+              background: isMuted ? 'rgba(255,59,48,0.15)' : isAISpeaking ? 'rgba(191,90,242,0.2)' : isUserSpeaking ? 'rgba(100,210,255,0.2)' : isCallActive ? 'rgba(48,209,88,0.15)' : 'rgba(217,22,54,0.15)',
+              border: `2px solid ${isMuted ? '#ff3b30' : isAISpeaking ? '#bf5af2' : isUserSpeaking ? '#64d2ff' : isCallActive ? '#30d158' : '#D91636'}`,
+              boxShadow: `0 0 40px ${isMuted ? 'rgba(255,59,48,0.4)' : isAISpeaking ? 'rgba(191,90,242,0.5)' : isUserSpeaking ? 'rgba(100,210,255,0.5)' : isCallActive ? 'rgba(48,209,88,0.4)' : 'rgba(217,22,54,0.4)'}`,
+              animation: isUserSpeaking || isAISpeaking ? 'pulse 1.2s infinite ease-in-out' : 'none'
+            }} />
+
+            {/* Inner Core Button */}
+            <div style={{
+              position: 'relative', zIndex: 2, width: 140, height: 140, borderRadius: '50%',
+              background: isMuted ? '#ff3b30' : isAISpeaking ? '#bf5af2' : isUserSpeaking ? '#64d2ff' : isCallActive ? '#30d158' : '#D91636',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)', transition: 'all 0.3s ease'
             }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00f2fe', animation: 'blink 1.2s infinite' }} />
-              VOICE CHECKPOINT: SAY OR TAP
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <button
-                onClick={() => handleSend('yes')}
-                disabled={isProcessing}
-                style={{
-                  padding: '12px 6px',
-                  background: 'rgba(46, 213, 115, 0.15)',
-                  border: '1px solid #2ed573',
-                  color: '#2ed573',
-                  borderRadius: 8,
-                  cursor: isProcessing ? 'not-allowed' : 'pointer',
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 3,
-                  transition: 'all 0.2s',
-                  boxShadow: '0 0 15px rgba(46, 213, 115, 0.2)'
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 700 }}>✓ YES / हाँ</span>
-                <span style={{ fontSize: 10, opacity: 0.85, fontWeight: 500 }}>PROCEED</span>
-              </button>
-              <button
-                onClick={() => handleSend('no')}
-                disabled={isProcessing}
-                style={{
-                  padding: '12px 6px',
-                  background: 'rgba(255, 71, 87, 0.15)',
-                  border: '1px solid #ff4757',
-                  color: '#ff4757',
-                  borderRadius: 8,
-                  cursor: isProcessing ? 'not-allowed' : 'pointer',
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 3,
-                  transition: 'all 0.2s',
-                  boxShadow: '0 0 15px rgba(255, 71, 87, 0.2)'
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 700 }}>✗ NO / नहीं</span>
-                <span style={{ fontSize: 10, opacity: 0.85, fontWeight: 500 }}>CANCEL</span>
-              </button>
+              {isAISpeaking ? (
+                <SpeakerIcon size={56} />
+              ) : (
+                <MicIcon size={56} />
+              )}
             </div>
           </div>
 
-          {/* Submenu Options List */}
+          {/* Status Label */}
           <div style={{
-            padding: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-color)',
-            borderRadius: 8, width: '100%', display: 'flex', flexDirection: 'column', gap: 6
+            fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 700,
+            color: isMuted ? '#ff3b30' : isAISpeaking ? '#bf5af2' : isUserSpeaking ? '#64d2ff' : isCallActive ? '#30d158' : '#ff4757',
+            letterSpacing: '0.06em', textAlign: 'center', marginBottom: 24
           }}>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: '#888', letterSpacing: '.1em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>QUICK ASSIST</p>
+            {statusText}
+          </div>
+
+          {/* Controls Bar */}
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+            {/* Interrupt AI Button */}
+            {isAISpeaking && (
+              <button
+                onClick={interruptAI}
+                style={{
+                  padding: '12px 20px', borderRadius: 24, background: 'rgba(255, 159, 10, 0.2)',
+                  border: '1px solid #ff9f0a', color: '#ff9f0a', fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
+                }}
+              >
+                🖐 INTERRUPT AI
+              </button>
+            )}
+
+            {/* Mute Button */}
             <button
-              onClick={() => handleSend('I want to upload ABHA card or medical documents')}
-              style={{ padding: '8px 12px', background: 'transparent', border: '1px solid #444', color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 12, cursor: 'pointer', textAlign: 'left', borderRadius: 4 }}
+              onClick={toggleMute}
+              style={{
+                padding: '12px 24px', borderRadius: 24,
+                background: isMuted ? 'rgba(255, 59, 48, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                border: isMuted ? '1px solid #ff3b30' : '1px solid var(--border-color)',
+                color: isMuted ? '#ff3b30' : 'var(--text-primary)',
+                fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, cursor: 'pointer'
+              }}
             >
-              1. UPLOAD ABHA / REPORTS
+              {isMuted ? 'UNMUTE MIC' : 'MUTE MIC'}
             </button>
+
+            {/* Start / End Call Button */}
             <button
-              onClick={() => handleSend('Tell me available doctors')}
-              style={{ padding: '8px 12px', background: 'transparent', border: '1px solid #444', color: '#fff', fontFamily: "'Space Grotesk'", fontSize: 12, cursor: 'pointer', textAlign: 'left', borderRadius: 4 }}
+              onClick={toggleCall}
+              style={{
+                padding: '12px 28px', borderRadius: 24,
+                background: isCallActive ? '#ff2d55' : '#30d158',
+                color: '#fff', border: 'none',
+                fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.3)'
+              }}
             >
-              2. LIST DOCTORS & FEES
-            </button>
-            <button
-              onClick={() => handleSend('back')}
-              style={{ padding: '8px 12px', background: 'transparent', border: '1px solid #444', color: '#888', fontFamily: "'Space Grotesk'", fontSize: 12, cursor: 'pointer', textAlign: 'left', borderRadius: 4 }}
-            >
-              3. RESET / MAIN MENU
+              {isCallActive ? 'END CALL' : 'START VOICE CALL'}
             </button>
           </div>
 
-          {/* Session Info */}
-          <div style={{
-            padding: '10px 16px', background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)', borderRadius: 8,
-            width: '100%', textAlign: 'center'
-          }}>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: 'var(--text-muted)', letterSpacing: '.05em', margin: 0 }}>
-              SESSION: {sessionId.slice(0, 16)}...
-            </p>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 11, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
-              {messages.filter(m => m.role === 'user').length} voice messages exchanged
-            </p>
-          </div>
-
-          {/* Back button */}
-          <button
-            onClick={() => {
-              cancelAudio();
-              stopListening();
-              router.push('/');
-            }}
-            style={{
-              width: '100%',
-              padding: '12px 16px', background: 'rgba(217,22,54,0.15)',
-              border: '1px solid #D91636', color: '#fff',
-              borderRadius: 8, fontFamily: "'Space Grotesk'", fontSize: 13,
-              fontWeight: 600, cursor: 'pointer', letterSpacing: '.05em', transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-            }}
-          >
-            ← BACK TO HOME
-          </button>
+          {/* Latest Ticket Confirmation Card if issued */}
+          {latestTicket && (
+            <div style={{
+              marginTop: 32, width: '100%', maxWidth: 360, background: 'var(--bg-card)',
+              border: '1px solid #30d158', borderRadius: 16, padding: 18,
+              boxShadow: '0 4px 20px rgba(48,209,88,0.2)', textAlign: 'center'
+            }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#30d158', letterSpacing: '.08em' }}>
+                TICKET ISSUED SUCCESSFULLY
+              </span>
+              <h4 style={{ fontSize: 24, margin: '6px 0', fontFamily: "'Bebas Neue', sans-serif" }}>
+                TOKEN: {latestTicket.token_number}
+              </h4>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>
+                {latestTicket.department_name} • {latestTicket.patient_name}
+              </p>
+              <button
+                onClick={() => router.push(`/receipt?id=${latestTicket.ticket_id}`)}
+                style={{
+                  marginTop: 12, padding: '8px 16px', background: '#30d158', color: '#000',
+                  border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 12, cursor: 'pointer'
+                }}
+              >
+                VIEW DIGITAL RECEIPT
+              </button>
+            </div>
+          )}
         </div>
+
       </div>
-
-      {/* ABHA & Document Upload Modal */}
-      {showAbhaModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.85)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, backdropFilter: 'blur(10px)'
-        }}>
-          <div style={{
-            background: '#111', border: '1px solid #333', padding: 32, maxWidth: 440, width: '100%',
-            borderRadius: 8, color: '#fff', fontFamily: "'Space Grotesk'", textAlign: 'center', position: 'relative'
-          }}>
-            <button
-              onClick={() => setShowAbhaModal(false)}
-              style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#999', fontSize: 20, cursor: 'pointer' }}
-            >
-              ✕
-            </button>
-            
-            <h2 style={{ fontFamily: "'Bebas Neue'", fontSize: 32, letterSpacing: '0.05em', color: '#fff', marginBottom: 8 }}>
-              SMART ABHA & DOCUMENT UPLOAD
-            </h2>
-            <p style={{ fontSize: 13, color: '#aaa', marginBottom: 20 }}>
-              Scan this QR code to upload your ABHA card or medical records. It will auto-fill your details instantly.
-            </p>
-
-            <div style={{ background: '#fff', padding: 20, display: 'inline-block', borderRadius: 8, marginBottom: 20 }}>
-              <QRCodeSVG value={`${typeof window !== 'undefined' ? window.location.origin : ''}/kiosk?abha_ref=${sessionId}`} size={160} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button
-                onClick={() => {
-                  localStorage.setItem('whatsapp_phone', '9876543210');
-                  addMessage('system', 'ABHA Card Scanned: Patient details auto-filled');
-                  setShowAbhaModal(false);
-                }}
-                style={{ padding: '12px', background: '#D91636', color: '#fff', border: 'none', fontFamily: "'Bebas Neue'", fontSize: 20, cursor: 'pointer' }}
-              >
-                SIMULATE ABHA AUTO-FILL SCAN
-              </button>
-              <button
-                onClick={() => setShowAbhaModal(false)}
-                style={{ padding: '10px', background: 'transparent', border: '1px solid #444', color: '#aaa', fontFamily: "'Space Grotesk'", fontSize: 14, cursor: 'pointer' }}
-              >
-                CLOSE & RETURN TO CHAT
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

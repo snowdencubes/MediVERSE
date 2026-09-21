@@ -42,10 +42,6 @@ export default function Home() {
   const router = useRouter();
   const { lang, t } = useLanguage();
 
-  useEffect(() => {
-    router.replace('/');
-  }, [router]);
-
   const getFallbackLang = (l: string) => {
     if (l === 'EN') return 'HI';
     if (['HI', 'BN', 'SAT', 'KVN', 'HOC', 'UNW', 'TA', 'TE', 'MR', 'GU', 'UR', 'KN', 'ML', 'PA'].includes(l)) {

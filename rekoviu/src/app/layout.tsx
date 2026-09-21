@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: 'KFC-style hospital self-service kiosk. Express check-in, triage, and live queue management.',
 };
 
+import { VoiceCallProvider } from '@/contexts/VoiceCallContext';
+import { VoiceCallOverlay } from '@/components/voice/VoiceCallOverlay';
+
 export default function RootLayout({
   children,
 }: {
@@ -58,16 +61,19 @@ export default function RootLayout({
         <GestureProvider>
           <LanguageProvider>
             <CurrencyProvider>
-              <PageLoader />
-              <CursorEffect />
-              <GestureCursor />
-              <BackgroundLayer />
-              <div className="bg-grain"></div>
-              <div className="vignette"></div>
-              <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>MediVERSE</div>
-              <div style={{ position: 'relative', zIndex: 10 }}>
-                {children}
-              </div>
+              <VoiceCallProvider>
+                <PageLoader />
+                <CursorEffect />
+                <GestureCursor />
+                <BackgroundLayer />
+                <div className="bg-grain"></div>
+                <div className="vignette"></div>
+                <div id="wm" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18vw' }}>MediVERSE</div>
+                <div style={{ position: 'relative', zIndex: 10 }}>
+                  {children}
+                </div>
+                <VoiceCallOverlay />
+              </VoiceCallProvider>
             </CurrencyProvider>
           </LanguageProvider>
         </GestureProvider>
