@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { PatientIdentity } from '@/components/kiosk/PatientIdentity';
 import { CategoryNav } from '@/components/kiosk/CategoryNav';
@@ -21,6 +22,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 }
 
 export default function KioskPage() {
+  const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -60,10 +62,20 @@ export default function KioskPage() {
       const intentIssue = localStorage.getItem('voice_intent_issue');
       const intentEmergency = localStorage.getItem('voice_intent_emergency') === 'true';
       const whatsappPhone = localStorage.getItem('whatsapp_phone');
+      const telName = localStorage.getItem('telegram_name');
+      const telSymptoms = localStorage.getItem('telegram_symptoms');
 
       if (whatsappPhone) {
         setPatientPhone(whatsappPhone);
         localStorage.removeItem('whatsapp_phone');
+      }
+      if (telName) {
+        setPatientName(telName);
+        localStorage.removeItem('telegram_name');
+      }
+      if (telSymptoms) {
+        setVitals(v => ({ ...v, symptoms: [telSymptoms] }));
+        localStorage.removeItem('telegram_symptoms');
       }
 
       if (intentDept) {

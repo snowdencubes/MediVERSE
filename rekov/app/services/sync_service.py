@@ -30,9 +30,19 @@ def _backup_locally(ticket: dict):
         json.dump(ticket, f)
 
 def sync_worker():
-    """Background thread that runs every 30s to sync unsynced records to Supabase."""
+    """Background thread that runs every 30s to sync unsynced records to Supabase when connected to internet."""
     while True:
         try:
+            url = os.environ.get("SUPABASE_URL")
+            key = os.environ.get("SUPABASE_KEY")
+            
+            client = None
+            if url and key:
+                try:
+                    client = create_client(url, key)
+                except Exception:
+                    client = None
+
             db = SessionLocal()
             unsynced = db.query(TicketModel).filter(TicketModel.synced == False).all()
             
@@ -52,25 +62,23 @@ def sync_worker():
                 # Always create local offline backup
                 _backup_locally(payload)
                 
-                # Attempt Supabase sync if configured
-                if supabase:
+                # Attempt Supabase sync if connected to internet
+                if client:
                     try:
-                        # Upsert based on ticket_id
-                        res = supabase.table('tickets').upsert(payload, on_conflict='ticket_id').execute()
+                        client.table('tickets').upsert(payload, on_conflict='ticket_id').execute()
                         record.synced = True
                         db.add(record)
                     except Exception as e:
-                        # Silent catch, will retry next loop
+                        # Offline / Network failure: retain synced=False to retry next 30s cycle
                         pass
                 else:
-                    # If no Supabase config, just mark as synced so we don't spin endlessly
                     record.synced = True
                     db.add(record)
                     
             db.commit()
             db.close()
-        except Exception as e:
-            pass # DB might be locked, try again later
+        except Exception:
+            pass
             
         time.sleep(30)
 

@@ -1,13 +1,20 @@
 import os
 import csv
+import json
 import uuid
 import requests
 from pathlib import Path
 from typing import Dict, List
 from dotenv import load_dotenv
 
+# Try loading from multiple likely .env locations
 load_dotenv()
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+_backend_env = Path(__file__).resolve().parents[3] / ".env"
+_root_env = Path(__file__).resolve().parents[4] / ".env"
+if _backend_env.exists():
+    load_dotenv(_backend_env)
+if _root_env.exists():
+    load_dotenv(_root_env)
 
 # ---- Load database context from CSV files ----
 DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "database"
@@ -53,42 +60,63 @@ def _build_db_context() -> str:
 
 DB_CONTEXT = _build_db_context()
 
-SYSTEM_PROMPT = f"""You are REKOV AI, the hospital's voice assistant. You speak naturally and helpfully.
+SYSTEM_PROMPT = f"""You are REKOV AI, the hospital's voice assistant. You speak naturally, helpfully, and concisely.
 
 CRITICAL RULES:
-1. AUTO-DETECT the patient's language from their message. Reply in the SAME language they used. You understand English, Hindi, Tamil, Bengali, Marathi, Telugu, Kannada, Gujarati, Malayalam, Punjabi, Urdu, and broken/informal versions of all.
-2. Keep replies SHORT (under 40 words). Be warm but efficient. Ask ONE follow-up at a time.
-3. You have REAL access to the hospital database below. Use it to answer questions about doctors, departments, fees, wait times, availability.
-4. When you have enough info to book, output EXACTLY: [BOOK_TICKET] dept_id=<ID> doctor_id=<ID> priority=<STANDARD|URGENT|EMERGENCY> patient_name=<name>
-5. When user asks about queue/status, output: [CHECK_QUEUE] dept_id=<ID>
-6. When user asks to list doctors, output: [LIST_DOCTORS] dept_id=<ID>
-7. Do NOT make up data. Only use what's in the database below.
-8. Understand broken English like "i have headake" = headache, "hart pain" = heart pain, "bachcha bimar" = child is sick, "dawai chahiye" = need medicine.
-9. For emergency symptoms (chest pain, difficulty breathing, severe bleeding, unconscious), immediately route to Emergency with EMERGENCY priority.
+1. AUTO-DETECT LANGUAGE & MATCH EXACTLY:
+   - If user speaks English, reply in English.
+   - If user speaks Hindi (Devanagari script), reply in Hindi.
+   - If user speaks Roman Hindi / Hinglish ("mujhe bukhar hai", "pet me dard", "doctor se milna hai"), reply in natural Hinglish.
+2. MANDATORY YES/NO RULE:
+   - EVERY SINGLE RESPONSE MUST END WITH A CLEAR, BINARY QUESTION ENDING IN 'Say Yes or No' (or 'हाँ या ना कहें' / 'Haan ya Naa kahein').
+   - Example 1: "Based on your symptoms, I recommend Dr. Marcus in General Medicine. Shall I book your appointment token now? Say Yes or No."
+   - Example 2: "Aapke bukhar ke liye General Medicine mein Dr. Amit Sharma uplabdh hain. Kya main aapka ticket book kar doon? Haan ya Naa kahein."
+   - Example 3: "Dr. Elena is in Cardiology in Room 204. Would you like to consult her? Say Yes or No."
+3. BOOKING FLOW & CONFIRMATION:
+   - When proposing a doctor, ALWAYS end with: "Shall I book your appointment token now? Say Yes or No."
+   - When the user confirms with "yes", "haan", "sure", "proceed", or "ok", output EXACTLY:
+     [BOOK_TICKET] dept_id=<ID> doctor_id=<ID> priority=<STANDARD|URGENT|EMERGENCY> patient_name=<name>
+4. EMERGENCY TRIAGE:
+   - For chest pain, heavy bleeding, breathing difficulty, or unconsciousness, route immediately to Emergency with EMERGENCY priority.
+5. SHORT & DIRECT:
+   - Maximum 30 words per turn. Be fast, direct, and conversational.
+6. HOSPITAL DATABASE ONLY:
+   - Only use the real doctors, departments, and fees from the database below:
 
 {DB_CONTEXT}
-
-BOOKING FLOW:
-- Greet the patient
-- Ask what they need help with
-- Based on complaint, suggest a department and doctor
-- Confirm with patient, then issue [BOOK_TICKET]
-- If patient gives their name, use it. Otherwise use "Guest Patient".
 """
 
-# ---- Session storage ----
-_sessions: Dict[str, List[dict]] = {}
+# ---- Session storage with action state tracking ----
+_sessions: Dict[str, dict] = {}
 
 def get_or_create_session(session_id: str | None) -> tuple:
     """Return (session_id, history_list)."""
     if not session_id:
         session_id = str(uuid.uuid4())
     if session_id not in _sessions:
-        _sessions[session_id] = []
-    return session_id, _sessions[session_id]
+        _sessions[session_id] = {
+            "history": [],
+            "pending_action": None,
+            "last_suggestion": None
+        }
+    return session_id, _sessions[session_id]["history"]
+
+def get_session_data(session_id: str) -> dict:
+    if session_id not in _sessions:
+        _sessions[session_id] = {
+            "history": [],
+            "pending_action": None,
+            "last_suggestion": None
+        }
+    return _sessions[session_id]
 
 def get_session_history(session_id: str) -> List[dict]:
-    return _sessions.get(session_id, [])
+    sess = _sessions.get(session_id)
+    if isinstance(sess, dict):
+        return sess.get("history", [])
+    elif isinstance(sess, list):
+        return sess
+    return []
 
 def _detect_language(text: str) -> str:
     """Detect script/language from text."""
@@ -271,59 +299,219 @@ def _offline_reply(lang: str, key: str, **kwargs) -> str:
     return text.format(**kwargs) if kwargs else text
 
 
+def classify_speech_intent(user_message: str, hf_api_token: str | None) -> dict:
+    """
+    Real-time speech intent and moderation classifier using Hugging Face router.
+    Detects user intent (CONFIRM, DENY, MEDICAL, QUERY, OFF_TOPIC),
+    identifies nonsense/shit-talk/trolling, and detects language.
+    """
+    lower = user_message.lower().strip()
+
+    # 1. Ultra-fast (<1ms) heuristic checks for obvious binary yes/no responses
+    confirm_words = [
+        "yes", "haan", "ha", "haa", "haji", "ji haan", "sure", "proceed", "continue",
+        "ok", "okay", "theek hai", "thik hai", "kar do", "chalo", "book it", "confirm",
+        "yes please", "sahi hai", "pakka"
+    ]
+    deny_words = [
+        "no", "nahi", "nahin", "naa", "cancel", "stop", "mat karo", "ruko", "reject",
+        "dont", "don't", "wrong", "galat", "dusra", "change"
+    ]
+    
+    words = lower.split()
+    if any(lower == w or (len(words) <= 3 and w in words) for w in confirm_words):
+        is_hi = any(k in lower for k in ["haan", "ha", "ji", "kar do", "theek", "chalo"])
+        return {"intent": "CONFIRM", "is_nonsense": False, "lang": "hi" if is_hi else "en"}
+
+    if any(lower == w or (len(words) <= 3 and w in words) for w in deny_words):
+        is_hi = any(k in lower for k in ["nahi", "nahin", "naa", "mat", "ruko", "galat"])
+        return {"intent": "DENY", "is_nonsense": False, "lang": "hi" if is_hi else "en"}
+
+    # 2. Profanity, abuse, or blatant trolling ("shit talk") filter
+    abusive_words = [
+        "fuck", "shit", "bitch", "asshole", "chutiya", "madarchod", "bhosdike", "gandu",
+        "idiot", "bakwaas", "faltu", "stupid", "lodu", "kutta", "harami", "rubbish"
+    ]
+    if any(aw in lower for aw in abusive_words):
+        is_hi = any(k in lower for k in ["chutiya", "bakwaas", "faltu", "kutta", "harami", "gandu", "bhosdike"])
+        return {"intent": "OFF_TOPIC", "is_nonsense": True, "lang": "hi" if is_hi else "en"}
+
+    # 3. Call Hugging Face Router for intelligent real-time classification
+    if hf_api_token:
+        API_URL = "https://router.huggingface.co/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {hf_api_token}",
+            "Content-Type": "application/json"
+        }
+        sys_p = (
+            "You are an ultra-fast speech intent & moderation classifier for a hospital voice kiosk.\n"
+            "Classify user utterance (English, Hindi, Hinglish, or slang/trolling/shit-talk).\n"
+            "Return ONLY JSON:\n"
+            "{\n"
+            '  "intent": "CONFIRM" | "DENY" | "MEDICAL" | "QUERY" | "OFF_TOPIC",\n'
+            '  "is_nonsense": boolean,\n'
+            '  "lang": "en" | "hi" | "hinglish"\n'
+            "}"
+        )
+        try:
+            res = requests.post(API_URL, headers=headers, json={
+                "model": "Qwen/Qwen2.5-72B-Instruct",
+                "messages": [
+                    {"role": "system", "content": sys_p},
+                    {"role": "user", "content": user_message}
+                ],
+                "max_tokens": 50,
+                "temperature": 0.0
+            }, timeout=3.5)
+            if res.status_code == 200:
+                raw = res.json().get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                raw = raw.replace("```json", "").replace("```", "").strip()
+                parsed = json.loads(raw)
+                return {
+                    "intent": parsed.get("intent", "MEDICAL"),
+                    "is_nonsense": bool(parsed.get("is_nonsense", False)),
+                    "lang": parsed.get("lang", "en")
+                }
+        except Exception as e:
+            # Fallback to local heuristic
+            pass
+
+    # 4. Local heuristic fallback
+    lang = _detect_language(user_message)
+    dept_id = _match_department(user_message, lang)
+    if dept_id:
+        return {"intent": "MEDICAL", "is_nonsense": False, "lang": lang}
+    return {"intent": "QUERY", "is_nonsense": False, "lang": lang}
+
+
 def generate_voice_response(session_id: str | None, user_message: str) -> dict:
     """
     Main entry point. Takes a session_id and new user message.
     Returns dict with: session_id, reply, action, action_data
     """
     sid, history = get_or_create_session(session_id)
+    sess_data = get_session_data(sid)
 
     # Add user message to history
     history.append({"role": "user", "content": user_message})
 
-    if not HF_API_TOKEN:
-        return _offline_flow(sid, history, user_message)
+    hf_api_token = os.getenv("HUGGINGFACE_API_KEY", os.getenv("HF_TOKEN", os.getenv("HF_API_TOKEN")))
+    
+    # 1. Run automatic speech intent & moderation classification
+    classification = classify_speech_intent(user_message, hf_api_token)
+    intent = classification.get("intent", "MEDICAL")
+    is_nonsense = classification.get("is_nonsense", False)
+    lang = classification.get("lang", _detect_language(user_message))
 
-    # Build Qwen chat prompt
-    API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-1.5B-Instruct"
-    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
-
-    prompt = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n"
-    for msg in history:
-        role = msg.get("role", "user")
-        content = msg.get("content", "")
-        prompt += f"<|im_start|>{role}\n{content}<|im_end|>\n"
-    prompt += "<|im_start|>assistant\n"
-
-    try:
-        response = requests.post(API_URL, headers=headers, json={
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": 150,
-                "temperature": 0.4,
-                "top_p": 0.9,
-                "repetition_penalty": 1.1
-            },
-            "options": {"wait_for_model": True}
-        }, timeout=30)
-
-        if response.status_code == 200:
-            result = response.json()
-            if isinstance(result, list) and len(result) > 0 and "generated_text" in result[0]:
-                full_text = result[0]["generated_text"]
-                reply = full_text.split("<|im_start|>assistant\n")[-1].strip()
-                reply = reply.split("<|im_end|>")[0].strip()
-            else:
-                reply = "I could not process that. Could you please repeat?"
-        elif response.status_code == 503:
-            # Model loading — fall back to offline
-            return _offline_flow(sid, history, user_message)
+    # 2. Handle Off-Topic / Shit-Talk / Nonsense Guardrail
+    if is_nonsense or intent == "OFF_TOPIC":
+        if lang in ["hi", "hinglish"]:
+            reply = "Main MediVERSE hospital assistant hoon. Kya aapko kisi bimari ya doctor se milna hai? Kripya Haan ya Naa kahein."
         else:
-            print(f"HF API Error {response.status_code}: {response.text[:200]}")
-            return _offline_flow(sid, history, user_message)
-    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, Exception) as e:
-        print(f"HF API unreachable ({type(e).__name__}), using offline mode")
+            reply = "I am the MediVERSE hospital assistant. Are you looking to see a doctor or get a check-in token today? Please say Yes or No."
+        
+        history.append({"role": "assistant", "content": reply})
+        return {
+            "session_id": sid,
+            "reply": reply,
+            "action": None,
+            "action_data": None
+        }
+
+    # 3. Handle Confirmation ("YES", "HAAN", "PROCEED") to pending recommendation
+    if intent == "CONFIRM" and sess_data.get("pending_action"):
+        pending = sess_data["pending_action"]
+        sess_data["pending_action"] = None
+        action = pending.get("action", "BOOK_TICKET")
+        action_data = pending.get("action_data")
+
+        if lang in ["hi", "hinglish"]:
+            reply = "Aapka ticket book kar diya gaya hai! Token number screen par aa raha hai. Kya aapko kuch aur jankari chahiye? Haan ya Naa kahein."
+        else:
+            reply = "Your appointment token is booked and confirmed! Do you need help with anything else? Say Yes or No."
+
+        history.append({"role": "assistant", "content": reply})
+        return {
+            "session_id": sid,
+            "reply": reply,
+            "action": action,
+            "action_data": action_data
+        }
+
+    # 4. Handle Rejection ("NO", "NAHI", "CANCEL")
+    if intent == "DENY" and sess_data.get("pending_action"):
+        sess_data["pending_action"] = None
+        if lang in ["hi", "hinglish"]:
+            reply = "Theek hai, booking cancel kar di gayi hai. Kya aap kisi aur doctor ya department ko dekhna chahte hain? Haan ya Naa kahein."
+        else:
+            reply = "Understood, cancelled. Would you like to check another department or doctor? Say Yes or No."
+
+        history.append({"role": "assistant", "content": reply})
+        return {
+            "session_id": sid,
+            "reply": reply,
+            "action": None,
+            "action_data": None
+        }
+
+    if not hf_api_token:
+        print("[AI Voice] No HuggingFace API key found, falling back to offline mode")
         return _offline_flow(sid, history, user_message)
+
+    API_URL = "https://router.huggingface.co/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {hf_api_token}",
+        "Content-Type": "application/json"
+    }
+
+    # Format messages for OpenAI-compatible chat completions
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    for msg in history[-8:-1]: # keep last 8 messages for context
+        role = msg.get("role", "user")
+        if role in ("user", "assistant", "system"):
+            messages.append({"role": role, "content": msg.get("content", "")})
+    messages.append({"role": "user", "content": user_message})
+
+    reply = None
+    qwen_models = [
+        "Qwen/Qwen2.5-72B-Instruct",
+        "Qwen/Qwen2.5-Coder-32B-Instruct"
+    ]
+
+    for model_name in qwen_models:
+        try:
+            payload = {
+                "model": model_name,
+                "messages": messages,
+                "max_tokens": 150,
+                "temperature": 0.3,
+                "top_p": 0.9
+            }
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=15)
+            if response.status_code == 200:
+                result = response.json()
+                choices = result.get("choices", [])
+                if choices and "message" in choices[0] and "content" in choices[0]["message"]:
+                    reply = choices[0]["message"]["content"].strip()
+                    break
+            else:
+                print(f"[AI Voice] HF model {model_name} returned {response.status_code}: {response.text[:150]}")
+        except Exception as err:
+            print(f"[AI Voice] Error calling {model_name}: {err}")
+
+    if not reply:
+        print("[AI Voice] Qwen cloud API unavailable, using offline clinical flow")
+        return _offline_flow(sid, history, user_message)
+
+    # Enforce YES/NO ending if missing from Qwen output
+    lower_reply = reply.lower()
+    has_yes_no = any(yn in lower_reply for yn in ["yes or no", "haan ya naa", "ha ya na", "हाँ या ना", "yes/no", "yes or"])
+    if not has_yes_no:
+        if any(w in lower_reply for w in ["dr.", "doctor", "department", "triage", "book", "token"]):
+            if _detect_language(reply) == "hi" or any(h in lower_reply for h in ["hai", "karein", "aapko", "chahiye"]):
+                reply += " Kya main ise book kar doon? Haan ya Naa kahein."
+            else:
+                reply += " Shall I book this for you? Say Yes or No."
 
     # Parse actions from reply
     action = None
@@ -332,14 +520,12 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
 
     if "[BOOK_TICKET]" in reply:
         action = "BOOK_TICKET"
-        # Parse: [BOOK_TICKET] dept_id=dep_card doctor_id=doc_3 priority=URGENT patient_name=Rahul
         parts_str = reply.split("[BOOK_TICKET]")[1].strip().split("\n")[0]
         action_data = {}
         for part in parts_str.split():
             if "=" in part:
                 k, v = part.split("=", 1)
                 action_data[k] = v
-        # Remove the action token from displayed reply
         clean_reply = reply.split("[BOOK_TICKET]")[0].strip()
         if not clean_reply:
             clean_reply = "Booking your appointment now..."
@@ -367,6 +553,25 @@ def generate_voice_response(session_id: str | None, user_message: str) -> dict:
         clean_reply = reply.split("[LIST_DOCTORS]")[0].strip()
         if not clean_reply:
             clean_reply = "Here are the available doctors..."
+
+    elif "[UPLOAD_ABHA_DOCUMENTS]" in reply or ("ABHA" in reply and "upload" in reply.lower()):
+        action = "UPLOAD_ABHA_DOCUMENTS"
+        action_data = {"ref_id": sid}
+
+    # If Qwen suggested a doctor/department without emitting the immediate tag, store as pending action
+    dept_matched = _match_department(clean_reply, lang)
+    if not action and dept_matched:
+        doc = _get_best_doctor(dept_matched)
+        doc_id = doc.get("id", "") if doc else ""
+        sess_data["pending_action"] = {
+            "action": "BOOK_TICKET",
+            "action_data": {
+                "dept_id": dept_matched,
+                "doctor_id": doc_id,
+                "priority": "EMERGENCY" if dept_matched == "dep_emg" else "STANDARD",
+                "patient_name": "Guest Patient"
+            }
+        }
 
     history.append({"role": "assistant", "content": clean_reply})
 

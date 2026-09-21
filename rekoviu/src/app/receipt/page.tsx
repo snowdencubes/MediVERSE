@@ -43,7 +43,7 @@ function ReceiptContent() {
     }
 
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:8000/api/v1`;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:4040/api/v1`;
 
     fetch(`${apiUrl}/queue/ticket/${id}`)
       .then(r => {

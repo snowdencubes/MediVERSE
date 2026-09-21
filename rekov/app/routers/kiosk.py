@@ -170,3 +170,27 @@ async def get_latest_whatsapp_session():
         return {"status": "waiting"}
     finally:
         db.close()
+
+@router.get("/telegram/latest")
+async def get_latest_telegram_session():
+    from app.core.database import SessionLocal, BotSession
+    import json
+    db = SessionLocal()
+    try:
+        # We query recent sessions that might have finished registration
+        sessions = db.query(BotSession).filter(BotSession.platform == "telegram").order_by(BotSession.updated_at.desc()).limit(10).all()
+        for session in sessions:
+            state = json.loads(session.state)
+            if state.get("step") == "done":
+                state["step"] = "consumed"
+                session.state = json.dumps(state)
+                db.commit()
+                return {
+                    "status": "found", 
+                    "phone_number": state.get("phone"),
+                    "name": state.get("name"),
+                    "symptoms": state.get("symptoms")
+                }
+        return {"status": "waiting"}
+    finally:
+        db.close()

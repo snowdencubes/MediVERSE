@@ -3,10 +3,10 @@ import { Department, Doctor, HealthComboPackage, TicketCreateRequest, QueueTicke
 function getApiBase(): string {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== 'undefined') {
-    const host = window.location.hostname || 'localhost';
-    return `http://${host}:8000/api/v1`;
+    const host = window.location.hostname;
+    return `http://${host}:4040/api/v1`;
   }
-  return 'http://localhost:8000/api/v1';
+  return 'http://localhost:4040/api/v1';
 }
 
 const getBaseUrl = () => getApiBase();
@@ -185,7 +185,7 @@ export async function notifyUpcoming(ticketId: string): Promise<{ status: string
 export async function chatWithVoiceAssistant(
   sessionId: string | null, 
   message: string
-): Promise<{session_id: string, reply: string, action: string | null, action_data: any}> {
+): Promise<{session_id: string, reply: string, action: string | null, action_data: any, audio_base64?: string}> {
   try {
     const baseUrl = getApiBase();
     const res = await fetch(`${baseUrl}/ai_voice/chat`, {

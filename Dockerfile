@@ -26,8 +26,8 @@ COPY data/ ./data/
 # Copy compiled frontend from Stage 1 into frontend_out directory
 COPY --from=frontend-builder /app/rekoviu/out ./frontend_out
 
-# Default port (Render sets $PORT dynamically)
-EXPOSE 10000
+EXPOSE 3000
+EXPOSE 4040
 
 # Run FastAPI serving API and static frontend UI
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-4040}"]

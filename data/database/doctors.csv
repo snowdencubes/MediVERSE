@@ -41,3 +41,11 @@ doc_39,Dr. Marcus Vance,dep_emg,Emergency Medicine & Trauma Director,Room EMG-1,
 doc_40,Dr. Elena Rostova,dep_emg,Acute Resuscitation Specialist,Room EMG-2,True,0,0.0,4.96,18,24 Hours,1234,24 Hours Shift
 doc_41,Dr. Sarah Jenkins,dep_emg,Triage & Critical Care Surgeon,Room EMG-3,True,0,0.0,4.94,15,24 Hours,1234,24 Hours Shift
 doc_42,Dr. Kiran Mazumdar,dep_gen,General Wellness & Immunity Specialist,Room 109,True,5,35.0,4.82,9,09:00,1234,09:00 AM - 05:00 PM
+doc_43,Dr. Aditi Sengupta,dep_gen,Internal Medicine & Metabolic Care,Room 110,True,7,35.0,4.89,13,08:30,1234,08:30 AM - 04:30 PM
+doc_44,Dr. Rohan Mehra,dep_card,Electrophysiologist & Pacemaker Expert,Room 203,True,14,75.0,4.94,17,09:00,1234,09:00 AM - 05:00 PM
+doc_45,Dr. Archana Trivedi,dep_ped,Pediatric Intensivist & Critical Care,Room 111,True,8,45.0,4.88,12,08:00,1234,08:00 AM - 04:00 PM
+doc_46,Dr. Siddharth Kaushik,dep_ortho,Arthroscopy & Knee Replacement Surgeon,Room 207,True,16,65.0,4.91,15,09:30,1234,09:30 AM - 05:30 PM
+doc_47,Dr. Niharika Bose,dep_neuro,Cognitive Neurology & Dementia Expert,Room 310,True,18,75.0,4.93,19,08:30,1234,08:30 AM - 04:30 PM
+doc_48,Dr. Manish Tyagi,dep_gastro,Pancreatic & Biliary Diseases Specialist,Room 414,True,15,65.0,4.86,14,09:00,1234,09:00 AM - 05:00 PM
+doc_49,Dr. Sangeeta Ahuja,dep_pulm,Critical Care & Ventilator Specialist,Room 415,True,10,60.0,4.9,16,08:00,1234,08:00 AM - 04:00 PM
+doc_50,Dr. Tapan Paul,dep_emg,Senior Trauma & Disaster Care Physician,Room EMG-4,True,0,0.0,4.97,21,24 Hours,1234,24 Hours Shift

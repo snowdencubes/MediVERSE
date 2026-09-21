@@ -16,11 +16,26 @@ class CurrencyResponse(BaseModel):
 class CurrencyUpdate(BaseModel):
     currency: str
 
+class HfTokenUpdate(BaseModel):
+    token: str
+
 @router.put("/currency")
 def set_currency(body: CurrencyUpdate):
     global _user_currency_override
     _user_currency_override = body.currency
     return {"status": "ok", "currency": body.currency}
+
+@router.put("/hf_token")
+def set_hf_token(body: HfTokenUpdate):
+    import os
+    os.environ["HF_API_TOKEN"] = body.token
+    os.environ["HF_TOKEN"] = body.token
+    return {"status": "ok"}
+
+@router.get("/hf_token")
+def get_hf_token():
+    import os
+    return {"token": os.environ.get("HF_API_TOKEN", os.environ.get("HF_TOKEN", ""))}
 
 @router.get("/currency", response_model=CurrencyResponse)
 def get_currency(request: Request):

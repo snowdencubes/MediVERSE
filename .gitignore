@@ -47,6 +47,8 @@ next-env.d.ts
 # Logs & Databases
 *.log
 *.db
+*backend_log.txt
 data/logs/
 data/backup_offline/
 backup/
+

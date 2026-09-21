@@ -1,16 +1,28 @@
 version: '3.8'
 
 services:
-  rekov-app:
-    build: 
-      context: .
+  # Backend API Service (FastAPI)
+  backend:
+    build:
+      context: ./rekov
       dockerfile: Dockerfile
     ports:
-      - "7860:7860"
+      - "4040:4040"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
-    networks:
-      - rekov_net
 
-networks:
-  rekov_net:
-    driver: bridge
+  # Frontend UI Service (MediVERSE Next.js App)
+  frontend:
+    build:
+      context: ./rekoviu
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4040/api/v1
+    depends_on:
+      - backend
+    restart: unless-stopped

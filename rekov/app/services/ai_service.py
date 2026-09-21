@@ -1,10 +1,19 @@
 import os
 import requests
 import json
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+_backend_env = Path(__file__).resolve().parents[3] / ".env"
+_root_env = Path(__file__).resolve().parents[4] / ".env"
+if _backend_env.exists():
+    load_dotenv(_backend_env)
+if _root_env.exists():
+    load_dotenv(_root_env)
 
 # IMPORTANT: Replace this placeholder with your actual Hugging Face token.
 # Since your repository is private, you can hardcode it here or use environment variables.
-HF_TOKEN = os.getenv("HF_TOKEN", "hf_Placeholder")
 
 WHISPER_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
 LLM_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
@@ -13,7 +22,8 @@ def transcribe_audio_hf(audio_bytes: bytes) -> str:
     """
     Sends the audio bytes to Hugging Face Whisper API for transcription.
     """
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    hf_token = os.getenv("HF_API_TOKEN", os.getenv("HF_TOKEN", "hf_Placeholder"))
+    headers = {"Authorization": f"Bearer {hf_token}"}
     response = requests.post(WHISPER_URL, headers=headers, data=audio_bytes)
     response.raise_for_status()
     result = response.json()
@@ -26,57 +36,72 @@ def transcribe_audio_hf(audio_bytes: bytes) -> str:
 
 def triage_symptoms_hf(transcript: str) -> dict:
     """
-    Sends the transcribed text to Hugging Face LLM (Llama 3) to parse the medical issue.
-    Expected output is a JSON containing:
+    Sends the transcribed text to Hugging Face Qwen LLM to parse the medical issue.
+    Returns a JSON containing:
     - issue: A concise medical description.
-    - department: A guessed department_id.
+    - department: A guessed department_id (e.g. Cardiology, General, Pediatrics, Orthopedics, Neurology, Dermatology).
     - is_emergency: Boolean.
     """
-    headers = {
-        "Authorization": f"Bearer {HF_TOKEN}",
-        "Content-Type": "application/json",
-    }
-    
-    prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are a medical triage AI. Parse the patient's spoken text and return a strict JSON object with exactly these fields:
-- issue (string): The concise medical issue.
-- department (string): The best guess department (e.g. Cardiology, General, Pediatrics, Orthopedics, Neurology, Dermatology).
-- is_emergency (boolean): true if it sounds like a life-threatening emergency (heart attack, severe bleeding, stroke), else false.
-Output ONLY valid JSON. Do not include markdown formatting or explanations.<|eot_id|><|start_header_id|>user<|end_header_id|>
-Patient text: {transcript}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
-
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 150,
-            "return_full_text": False,
-            "temperature": 0.1
-        }
-    }
-    
-    response = requests.post(LLM_URL, headers=headers, json=payload)
-    response.raise_for_status()
-    result = response.json()
-    
-    if isinstance(result, list) and len(result) > 0 and "generated_text" in result[0]:
-        text_output = result[0]["generated_text"].strip()
-    else:
-        text_output = str(result)
-        
-    # Clean up markdown code blocks if the LLM still returns them
-    text_output = text_output.replace("```json", "").replace("```", "").strip()
-    
-    try:
-        data = json.loads(text_output)
-        return {
-            "issue": data.get("issue", transcript),
-            "department": data.get("department", "General"),
-            "is_emergency": data.get("is_emergency", False)
-        }
-    except json.JSONDecodeError:
-        print("Failed to parse JSON from LLM:", text_output)
+    hf_token = os.getenv("HF_API_TOKEN", os.getenv("HUGGINGFACE_API_KEY", os.getenv("HF_TOKEN")))
+    if not hf_token:
         return {
             "issue": transcript,
             "department": "General",
             "is_emergency": False
         }
+
+    API_URL = "https://router.huggingface.co/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {hf_token}",
+        "Content-Type": "application/json",
+    }
+    
+    system_prompt = (
+        "You are a clinical triage AI. Parse the patient's spoken text and return a strict JSON object with exactly these fields:\n"
+        "- issue (string): The concise medical issue.\n"
+        "- department (string): Best department (Cardiology, General, Pediatrics, Orthopedics, Neurology, Dermatology, ENT, Gastroenterology).\n"
+        "- is_emergency (boolean): true if it is an acute emergency (chest pain, stroke, heavy bleeding), else false.\n"
+        "Return ONLY raw JSON, no markdown code blocks or explanations."
+    )
+
+    qwen_models = [
+        "Qwen/Qwen2.5-72B-Instruct",
+        "Qwen/Qwen2.5-Coder-32B-Instruct"
+    ]
+
+    for model in qwen_models:
+        try:
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": transcript}
+                ],
+                "max_tokens": 120,
+                "temperature": 0.1
+            }
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=12)
+            if response.status_code == 200:
+                result = response.json()
+                choices = result.get("choices", [])
+                if choices and "message" in choices[0] and "content" in choices[0]["message"]:
+                    text_output = choices[0]["message"]["content"].strip()
+                    text_output = text_output.replace("```json", "").replace("```", "").strip()
+                    data = json.loads(text_output)
+                    return {
+                        "issue": data.get("issue", transcript),
+                        "department": data.get("department", "General"),
+                        "is_emergency": bool(data.get("is_emergency", False))
+                    }
+        except Exception as e:
+            print(f"[Triage] Error calling {model}: {e}")
+
+    # Fallback heuristic
+    lower = transcript.lower()
+    is_emg = any(w in lower for w in ["emergency", "chest pain", "heart attack", "bleeding", "unconscious"])
+    dept = "Cardiology" if "chest" in lower or "heart" in lower else "General"
+    return {
+        "issue": transcript,
+        "department": dept,
+        "is_emergency": is_emg
+    }

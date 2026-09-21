@@ -376,6 +376,25 @@ body {
   100% { width: 100% }
 }
 
+@keyframes voicePulseRing {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+}
+
+.voice-pulse-ring {
+  animation: voicePulseRing 2s infinite ease-in-out;
+}
+
 /* ---- FOOTER ---- */
 .MediVERSE-footer {
   position: relative;

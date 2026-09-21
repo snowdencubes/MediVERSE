@@ -61,6 +61,17 @@ class WhatsappSession(Base):
     status = Column(String, default="pending") # pending, consumed
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class BotSession(Base):
+    __tablename__ = "bot_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, unique=True, index=True)
+    platform = Column(String)  # 'telegram' or 'whatsapp'
+    chat_id = Column(String, index=True)
+    state = Column(String, default="{}")  # JSON encoded state dict
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class DoctorCredentials(Base):
     __tablename__ = "doctor_credentials"
 
@@ -132,5 +143,17 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    finally:
+        db.close()
+
+def purge_stale_sessions(max_age_hours: int = 24):
+    """Purges BotSession rows that haven't been updated in max_age_hours."""
+    db = SessionLocal()
+    try:
+        cutoff = datetime.utcnow() - timedelta(hours=max_age_hours)
+        db.query(BotSession).filter(BotSession.updated_at < cutoff).delete()
+        db.commit()
+    except Exception as e:
+        print(f"Failed to purge stale sessions: {e}")
     finally:
         db.close()

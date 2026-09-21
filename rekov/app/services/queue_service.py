@@ -11,6 +11,9 @@ from app.core.database import SessionLocal, TicketModel
 
 import csv
 import os
+import threading
+from app.services.pdf_service import generate_receipts
+from app.services.storage_service import upload_receipt
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "database")
 
@@ -218,7 +221,20 @@ class QueueService:
                 created_at=now.strftime("%Y-%m-%d %H:%M:%S")
             )
 
-            return self._model_to_schema(db_ticket)
+            t = self._model_to_schema(db_ticket)
+
+            # Fire and forget PDF Generation + Supabase Upload
+            def _process_receipts(tck: QueueTicket):
+                try:
+                    user_path, our_path = generate_receipts(tck)
+                    upload_receipt(user_path, "receipts", f"user/{tck.ticket_id}_user.pdf")
+                    upload_receipt(our_path, "receipts", f"our/{tck.ticket_id}_our.pdf")
+                except Exception as e:
+                    print(f"Receipt processing failed: {e}")
+
+            threading.Thread(target=_process_receipts, args=(t,), daemon=True).start()
+
+            return t
         finally:
             db.close()
 

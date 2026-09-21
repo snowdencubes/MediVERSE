@@ -68,6 +68,7 @@ export interface QueueTicket {
   doctor_name: string;
   room_number: string;
   patient_name: string;
+  patient_phone?: string;
   status: 'WAITING' | 'NOW_CALLING' | 'IN_CONSULTATION' | 'COMPLETED' | 'CANCELLED';
   priority_level: 'EMERGENCY' | 'URGENT' | 'STANDARD';
   triage_score: number;

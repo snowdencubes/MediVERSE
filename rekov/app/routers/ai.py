@@ -5,8 +5,15 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from app.core.database import SessionLocal, TicketModel
 
+from pathlib import Path
+
 load_dotenv()
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+_backend_env = Path(__file__).resolve().parents[3] / ".env"
+_root_env = Path(__file__).resolve().parents[4] / ".env"
+if _backend_env.exists():
+    load_dotenv(_backend_env)
+if _root_env.exists():
+    load_dotenv(_root_env)
 
 router = APIRouter(prefix="/ai", tags=["AI Summaries"])
 
@@ -33,28 +40,41 @@ def get_ai_summary(ticket_id: str):
             f"Summary:"
         )
 
-        if not HF_API_TOKEN:
+        hf_api_token = os.getenv("HF_API_TOKEN", os.getenv("HUGGINGFACE_API_KEY", os.getenv("HF_TOKEN")))
+        if not hf_api_token:
             return AISummaryResponse(summary="[Offline Mode] Patient has a triage score of " + str(ticket.triage_score) + " and selected " + str(ticket.combos_selected))
 
-        # Call Hugging Face Qwen model
-        headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
-        # We can use Qwen2.5-7B-Instruct or a similar lightweight instruction model
-        API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-1.5B-Instruct"
+        API_URL = "https://router.huggingface.co/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {hf_api_token}",
+            "Content-Type": "application/json"
+        }
         
-        response = requests.post(API_URL, headers=headers, json={
-            "inputs": prompt,
-            "parameters": {"max_new_tokens": 50, "temperature": 0.3},
-            "options": {"wait_for_model": True}
-        })
+        qwen_models = [
+            "Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-Coder-32B-Instruct"
+        ]
 
-        if response.status_code == 200:
-            result = response.json()
-            # Parse the generated text
-            if isinstance(result, list) and "generated_text" in result[0]:
-                full_text = result[0]["generated_text"]
-                # Extract only the summary part
-                summary = full_text.split("Summary:")[-1].strip()
-                return AISummaryResponse(summary=summary)
+        for model_name in qwen_models:
+            try:
+                response = requests.post(API_URL, headers=headers, json={
+                    "model": model_name,
+                    "messages": [
+                        {"role": "system", "content": "You are a medical assistant. Provide a very brief, professional 2-sentence clinical summary for a doctor."},
+                        {"role": "user", "content": f"Patient Name: {ticket.patient_name}\nTriage Score: {ticket.triage_score}\nCombos Selected: {ticket.combos_selected}\nPriority: {ticket.priority_level}"}
+                    ],
+                    "max_tokens": 60,
+                    "temperature": 0.2
+                }, timeout=10)
+
+                if response.status_code == 200:
+                    result = response.json()
+                    choices = result.get("choices", [])
+                    if choices and "message" in choices[0] and "content" in choices[0]["message"]:
+                        summary = choices[0]["message"]["content"].strip()
+                        return AISummaryResponse(summary=summary)
+            except Exception as e:
+                print(f"[AI Summary] Error with {model_name}: {e}")
             
         # Fallback if API fails or model is loading
         return AISummaryResponse(summary=f"Patient {ticket.patient_name} requires attention for {ticket.combos_selected}. Triage level: {ticket.priority_level}.")

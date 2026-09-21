@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { speakBilingualText } from '@/services/tts';
 
 const FEATURE_SLIDES = [
   {
@@ -56,16 +57,30 @@ export default function Home() {
   const [slideIdx, setSlideIdx] = useState(0);
   const [transcript, setTranscript] = useState('');
   const [wakePromptOpen, setWakePromptOpen] = useState(false);
+  const [lastSpokenPhrase, setLastSpokenPhrase] = useState('');
+  const [isHearingSound, setIsHearingSound] = useState(false);
+
+  const recognitionRef = useRef<any>(null);
+  const wakePromptOpenRef = useRef(false);
+  const isSpeakingTTSRef = useRef(false);
+  const shouldListenRef = useRef(true);
+  const lastSpokenPhraseRef = useRef('');
+  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const [wakeWords, setWakeWords] = useState<string[]>([
-    'wake up', 'hello', 'jaag jao', 'jaag jao prashant', 'wake up prashant', 'hey prashant', 'prashant'
+    'wake up', 'hello', 'jaag jao', 'jaag jao prashant', 'wake up prashant', 'hey prashant', 'prashant', 'mediverse', 'rekov'
   ]);
   const [confirmWords, setConfirmWords] = useState<string[]>([
-    'yes', 'haan', 'ha', 'sure', 'continue', 'ok', 'okay'
+    'yes', 'haan', 'ha', 'sure', 'continue', 'ok', 'okay', 'proceed', 'help', 'assist', 'aage badho', 'chalo'
   ]);
+  const dismissWords = [
+    'no', 'nahi', 'nahin', 'cancel', 'stop', 'mat karo', 'ruko', 'back', 'close', 'dismiss', 'leave'
+  ];
 
+  // Load keywords dynamically from backend
   useEffect(() => {
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:8000/api/v1`;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:4040/api/v1`;
     fetch(`${apiUrl}/ai_voice/keywords`)
       .then(r => r.json())
       .then(d => {
@@ -75,34 +90,171 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
+  // Update refs when state changes so event listeners always have fresh state without re-binding
+  useEffect(() => {
+    wakePromptOpenRef.current = wakePromptOpen;
+  }, [wakePromptOpen]);
+
+  const speakPrompt = () => {
+    isSpeakingTTSRef.current = true;
+    try {
+      if (recognitionRef.current) recognitionRef.current.stop();
+    } catch (e) {}
+
+    speakBilingualText({
+      text: "Did you say something? Say Yes or Proceed to continue, or No to cancel. क्या आपने कुछ कहा? आगे बढ़ने के लिए Yes कहें।",
+      lang: lang === 'HI' ? 'hi-IN' : 'en-IN',
+      onStart: () => {
+        isSpeakingTTSRef.current = true;
+      },
+      onEnd: () => {
+        isSpeakingTTSRef.current = false;
+        safeStart();
+      },
+      onError: () => {
+        isSpeakingTTSRef.current = false;
+        safeStart();
+      }
+    });
+  };
+
+  const safeStart = () => {
+    if (!shouldListenRef.current || isSpeakingTTSRef.current) return;
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+      }
+    } catch (e: any) {
+      // Ignore if already started
+    }
+  };
+
+  // 24/7 Hands-Free Speech Recognition Listener
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return;
 
+    shouldListenRef.current = true;
     const recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-IN';
+    recognitionRef.current = recognition;
+
+    const selfEchoPhrases = [
+      'did you say something', 'proceed yes or no', 'क्या आपने कुछ कहा', 'आगे बढ़ने के लिए yes कहें',
+      'say yes or proceed', 'to continue or no to cancel'
+    ];
+
+    recognition.onsoundstart = () => setIsHearingSound(true);
+    recognition.onsoundend = () => setIsHearingSound(false);
 
     recognition.onresult = (event: any) => {
+      if (isSpeakingTTSRef.current) return;
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const text = event.results[i][0].transcript.toLowerCase();
-        const detectedWake = wakeWords.some(w => text.includes(w.toLowerCase()));
-        if (detectedWake) {
-          setWakePromptOpen(true);
+        const text = event.results[i][0].transcript.trim();
+        if (!text) continue;
+        const lower = text.toLowerCase();
+
+        // Ignore echo of system voice
+        if (selfEchoPhrases.some(phrase => lower.includes(phrase))) {
+          continue;
         }
-        const detectedConfirm = confirmWords.some(c => text.includes(c.toLowerCase()));
-        if (wakePromptOpen && detectedConfirm) {
+
+        setTranscript(text);
+
+        // CASE 1: Confirmation Prompt is ALREADY open
+        if (wakePromptOpenRef.current) {
+          const isConfirm = confirmWords.some(c => lower.includes(c.toLowerCase()));
+          const isDismiss = dismissWords.some(d => lower.includes(d.toLowerCase()));
+
+          if (isConfirm) {
+            if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+            setWakePromptOpen(false);
+            wakePromptOpenRef.current = false;
+            sessionStorage.setItem('initial_voice_query', lastSpokenPhraseRef.current || text);
+            router.push('/voice-assistant');
+            return;
+          } else if (isDismiss) {
+            if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+            setWakePromptOpen(false);
+            wakePromptOpenRef.current = false;
+            window.speechSynthesis.cancel();
+            return;
+          }
+        }
+
+        // CASE 2: Confirmation Prompt is NOT open yet
+        // Check for direct medical queries / symptom phrases that can jump straight to assistant
+        const directPhrases = [
+          'doctor', 'fever', 'bukhar', 'headache', 'chest pain', 'heart', 'appointment', 'ticket',
+          'check in', 'checkin', 'emergency', 'asthma', 'pediatric', 'dard', 'pain', 'vomit'
+        ];
+        const isDirect = directPhrases.some(dp => lower.includes(dp)) || wakeWords.some(w => lower.includes(w.toLowerCase()));
+
+        if (isDirect) {
+          sessionStorage.setItem('initial_voice_query', text);
           router.push('/voice-assistant');
+          return;
+        }
+
+        // Ambient speech heard from someone nearby: Ask "Did you say something? Proceed yes or no?"
+        if (!wakePromptOpenRef.current && text.length > 2) {
+          lastSpokenPhraseRef.current = text;
+          setLastSpokenPhrase(text);
+          setWakePromptOpen(true);
+          wakePromptOpenRef.current = true;
+          speakPrompt();
+
+          // Auto-close if no answer in 10s
+          if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+          autoCloseTimerRef.current = setTimeout(() => {
+            if (wakePromptOpenRef.current) {
+              setWakePromptOpen(false);
+              wakePromptOpenRef.current = false;
+            }
+          }, 10000);
         }
       }
     };
 
-    try { recognition.start(); } catch (e) {}
+    recognition.onerror = (event: any) => {
+      if (event.error !== 'not-allowed' && shouldListenRef.current && !isSpeakingTTSRef.current) {
+        setTimeout(safeStart, 1000);
+      }
+    };
 
-    return () => { try { recognition.stop(); } catch (e) {} };
-  }, [wakeWords, confirmWords, wakePromptOpen, router]);
+    recognition.onend = () => {
+      if (shouldListenRef.current && !isSpeakingTTSRef.current) {
+        setTimeout(safeStart, 400);
+      }
+    };
+
+    // Watchdog Timer: keeps listening alive 24/7
+    const watchdog = setInterval(() => {
+      if (shouldListenRef.current && !isSpeakingTTSRef.current) {
+        safeStart();
+      }
+    }, 3000);
+
+    // Kiosk touch-to-unlock audio/mic
+    const handleUnlock = () => safeStart();
+    window.addEventListener('touchstart', handleUnlock, { passive: true });
+    window.addEventListener('click', handleUnlock, { passive: true });
+
+    safeStart();
+
+    return () => {
+      shouldListenRef.current = false;
+      clearInterval(watchdog);
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+      window.removeEventListener('touchstart', handleUnlock);
+      window.removeEventListener('click', handleUnlock);
+      try { recognition.stop(); } catch (e) {}
+    };
+  }, [router, wakeWords, confirmWords]);
 
   const prevSlide = () => setSlideIdx(i => (i - 1 + FEATURE_SLIDES.length) % FEATURE_SLIDES.length);
   const nextSlide = () => setSlideIdx(i => (i + 1) % FEATURE_SLIDES.length);
@@ -138,24 +290,42 @@ export default function Home() {
 
 
   useEffect(() => {
-    const pollWhatsapp = async () => {
+    const pollCheckin = async () => {
       try {
         const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:8000/api/v1`;
-        const res = await fetch(`${apiUrl}/kiosk/whatsapp/latest`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${host}:4040/api/v1`;
+        
+        // Check WhatsApp
+        let res = await fetch(`${apiUrl}/kiosk/whatsapp/latest`);
         if (res.ok) {
-          const data = await res.json();
+          let data = await res.json();
           if (data.status === 'found' && data.phone_number) {
             localStorage.setItem('whatsapp_phone', data.phone_number);
             setTranscript(`${t('understood')}: WhatsApp Check-In Detected`);
             setTimeout(() => router.push('/kiosk'), 1500);
+            return;
+          }
+        }
+
+        // Check Telegram
+        res = await fetch(`${apiUrl}/kiosk/telegram/latest`);
+        if (res.ok) {
+          let data = await res.json();
+          if (data.status === 'found' && data.phone_number) {
+            localStorage.setItem('whatsapp_phone', data.phone_number);
+            if (data.name) localStorage.setItem('telegram_name', data.name);
+            if (data.symptoms) localStorage.setItem('telegram_symptoms', data.symptoms);
+
+            setTranscript(`${t('understood')}: Telegram Check-In Detected`);
+            setTimeout(() => router.push('/kiosk'), 1500);
+            return;
           }
         }
       } catch (err) {
         // silently fail polling
       }
     };
-    const interval = setInterval(pollWhatsapp, 10000);
+    const interval = setInterval(pollCheckin, 10000);
     return () => clearInterval(interval);
   }, [router, t]);
 
@@ -290,36 +460,76 @@ export default function Home() {
         )}
 
         {/* Wake Phrase Overlay */}
+        {/* Voice Confirmation Overlay */}
         {wakePromptOpen && (
           <div style={{
-            position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)',
+            position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.88)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: 24, textAlign: 'center', backdropFilter: 'blur(10px)'
+            padding: 24, textAlign: 'center', backdropFilter: 'blur(12px)'
           }}>
-            <h2 style={{ fontFamily: "'Bebas Neue'", fontSize: 42, color: '#fff', letterSpacing: '0.05em', marginBottom: 12 }}>
-              WAKE PHRASE DETECTED
+            <div style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: 'rgba(217,22,54,0.15)', border: '2px solid #D91636',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 20, boxShadow: '0 0 30px rgba(217,22,54,0.4)',
+              animation: 'pulse 1.5s infinite'
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D91636" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="2" width="6" height="11" rx="3"></rect>
+                <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+                <line x1="8" y1="22" x2="16" y2="22"></line>
+              </svg>
+            </div>
+
+            <h2 style={{ fontFamily: "'Bebas Neue'", fontSize: 'clamp(32px, 5vw, 48px)', color: '#fff', letterSpacing: '0.05em', marginBottom: 8 }}>
+              DID YOU SAY SOMETHING?
             </h2>
-            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 18, color: '#aaa', marginBottom: 28, maxWidth: 400 }}>
-              Say &quot;YES&quot; or &quot;HAAN&quot; or tap below to continue with MediVERSE Voice Assistant.
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 2vw, 22px)', color: '#D91636', fontWeight: 600, marginBottom: 8 }}>
+              क्या आपने कुछ कहा?
             </p>
-            <div style={{ display: 'flex', gap: 16 }}>
+
+            {lastSpokenPhrase && (
+              <div style={{
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
+                padding: '8px 16px', borderRadius: 8, marginBottom: 16, maxWidth: 440
+              }}>
+                <p style={{ fontFamily: "'Space Grotesk'", fontSize: 14, color: '#aaa', margin: 0, fontStyle: 'italic' }}>
+                  Heard: &quot;{lastSpokenPhrase}&quot;
+                </p>
+              </div>
+            )}
+
+            <p style={{ fontFamily: "'Space Grotesk'", fontSize: 'clamp(14px, 1.4vw, 18px)', color: '#ccc', marginBottom: 28, maxWidth: 480, lineHeight: 1.5 }}>
+              Hands-Free Active: Speak aloud <strong style={{ color: '#fff' }}>&quot;YES&quot;</strong> or <strong style={{ color: '#fff' }}>&quot;PROCEED&quot;</strong> to start, or <strong style={{ color: '#fff' }}>&quot;NO&quot;</strong> to cancel.
+            </p>
+
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
               <button
-                onClick={() => router.push('/voice-assistant')}
+                onClick={() => {
+                  setWakePromptOpen(false);
+                  sessionStorage.setItem('initial_voice_query', lastSpokenPhrase || 'Hello');
+                  router.push('/voice-assistant');
+                }}
                 style={{
                   padding: '14px 28px', background: '#D91636', color: '#fff', border: 'none',
-                  fontFamily: "'Bebas Neue'", fontSize: 24, letterSpacing: '0.05em', cursor: 'pointer'
+                  fontFamily: "'Bebas Neue'", fontSize: 22, letterSpacing: '0.05em', cursor: 'pointer',
+                  borderRadius: 6, boxShadow: '0 4px 16px rgba(217,22,54,0.4)'
                 }}
               >
-                CONTINUE TO VOICE ASSISTANT
+                PROCEED (SAY &quot;YES&quot;)
               </button>
               <button
-                onClick={() => setWakePromptOpen(false)}
+                onClick={() => {
+                  setWakePromptOpen(false);
+                  if (typeof window !== 'undefined') window.speechSynthesis.cancel();
+                }}
                 style={{
                   padding: '14px 24px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
-                  fontFamily: "'Space Grotesk'", fontSize: 16, cursor: 'pointer'
+                  fontFamily: "'Space Grotesk'", fontSize: 16, cursor: 'pointer', borderRadius: 6
                 }}
               >
-                CANCEL
+                CANCEL (SAY &quot;NO&quot;)
               </button>
             </div>
           </div>

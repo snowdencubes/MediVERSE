@@ -3,12 +3,33 @@ import os
 import sys
 import threading
 import time
+import re
 import io
 from logger import sys_logger
 
 
 _ERROR_KEYWORDS = {"traceback", "error:", "exception:", "failed", "fatal", "critical"}
 _INFO_KEYWORDS = {"info:", "started", "startup", "running on", "waiting for", "complete", "ready"}
+
+
+def _kill_port(port: int):
+    """Kill any process listening on the given port (Windows only)."""
+    try:
+        result = subprocess.run(
+            ["netstat", "-ano"], capture_output=True, text=True, timeout=5
+        )
+        for line in result.stdout.splitlines():
+            if f":{port}" in line and "LISTENING" in line:
+                parts = line.split()
+                pid = parts[-1]
+                if pid.isdigit() and int(pid) > 0:
+                    subprocess.run(
+                        ["taskkill", "/F", "/T", "/PID", pid],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    )
+                    sys_logger.warning(f"[CLEANUP] Killed stale process PID {pid} on port {port}")
+    except Exception:
+        pass
 
 
 def read_stream(stream, name, is_stderr=False):
@@ -31,9 +52,11 @@ def run_process(cmd, cwd, name):
     """Launch a subprocess and stream its output to the logger."""
     sys_logger.info(f"[{name}] Spawning: {' '.join(cmd)}")
     try:
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
         process = subprocess.Popen(
             cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            env=os.environ.copy(),
+            env=env,
         )
         threading.Thread(target=read_stream, args=(process.stdout, name, False), daemon=True).start()
         threading.Thread(target=read_stream, args=(process.stderr, name, True), daemon=True).start()
@@ -52,6 +75,12 @@ def main():
     sys_logger.info("  Backend + Frontend launched together.")
     sys_logger.info("")
 
+    # ---- 0. Kill stale processes on our ports ----
+    sys_logger.info("[CLEANUP] Freeing ports 3000 & 4040...")
+    _kill_port(3000)
+    _kill_port(4040)
+    time.sleep(0.5)
+
     root_dir = os.path.dirname(os.path.abspath(__file__))
     backend_dir = os.path.join(root_dir, "rekov")
     frontend_dir = os.path.join(root_dir, "rekoviu")
@@ -62,6 +91,7 @@ def main():
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-r", "requirements.txt", "--quiet"],
             cwd=backend_dir, check=True,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
         sys_logger.success("[SETUP] Backend dependencies ready.")
     except subprocess.CalledProcessError as e:
@@ -78,7 +108,7 @@ def main():
         sys.exit(1)
 
     # ---- 3. Launch both services ----
-    backend_cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    backend_cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4040"]
     frontend_cmd = ["cmd", "/c", "npm", "run", "dev"]
 
     backend_process = run_process(backend_cmd, backend_dir, "API")
@@ -90,7 +120,7 @@ def main():
     sys_logger.info("")
     sys_logger.info("  -> http://localhost:3000         (Application)")
     sys_logger.info("  -> http://localhost:3000/kiosk    (Self-Service)")
-    sys_logger.info("  -> http://localhost:8000/docs     (API Docs)")
+    sys_logger.info("  -> http://localhost:4040/docs     (API Docs)")
     sys_logger.info("")
     sys_logger.info("  Press Ctrl+C to stop.")
     sys_logger.info("")
@@ -110,7 +140,10 @@ def main():
     finally:
         sys_logger.info("Terminating child processes...")
         if backend_process and backend_process.poll() is None:
-            backend_process.terminate()
+            subprocess.run(
+                ["taskkill", "/F", "/T", "/PID", str(backend_process.pid)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
         if frontend_process and frontend_process.poll() is None:
             subprocess.run(
                 ["taskkill", "/F", "/T", "/PID", str(frontend_process.pid)],

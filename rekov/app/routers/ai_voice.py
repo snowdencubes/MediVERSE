@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional, Any
+import base64
 from app.services.ai_voice.voice_service import generate_voice_response, get_session_history
+from app.services.ai_voice.elevenlabs_service import generate_tts_audio
 
 router = APIRouter(prefix="/ai_voice", tags=["AI Voice Interface"])
 
@@ -18,6 +20,7 @@ class ChatResponse(BaseModel):
     reply: str
     action: Optional[str] = None
     action_data: Optional[dict] = None
+    audio_base64: Optional[str] = None
 
 class HistoryResponse(BaseModel):
     session_id: str
@@ -26,13 +29,22 @@ class HistoryResponse(BaseModel):
 @router.post("/chat", response_model=ChatResponse)
 @router.post("/chat/", response_model=ChatResponse)
 def chat_with_voice_assistant(request: ChatRequest):
-    """Send a message to the AI voice assistant. Returns reply + any actions."""
+    """Send a message to the AI voice assistant. Returns reply + any actions + TTS audio."""
     result = generate_voice_response(request.session_id, request.message)
+    
+    # Generate ElevenLabs TTS
+    audio_b64 = None
+    if result.get("reply"):
+        audio_bytes = generate_tts_audio(result["reply"])
+        if audio_bytes:
+            audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
+            
     return ChatResponse(
         session_id=result["session_id"],
         reply=result["reply"],
         action=result.get("action"),
-        action_data=result.get("action_data")
+        action_data=result.get("action_data"),
+        audio_base64=audio_b64
     )
 
 @router.get("/history/{session_id}", response_model=HistoryResponse)

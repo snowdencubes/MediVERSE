@@ -5,14 +5,43 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.routers import kiosk, queue, doctor, health, auth, receptionist
-from app.core.database import init_db
+import threading
+import time
+from app.core.database import init_db, purge_stale_sessions
 from app.services.sync_service import start_sync_service
+
+def purge_worker():
+    while True:
+        purge_stale_sessions(max_age_hours=24)
+        time.sleep(3600)  # run every hour
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    init_db()
-    start_sync_service()
+    print("\n--- MediVERSE Backend Startup Sequence ---")
+    
+    # Startup Database
+    try:
+        init_db()
+        print("[SUCCESS] Database initialized.")
+    except Exception as e:
+        print(f"[FAILED] Database initialization: {e}")
+
+    # Startup Sync Service
+    try:
+        start_sync_service()
+        print("[SUCCESS] Offline Sync Service started.")
+    except Exception as e:
+        print(f"[FAILED] Offline Sync Service: {e}")
+    
+    # Start session purger
+    try:
+        t = threading.Thread(target=purge_worker, daemon=True)
+        t.start()
+        print("[SUCCESS] Session Purge Daemon started.")
+    except Exception as e:
+        print(f"[FAILED] Session Purge Daemon: {e}")
+        
+    print("------------------------------------------\n")
     yield
     # Shutdown
 
@@ -36,6 +65,8 @@ app.add_middleware(
 
 # Include Routers
 from app.routers import kiosk, queue, doctor, health, auth, receptionist, settings as settings_router, ai, ai_voice
+from rekovbot.telegram.router import router as telegram_router
+from rekovbot.whatsapp.router import router as whatsapp_router
 
 app.include_router(health.router, prefix=settings.API_V1_STR)
 app.include_router(kiosk.router, prefix=settings.API_V1_STR)
@@ -46,20 +77,17 @@ app.include_router(receptionist.router, prefix=f"{settings.API_V1_STR}/reception
 app.include_router(settings_router.router, prefix=f"{settings.API_V1_STR}/settings")
 app.include_router(ai.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(ai_voice.router, prefix=f"{settings.API_V1_STR}")
+app.include_router(telegram_router, prefix=f"{settings.API_V1_STR}/bot")
+app.include_router(whatsapp_router, prefix=f"{settings.API_V1_STR}/bot")
 
-import os
-from fastapi.staticfiles import StaticFiles
-
-if os.path.isdir("frontend_out"):
-    app.mount("/", StaticFiles(directory="frontend_out", html=True), name="frontend")
-else:
-    @app.get("/")
-    def root():
-        return {
-            "message": "Welcome to rekov API (Frontend missing)",
-            "docs": "/docs",
-            "health": f"{settings.API_V1_STR}/health"
-        }
+@app.get("/")
+def root():
+    return {
+        "message": "Welcome to MediVERSE API",
+        "docs": "/docs",
+        "health": f"{settings.API_V1_STR}/health",
+        "frontend_url": "http://localhost:3000"
+    }
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=4040, reload=True)
