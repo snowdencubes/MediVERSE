@@ -2,3 +2,4 @@ ticket_id,token_number,patient_name,patient_phone,department,doctor,room,total_f
 tck-87daf2d0,GEN-101,raju poaad,N/A,General Medicine,Dr. Priya Sharma,Room 102,35.0,STANDARD,1,,2026-09-10 13:34:50
 tck-dd770b2e,ORTH-101,Ramesh Kumar,9876543210,Orthopedics,Dr. Amit Patel,Room 201,80.0,STANDARD,1,,2026-09-10 13:56:22
 tck-22a29ba3,GEN-101,Test Patient,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-10 14:18:28
+tck-1f4f6269,GEN-101,Unknown,N/A,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-21 20:12:30

@@ -59,6 +59,8 @@ export default function Home() {
   const [wakePromptOpen, setWakePromptOpen] = useState(false);
   const [lastSpokenPhrase, setLastSpokenPhrase] = useState('');
   const [isHearingSound, setIsHearingSound] = useState(false);
+  const [micUnlocked, setMicUnlocked] = useState(false);
+  const [isActivelyListening, setIsActivelyListening] = useState(false);
 
   const recognitionRef = useRef<any>(null);
   const wakePromptOpenRef = useRef(false);
@@ -129,6 +131,13 @@ export default function Home() {
     }
   };
 
+  // Mic activation handler — called once from the overlay or any user gesture
+  const unlockMic = () => {
+    if (micUnlocked) return;
+    setMicUnlocked(true);
+    safeStart();
+  };
+
   // 24/7 Hands-Free Speech Recognition Listener
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -147,7 +156,7 @@ export default function Home() {
       'say yes or proceed', 'to continue or no to cancel'
     ];
 
-    recognition.onsoundstart = () => setIsHearingSound(true);
+    recognition.onsoundstart = () => { setIsHearingSound(true); setIsActivelyListening(true); };
     recognition.onsoundend = () => setIsHearingSound(false);
 
     recognition.onresult = (event: any) => {
@@ -221,12 +230,14 @@ export default function Home() {
     };
 
     recognition.onerror = (event: any) => {
+      setIsActivelyListening(false);
       if (event.error !== 'not-allowed' && shouldListenRef.current && !isSpeakingTTSRef.current) {
         setTimeout(safeStart, 1000);
       }
     };
 
     recognition.onend = () => {
+      setIsActivelyListening(false);
       if (shouldListenRef.current && !isSpeakingTTSRef.current) {
         setTimeout(safeStart, 400);
       }
@@ -239,12 +250,15 @@ export default function Home() {
       }
     }, 3000);
 
-    // Kiosk touch-to-unlock audio/mic
-    const handleUnlock = () => safeStart();
+    // Kiosk touch-to-unlock audio/mic — every click/touch also unlocks
+    const handleUnlock = () => {
+      if (!micUnlocked) setMicUnlocked(true);
+      safeStart();
+    };
     window.addEventListener('touchstart', handleUnlock, { passive: true });
     window.addEventListener('click', handleUnlock, { passive: true });
 
-    safeStart();
+    // DON'T call safeStart() here — wait for user gesture via overlay or click
 
     return () => {
       shouldListenRef.current = false;
@@ -254,7 +268,7 @@ export default function Home() {
       window.removeEventListener('click', handleUnlock);
       try { recognition.stop(); } catch (e) {}
     };
-  }, [router, wakeWords, confirmWords]);
+  }, [router, wakeWords, confirmWords, micUnlocked]);
 
   const prevSlide = () => setSlideIdx(i => (i - 1 + FEATURE_SLIDES.length) % FEATURE_SLIDES.length);
   const nextSlide = () => setSlideIdx(i => (i + 1) % FEATURE_SLIDES.length);
@@ -341,6 +355,87 @@ export default function Home() {
   return (
     <>
       <MediVERSENav currentModule="home" />
+
+      {/* Mic Activation Overlay — one tap unlocks 24/7 listening */}
+      {!micUnlocked && (
+        <div
+          onClick={unlockMic}
+          onTouchStart={unlockMic}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: 24, textAlign: 'center'
+          }}
+        >
+          <div style={{
+            width: 120, height: 120, borderRadius: '50%',
+            background: 'rgba(217,22,54,0.12)', border: '3px solid #D91636',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 28, boxShadow: '0 0 60px rgba(217,22,54,0.3)',
+            animation: 'pulse 1.8s ease-in-out infinite'
+          }}>
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#D91636" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="2" width="6" height="11" rx="3"></rect>
+              <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+              <line x1="8" y1="22" x2="16" y2="22"></line>
+            </svg>
+          </div>
+          <h2 style={{
+            fontFamily: "'Bebas Neue'", fontSize: 'clamp(36px, 6vw, 56px)',
+            color: '#fff', letterSpacing: '0.08em', marginBottom: 12, lineHeight: 1
+          }}>
+            TAP TO ACTIVATE VOICE
+          </h2>
+          <p style={{
+            fontFamily: "'Space Grotesk'", fontSize: 'clamp(16px, 2vw, 22px)',
+            color: '#D91636', fontWeight: 600, marginBottom: 6
+          }}>
+            आवाज़ सक्रिय करने के लिए टैप करें
+          </p>
+          <p style={{
+            fontFamily: "'Space Grotesk'", fontSize: 'clamp(13px, 1.4vw, 17px)',
+            color: 'rgba(255,255,255,0.5)', maxWidth: 420, lineHeight: 1.5, marginTop: 16
+          }}>
+            One tap enables hands-free listening. The kiosk will hear your voice 24/7.
+          </p>
+        </div>
+      )}
+
+      {/* Floating Mic Status Indicator */}
+      {micUnlocked && !wakePromptOpen && (
+        <div style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 9998,
+          display: 'flex', alignItems: 'center', gap: 10,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)',
+          border: `1px solid ${isActivelyListening ? 'rgba(217,22,54,0.6)' : 'rgba(255,255,255,0.15)'}`,
+          padding: '10px 18px', borderRadius: 32,
+          boxShadow: isActivelyListening ? '0 0 20px rgba(217,22,54,0.3)' : 'none',
+          transition: 'all 0.3s ease'
+        }}>
+          <div style={{
+            width: 12, height: 12, borderRadius: '50%',
+            background: isActivelyListening ? '#D91636' : isHearingSound ? '#F5A623' : '#4CD964',
+            boxShadow: isActivelyListening ? '0 0 8px rgba(217,22,54,0.8)' : 'none',
+            animation: isActivelyListening ? 'pulse 1s infinite' : 'none'
+          }} />
+          <span style={{
+            fontFamily: "'Space Grotesk'", fontSize: 13, fontWeight: 600, letterSpacing: '0.06em',
+            color: isActivelyListening ? '#D91636' : 'rgba(255,255,255,0.6)',
+            textTransform: 'uppercase'
+          }}>
+            {isActivelyListening ? (isHearingSound ? 'HEARING VOICE...' : 'LISTENING 24/7') : 'MIC READY'}
+          </span>
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.06); opacity: 0.85; }
+        }
+      `}} />
 
       <main className="relative z-10 min-h-screen w-full flex flex-col justify-start md:justify-center items-center px-4 pt-24 md:pt-32 pb-16 text-center overflow-x-hidden overflow-y-auto">
 

@@ -51,4 +51,6 @@ next-env.d.ts
 data/logs/
 data/backup_offline/
 backup/
+*receipts_user/
+*receiptsour/
 
