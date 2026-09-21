@@ -48,15 +48,16 @@ def read_stream(stream, name, is_stderr=False):
     stream.close()
 
 
-def run_process(cmd, cwd, name):
+def run_process(cmd, cwd, name, shell=False):
     """Launch a subprocess and stream its output to the logger."""
-    sys_logger.info(f"[{name}] Spawning: {' '.join(cmd)}")
+    cmd_str = cmd if isinstance(cmd, str) else ' '.join(cmd)
+    sys_logger.info(f"[{name}] Spawning: {cmd_str}")
     try:
         env = os.environ.copy()
         env["PYTHONUNBUFFERED"] = "1"
         process = subprocess.Popen(
             cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            env=env,
+            env=env, shell=shell
         )
         threading.Thread(target=read_stream, args=(process.stdout, name, False), daemon=True).start()
         threading.Thread(target=read_stream, args=(process.stderr, name, True), daemon=True).start()
@@ -85,6 +86,8 @@ def main():
     backend_dir = os.path.join(root_dir, "rekov")
     frontend_dir = os.path.join(root_dir, "rekoviu")
 
+    is_win = sys.platform == "win32"
+
     # ---- 1. Backend dependencies ----
     sys_logger.info("[SETUP] Installing backend dependencies...")
     try:
@@ -101,7 +104,8 @@ def main():
     # ---- 2. Frontend dependencies ----
     sys_logger.info("[SETUP] Installing frontend dependencies...")
     try:
-        subprocess.run(["cmd", "/c", "npm", "install", "--silent"], cwd=frontend_dir, check=True)
+        npm_cmd = "npm.cmd" if is_win else "npm"
+        subprocess.run([npm_cmd, "install", "--silent"], cwd=frontend_dir, check=True, shell=is_win)
         sys_logger.success("[SETUP] Frontend dependencies ready.")
     except subprocess.CalledProcessError as e:
         sys_logger.error(f"[SETUP] Frontend dependencies failed: {e}")
@@ -109,10 +113,11 @@ def main():
 
     # ---- 3. Launch both services ----
     backend_cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4040"]
-    frontend_cmd = ["cmd", "/c", "npm", "run", "dev"]
+    frontend_cmd = "npm run dev" if is_win else ["npm", "run", "dev"]
 
     backend_process = run_process(backend_cmd, backend_dir, "API")
-    frontend_process = run_process(frontend_cmd, frontend_dir, "UI")
+    frontend_process = run_process(frontend_cmd, frontend_dir, "UI", shell=is_win)
+
 
     sys_logger.success("==================================================")
     sys_logger.success("  ALL SYSTEMS ONLINE")
