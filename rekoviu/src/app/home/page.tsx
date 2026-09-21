@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { speakBilingualText } from '@/services/tts';
+import { speakBilingualText, cancelCurrentTTS } from '@/services/tts';
 
 const FEATURE_SLIDES = [
   {
@@ -190,7 +190,7 @@ export default function Home() {
             if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
             setWakePromptOpen(false);
             wakePromptOpenRef.current = false;
-            window.speechSynthesis.cancel();
+            cancelCurrentTTS();
             return;
           }
         }
@@ -617,7 +617,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   setWakePromptOpen(false);
-                  if (typeof window !== 'undefined') window.speechSynthesis.cancel();
+                  cancelCurrentTTS();
                 }}
                 style={{
                   padding: '14px 24px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)',

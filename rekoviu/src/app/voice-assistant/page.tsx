@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
-import { chatWithVoiceAssistant, createTicket } from '@/services/api';
+import { chatWithVoiceAssistant, createTicket, synthesizeTTSAudio } from '@/services/api';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -54,6 +54,7 @@ export default function VoiceAssistantPage() {
   const isSpeakingRef = useRef(false);
   const isProcessingRef = useRef(false);
   const sessionIdRef = useRef('');
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Keep sessionIdRef synced
   useEffect(() => {
@@ -98,12 +99,25 @@ export default function VoiceAssistantPage() {
     } catch (e) {}
   };
 
+  const cancelAudio = () => {
+    if (currentAudioRef.current) {
+      try {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.currentTime = 0;
+      } catch (e) {}
+      currentAudioRef.current = null;
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+  };
+
   const toggleListen = () => {
     if (isListeningRef.current) {
       stopListening();
     } else {
-      if (isSpeakingRef.current && typeof window !== 'undefined') {
-        window.speechSynthesis.cancel();
+      if (isSpeakingRef.current) {
+        cancelAudio();
         isSpeakingRef.current = false;
         setIsSpeaking(false);
       }
@@ -123,7 +137,11 @@ export default function VoiceAssistantPage() {
       utterance.lang = hasDevanagari ? 'hi-IN' : 'en-IN';
 
       const voices = window.speechSynthesis.getVoices();
-      const matchVoice = voices.find(v => v.lang === utterance.lang) || voices[0];
+      const matchVoice = voices.find(v => 
+        (hasDevanagari && (v.lang.includes('hi') || v.name.includes('Hindi') || v.name.includes('Swara') || v.name.includes('Madhur'))) ||
+        (!hasDevanagari && (v.lang.includes('en-IN') || v.name.includes('India') || v.name.includes('Neerja') || v.name.includes('Prabhat'))) ||
+        v.lang.includes(utterance.lang)
+      ) || voices[0];
       if (matchVoice) utterance.voice = matchVoice;
       utterance.rate = 1.0;
 
@@ -137,11 +155,13 @@ export default function VoiceAssistantPage() {
   };
 
   const speakText = (text: string, audioBase64?: string) => {
+    cancelAudio();
     isSpeakingRef.current = true;
     setIsSpeaking(true);
     stopListening();
 
     const onEnd = () => {
+      currentAudioRef.current = null;
       isSpeakingRef.current = false;
       setIsSpeaking(false);
       // Auto-resume listening hands-free after AI finishes talking
@@ -155,11 +175,10 @@ export default function VoiceAssistantPage() {
     if (audioBase64) {
       try {
         const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
+        currentAudioRef.current = audio;
         audio.onended = onEnd;
         audio.onerror = () => fallbackTTS(text, onEnd);
-        audio.play().catch(e => {
-          fallbackTTS(text, onEnd);
-        });
+        audio.play().catch(() => fallbackTTS(text, onEnd));
         return;
       } catch (e) {
         fallbackTTS(text, onEnd);
@@ -167,7 +186,25 @@ export default function VoiceAssistantPage() {
       }
     }
 
-    fallbackTTS(text, onEnd);
+    // On-the-fly Neural TTS synthesis (Edge-TTS Indian English & Hindi)
+    synthesizeTTSAudio(text)
+      .then((b64) => {
+        if (b64) {
+          try {
+            const audio = new Audio(`data:audio/mp3;base64,${b64}`);
+            currentAudioRef.current = audio;
+            audio.onended = onEnd;
+            audio.onerror = () => fallbackTTS(text, onEnd);
+            audio.play().catch(() => fallbackTTS(text, onEnd));
+            return;
+          } catch (e) {
+            fallbackTTS(text, onEnd);
+          }
+        } else {
+          fallbackTTS(text, onEnd);
+        }
+      })
+      .catch(() => fallbackTTS(text, onEnd));
   };
 
   const handleSend = async (text: string) => {
@@ -346,9 +383,7 @@ export default function VoiceAssistantPage() {
       if (recognition) {
         try { recognition.stop(); } catch (e) {}
       }
-      if (typeof window !== 'undefined') {
-        window.speechSynthesis.cancel();
-      }
+      cancelAudio();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

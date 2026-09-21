@@ -1,14 +1,29 @@
 services:
-  # Rekov Unified Kiosk & AI Voice Service (FastAPI + Next.js UI)
+  # Rekov Backend API Service (FastAPI)
   - type: web
-    name: rekov
+    name: rekov-backend
     env: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    dockerfilePath: ./rekov/Dockerfile
+    dockerContext: ./rekov
     region: oregon
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: 4040
       - key: PYTHONUNBUFFERED
         value: "1"
+
+  # Rekov Frontend Web Service (Next.js - Port 3000)
+  - type: web
+    name: rekov-frontend
+    env: docker
+    dockerfilePath: ./rekoviu/Dockerfile
+    dockerContext: ./rekoviu
+    region: oregon
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_API_URL
+        value: https://rekov-backend.onrender.com/api/v1
+

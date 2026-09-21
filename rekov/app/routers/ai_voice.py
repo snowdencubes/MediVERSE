@@ -22,9 +22,22 @@ class ChatResponse(BaseModel):
     action_data: Optional[dict] = None
     audio_base64: Optional[str] = None
 
-class HistoryResponse(BaseModel):
-    session_id: str
-    messages: List[ChatMessage]
+class TTSRequest(BaseModel):
+    text: str
+    voice: Optional[str] = None
+
+class TTSResponse(BaseModel):
+    audio_base64: Optional[str] = None
+
+@router.post("/tts", response_model=TTSResponse)
+@router.post("/tts/", response_model=TTSResponse)
+def synthesize_tts(request: TTSRequest):
+    """Generate high-definition neural audio (Indian English / Hindi) for any text."""
+    audio_bytes = generate_tts_audio(request.text, voice_id=request.voice)
+    audio_b64 = None
+    if audio_bytes:
+        audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
+    return TTSResponse(audio_base64=audio_b64)
 
 @router.post("/chat", response_model=ChatResponse)
 @router.post("/chat/", response_model=ChatResponse)
@@ -46,6 +59,10 @@ def chat_with_voice_assistant(request: ChatRequest):
         action_data=result.get("action_data"),
         audio_base64=audio_b64
     )
+
+class HistoryResponse(BaseModel):
+    session_id: str
+    messages: List[ChatMessage]
 
 @router.get("/history/{session_id}", response_model=HistoryResponse)
 def get_chat_history(session_id: str):

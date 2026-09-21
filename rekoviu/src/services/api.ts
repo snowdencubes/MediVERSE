@@ -206,6 +206,26 @@ export async function chatWithVoiceAssistant(
   }
 }
 
+export async function synthesizeTTSAudio(
+  text: string, 
+  voice?: string
+): Promise<string | null> {
+  try {
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}/ai_voice/tts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.audio_base64 || null;
+  } catch (err) {
+    console.warn('Backend TTS fetch error:', err);
+    return null;
+  }
+}
+
 export const api = {
   get: async (path: string) => {
     const res = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });

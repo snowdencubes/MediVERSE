@@ -1,4 +1,5 @@
-// ElevenLabs & Browser SpeechSynthesis Dual TTS Service
+// Studio-Quality Neural Voice (Edge-TTS / ElevenLabs) Dual TTS Service
+import { synthesizeTTSAudio } from '@/services/api';
 
 export interface SpeakOptions {
   text: string;
@@ -10,11 +11,34 @@ export interface SpeakOptions {
   onError?: (err: any) => void;
 }
 
+// Global reference to currently playing neural audio so it can be cleanly cancelled/stopped
+let currentPlayingAudio: HTMLAudioElement | null = null;
+
+export function cancelCurrentTTS(): void {
+  if (typeof window !== 'undefined') {
+    if (currentPlayingAudio) {
+      try {
+        currentPlayingAudio.pause();
+        currentPlayingAudio.currentTime = 0;
+      } catch (e) {}
+      currentPlayingAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+  }
+}
+
 export async function speakBilingualText(options: SpeakOptions): Promise<void> {
   const { text, lang = 'hi-IN', onStart, onEnd, onError } = options;
+  cancelCurrentTTS();
+
   const apiKey = options.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('elevenlabs_api_key') || process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY : '');
   const voiceId = options.voiceId || '21m00Tcm4TlvDq8ikWAM'; // Default Rachel / Multilingual voice
 
+  // 1. Try ElevenLabs if explicitly configured with an API key
   if (apiKey) {
     try {
       if (onStart) onStart();
@@ -35,28 +59,66 @@ export async function speakBilingualText(options: SpeakOptions): Promise<void> {
         })
       });
 
-      if (!response.ok) throw new Error(`ElevenLabs TTS failed: ${response.statusText}`);
+      if (response.ok) {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        currentPlayingAudio = audio;
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
+        audio.onended = () => {
+          currentPlayingAudio = null;
+          if (onEnd) onEnd();
+        };
+        audio.onerror = (e) => {
+          currentPlayingAudio = null;
+          console.warn('ElevenLabs audio error, falling back to neural TTS', e);
+          tryBackendNeuralTTS(text, lang, onStart, onEnd, onError);
+        };
 
-      audio.onended = () => {
-        if (onEnd) onEnd();
-      };
-      audio.onerror = (e) => {
-        console.warn('ElevenLabs audio play error, falling back to SpeechSynthesis', e);
-        fallbackBrowserTTS(text, lang, onStart, onEnd, onError);
-      };
-
-      await audio.play();
-      return;
+        await audio.play();
+        return;
+      }
     } catch (err) {
-      console.warn('ElevenLabs API error, using browser TTS fallback:', err);
+      console.warn('ElevenLabs API error, falling back to neural TTS:', err);
     }
   }
 
-  // Fallback to browser SpeechSynthesis
+  // 2. Primary Studio Engine: Backend Neural Edge-TTS (Indian English & Hindi Neural Voices)
+  await tryBackendNeuralTTS(text, lang, onStart, onEnd, onError);
+}
+
+async function tryBackendNeuralTTS(
+  text: string,
+  lang: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+) {
+  try {
+    const audioB64 = await synthesizeTTSAudio(text);
+    if (audioB64) {
+      const audio = new Audio(`data:audio/mp3;base64,${audioB64}`);
+      currentPlayingAudio = audio;
+
+      audio.onended = () => {
+        currentPlayingAudio = null;
+        if (onEnd) onEnd();
+      };
+      audio.onerror = (e) => {
+        currentPlayingAudio = null;
+        console.warn('Neural audio play error, falling back to browser SpeechSynthesis', e);
+        fallbackBrowserTTS(text, lang, onStart, onEnd, onError);
+      };
+
+      if (onStart) onStart();
+      await audio.play();
+      return;
+    }
+  } catch (err) {
+    console.warn('Backend neural TTS failed, falling back to browser SpeechSynthesis', err);
+  }
+
+  // 3. Fallback: Browser SpeechSynthesis tuned with Indian English / Hindi voice matching
   fallbackBrowserTTS(text, lang, onStart, onEnd, onError);
 }
 
@@ -75,12 +137,19 @@ function fallbackBrowserTTS(
   try {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
+    const hasDevanagari = /[\u0900-\u097F]/.test(text);
+    utterance.lang = hasDevanagari ? 'hi-IN' : (lang || 'en-IN');
     utterance.rate = 0.95;
+    utterance.pitch = 1.0;
 
     // Pick best Hindi / English voice if available
     const voices = window.speechSynthesis.getVoices();
-    const matchVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('Hindi') || v.name.includes('India'));
+    const matchVoice = voices.find(v => 
+      (hasDevanagari && (v.lang.includes('hi') || v.name.includes('Hindi') || v.name.includes('Swara') || v.name.includes('Madhur'))) ||
+      (!hasDevanagari && (v.lang.includes('en-IN') || v.name.includes('India') || v.name.includes('Neerja') || v.name.includes('Prabhat'))) ||
+      v.lang.includes(utterance.lang)
+    ) || voices.find(v => v.lang.includes('IN')) || voices[0];
+
     if (matchVoice) {
       utterance.voice = matchVoice;
     }
