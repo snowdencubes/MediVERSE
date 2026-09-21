@@ -1,11 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
-import { speakBilingualText } from '@/services/tts';
+import { speakBilingualText, cancelCurrentTTS } from '@/services/tts';
 
 const LANG_GROUPS = [
   { id: 'primary', tLabel: 'primary_lang', items: [
@@ -51,182 +51,246 @@ export default function Home() {
   const [showSpeechPrompt, setShowSpeechPrompt] = useState(false);
   const [isListeningActive, setIsListeningActive] = useState(false);
   const [isHearingSound, setIsHearingSound] = useState<boolean>(false);
+  const [micPermissionGranted, setMicPermissionGranted] = useState<boolean>(false);
+
+  const recognitionRef = useRef<any>(null);
+  const shouldKeepListeningRef = useRef(true);
+  const isStartedRef = useRef(false);
+  const isSpeakingTTSRef = useRef(false);
+  const lastTranscriptRef = useRef('');
+  const debounceTimerRef = useRef<any>(null);
+  const promptCooldownRef = useRef(0);
+  const showSpeechPromptRef = useRef(false);
+
+  useEffect(() => {
+    showSpeechPromptRef.current = showSpeechPrompt;
+  }, [showSpeechPrompt]);
 
   const renderSmartWrap = (text: string) => text;
 
-  // 24/7 Speech Recognition Listener with Devanagari + English Wake Words & Kiosk Touch Auto-Unlock
+  // Safe Start function
+  const safeStart = () => {
+    if (!shouldKeepListeningRef.current || isStartedRef.current || isSpeakingTTSRef.current) return;
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+        isStartedRef.current = true;
+        setIsListeningActive(true);
+      }
+    } catch (e: any) {
+      if (e?.name === 'InvalidStateError') {
+        isStartedRef.current = true;
+        setIsListeningActive(true);
+      }
+    }
+  };
+
+  // Explicit Mic Permission Request on Click or Gesture
+  const requestMicAndStart = async () => {
+    try {
+      if (typeof window !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        setMicPermissionGranted(true);
+      }
+    } catch (err) {
+      console.warn('Microphone permission request:', err);
+    }
+    safeStart();
+  };
+
+  const speakPrompt = () => {
+    const now = Date.now();
+    if (now - promptCooldownRef.current < 4000) return;
+    promptCooldownRef.current = now;
+
+    isSpeakingTTSRef.current = true;
+    try {
+      if (recognitionRef.current) recognitionRef.current.stop();
+    } catch (e) {}
+
+    speakBilingualText({
+      text: "Did you say something? Say Yes or Proceed to continue, or No to cancel. क्या आपने कुछ कहा? आगे बढ़ने के लिए Yes कहें।",
+      lang: lang === 'HI' ? 'hi-IN' : 'en-IN',
+      onStart: () => {
+        isSpeakingTTSRef.current = true;
+      },
+      onEnd: () => {
+        isSpeakingTTSRef.current = false;
+        safeStart();
+      },
+      onError: () => {
+        isSpeakingTTSRef.current = false;
+        safeStart();
+      }
+    });
+  };
+
+  // 24/7 Speech Recognition Listener
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return;
 
-    let shouldKeepListening = true;
-    let isStarted = false;
-    let lastPromptTime = 0;
-    let isSpeakingTTS = false;
+    shouldKeepListeningRef.current = true;
 
     const wakeWords = [
-      // English / Hinglish
       'wake up', 'wakeup', 'hello', 'hey mediverse', 'mediverse', 'assistant', 'voice',
       'jaag jao', 'jag jao', 'bhai', 'doctor', 'help', 'madad', 'sunoo', 'suno', 'kaha', 'aaye',
       'bukhar', 'fever', 'headache', 'ticket', 'appointment', 'check in', 'checkin', 'pain', 'dard',
-      // Devanagari Hindi Script
       'वेक अप', 'वेकअप', 'वैकाप', 'जाग जाओ', 'जग जाओ', 'हलो', 'हेलो', 'मेडिवर्स', 'भाई',
       'डॉक्टर', 'डाक्टर', 'हेल्प', 'मदद', 'सुनो', 'बुखार', 'फीवर', 'सर दर्द', 'दर्द', 'टिकट', 'अपॉइंटमेंट'
     ];
 
     const selfEchoPhrases = [
       'did you say something', 'क्या आपने कुछ कहा', 'क्या आप कुछ कह रहे हैं', 'heard speech',
-      'yes help me', 'हाँ सहायता करें'
+      'yes help me', 'हाँ सहायता करें', 'to continue or no to cancel', 'say yes or proceed'
     ];
 
     const recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-IN'; // Better for picking up "wake up" in English/Hinglish
+    recognition.lang = 'en-IN';
+    recognitionRef.current = recognition;
 
-    const safeStart = () => {
-      if (!shouldKeepListening || isStarted || isSpeakingTTS) return;
-      try {
-        recognition.start();
-        isStarted = true;
-        setIsListeningActive(true);
-      } catch (e: any) {
-        if (e?.name === 'InvalidStateError') {
-          isStarted = true;
-        }
-      }
-    };
-
-    const speakPromptInHindiAndEnglish = () => {
-      const now = Date.now();
-      if (now - lastPromptTime < 5000) return; // 5 sec cooldown
-      lastPromptTime = now;
-
-      isSpeakingTTS = true;
-      speakBilingualText({
-        text: "Did you say something? क्या आपने कुछ कहा?",
-        lang: 'hi-IN',
-        onStart: () => {
-          isSpeakingTTS = true;
-        },
-        onEnd: () => {
-          isSpeakingTTS = false;
-          safeStart();
-        },
-        onError: () => {
-          isSpeakingTTS = false;
-          safeStart();
-        }
-      });
-    };
-
-    let soundResetTimer: any = null;
-
-    recognition.onsoundstart = () => {
-      setIsHearingSound(true);
-    };
-
-    recognition.onsoundend = () => {
-      setIsHearingSound(false);
-    };
-
-    recognition.onspeechstart = () => {
-      setIsHearingSound(true);
-    };
-
-    recognition.onspeechend = () => {
-      setIsHearingSound(false);
-    };
+    recognition.onsoundstart = () => setIsHearingSound(true);
+    recognition.onsoundend = () => setIsHearingSound(false);
+    recognition.onspeechstart = () => setIsHearingSound(true);
+    recognition.onspeechend = () => setIsHearingSound(false);
 
     recognition.onresult = (event: any) => {
-      if (isSpeakingTTS) return;
+      if (isSpeakingTTSRef.current) return;
 
-      setIsHearingSound(true);
-      if (soundResetTimer) clearTimeout(soundResetTimer);
-      soundResetTimer = setTimeout(() => setIsHearingSound(false), 2000);
+      let interim = '';
+      let final = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const text = event.results[i][0].transcript.trim();
-        if (!text) continue;
-        const lower = text.toLowerCase();
-
-        // Ignore self-echo from device speakers
-        if (selfEchoPhrases.some(phrase => lower.includes(phrase))) {
-          continue;
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript;
+        } else {
+          interim += transcript;
         }
+      }
 
-        setHeardSpeech(text);
-        setIsListeningActive(true);
+      const currentText = (final || interim).trim();
+      if (!currentText) return;
 
-        // Confirmation logic: if they say a wake word OR confirm word, route to assistant.
-        const confirmWords = ['yes', 'haan', 'ha', 'sure', 'continue', 'ok', 'okay', 'help', 'assist', 'proceed', 'aage badho'];
+      // Update live real-time caption immediately!
+      setHeardSpeech(currentText);
+      setIsHearingSound(true);
+      lastTranscriptRef.current = currentText;
+
+      const lower = currentText.toLowerCase();
+
+      // Filter self-echo
+      if (selfEchoPhrases.some(phrase => lower.includes(phrase))) {
+        return;
+      }
+
+      // Check for direct wake words or medical inquiry
+      const isWake = wakeWords.some(w => lower.includes(w.toLowerCase()));
+      if (isWake) {
+        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        sessionStorage.setItem('initial_voice_query', currentText);
+        router.push('/voice-assistant');
+        return;
+      }
+
+      // If confirmation modal is open, check for voice confirm / dismiss
+      if (showSpeechPromptRef.current) {
+        const confirmWords = ['yes', 'haan', 'ha', 'sure', 'continue', 'ok', 'okay', 'proceed', 'aage badho', 'help'];
         const dismissWords = ['no', 'nahi', 'nahin', 'cancel', 'stop', 'mat karo', 'ruko', 'dismiss'];
 
-        if (dismissWords.some(d => lower.includes(d))) {
+        if (confirmWords.some(w => lower.includes(w))) {
+          if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
           setShowSpeechPrompt(false);
-          if (typeof window !== 'undefined') window.speechSynthesis.cancel();
-          return;
-        }
-
-        const isWake = wakeWords.some(w => lower.includes(w)) || confirmWords.some(w => lower.includes(w));
-        
-        if (isWake) {
-          sessionStorage.setItem('initial_voice_query', text);
+          showSpeechPromptRef.current = false;
+          sessionStorage.setItem('initial_voice_query', currentText);
           router.push('/voice-assistant');
           return;
         }
-
-        // General speech detected but not a wake word — ask "Did you say something? / क्या आप कुछ कह रहे हैं?"
-        setShowSpeechPrompt(true);
-        speakPromptInHindiAndEnglish();
+        if (dismissWords.some(w => lower.includes(w))) {
+          if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+          setShowSpeechPrompt(false);
+          showSpeechPromptRef.current = false;
+          cancelCurrentTTS();
+          return;
+        }
       }
+
+      // User speech pause detection: only prompt after user pauses speaking for 1.2s
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        const textToProcess = lastTranscriptRef.current.trim();
+        if (textToProcess.length > 2 && !isSpeakingTTSRef.current && !showSpeechPromptRef.current) {
+          setShowSpeechPrompt(true);
+          showSpeechPromptRef.current = true;
+          speakPrompt();
+        }
+        setIsHearingSound(false);
+      }, 1200);
     };
 
     recognition.onerror = (event: any) => {
-      isStarted = false;
+      isStartedRef.current = false;
       if (event.error === 'not-allowed') {
         setIsListeningActive(false);
-      } else if (shouldKeepListening && !isSpeakingTTS) {
+      } else if (shouldKeepListeningRef.current && !isSpeakingTTSRef.current) {
         setTimeout(safeStart, 1000);
       }
     };
 
     recognition.onend = () => {
-      isStarted = false;
-      if (shouldKeepListening && !isSpeakingTTS) {
+      isStartedRef.current = false;
+      if (shouldKeepListeningRef.current && !isSpeakingTTSRef.current) {
         setTimeout(safeStart, 400);
       }
     };
 
     // Watchdog Timer: keeps listening active 24/7 without sleeping
     const watchdog = setInterval(() => {
-      if (shouldKeepListening && !isStarted && !isSpeakingTTS) {
+      if (shouldKeepListeningRef.current && !isStartedRef.current && !isSpeakingTTSRef.current) {
         safeStart();
       }
-    }, 3000);
+    }, 2500);
 
-    // Screen Touch / Click Listener for Kiosk mode:
-    // Ensures any touch on the kiosk touchscreen auto-unlocks browser audio & 24/7 listening
+    // Any touch/click unlocks mic and starts listening
     const handleScreenTouch = () => {
-      if (shouldKeepListening && !isSpeakingTTS) {
-        safeStart();
-      }
+      requestMicAndStart();
     };
-
     window.addEventListener('touchstart', handleScreenTouch, { passive: true });
     window.addEventListener('click', handleScreenTouch, { passive: true });
 
-    safeStart();
+    // Initial check for granted permissions
+    if (typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'microphone' as any }).then(res => {
+        if (res.state === 'granted') {
+          setMicPermissionGranted(true);
+          safeStart();
+        }
+        res.onchange = () => {
+          if (res.state === 'granted') {
+            setMicPermissionGranted(true);
+            safeStart();
+          }
+        };
+      }).catch(() => {
+        safeStart();
+      });
+    } else {
+      safeStart();
+    }
 
     return () => {
-      shouldKeepListening = false;
+      shouldKeepListeningRef.current = false;
       clearInterval(watchdog);
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       window.removeEventListener('touchstart', handleScreenTouch);
       window.removeEventListener('click', handleScreenTouch);
       try { recognition.stop(); } catch (e) {}
+      cancelCurrentTTS();
     };
-  }, [router]);
+  }, [router, lang]);
 
   const handleSelect = (l: Language) => { setLang(l); };
   const handleContinue = () => { router.push('/home'); };
@@ -340,21 +404,25 @@ export default function Home() {
           transition: 'all 0.3s'
         }}>
           {/* Status Badge */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: isHearingSound ? 'rgba(0,230,118,0.2)' : 'rgba(0,230,118,0.1)',
-            border: `1px solid ${isHearingSound ? '#00e676' : 'rgba(0,230,118,0.3)'}`,
-            padding: '6px 16px', borderRadius: 20, marginBottom: 16, transition: 'all 0.3s'
-          }}>
+          <div 
+            onClick={requestMicAndStart}
+            style={{
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: isHearingSound ? 'rgba(0,230,118,0.2)' : isListeningActive ? 'rgba(0,230,118,0.1)' : 'rgba(217,22,54,0.15)',
+              border: `1px solid ${isHearingSound ? '#00e676' : isListeningActive ? 'rgba(0,230,118,0.4)' : 'rgba(217,22,54,0.4)'}`,
+              padding: '6px 16px', borderRadius: 20, marginBottom: 16, transition: 'all 0.3s'
+            }}
+          >
             <div style={{
               width: 8, height: 8, borderRadius: '50%',
-              background: isHearingSound ? '#00e676' : '#00e676',
-              boxShadow: isHearingSound ? '0 0 12px #00e676' : '0 0 8px #00e676',
+              background: isHearingSound ? '#00e676' : isListeningActive ? '#00e676' : '#D91636',
+              boxShadow: isHearingSound ? '0 0 12px #00e676' : isListeningActive ? '0 0 8px #00e676' : '0 0 8px #D91636',
               transform: isHearingSound ? 'scale(1.3)' : 'scale(1)',
               transition: 'all 0.2s'
             }} />
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: '#00e676', letterSpacing: '.05em' }}>
-              {isHearingSound ? 'HEARING VOICE NOW' : 'LISTENING 24/7'}
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: isHearingSound ? '#00e676' : isListeningActive ? '#00e676' : '#ff4757', letterSpacing: '.05em' }}>
+              {isHearingSound ? 'HEARING VOICE NOW' : isListeningActive ? 'LISTENING 24/7 ACTIVE' : 'TAP TO ACTIVATE MIC'}
             </span>
           </div>
 
@@ -373,7 +441,13 @@ export default function Home() {
 
           {/* Interactive Voice Mic Circle with Sound-Triggered Pulsing Ring */}
           <div 
-            onClick={() => router.push('/voice-assistant')}
+            onClick={() => {
+              if (!isListeningActive) {
+                requestMicAndStart();
+              } else {
+                router.push('/voice-assistant');
+              }
+            }}
             style={{
               position: 'relative', cursor: 'pointer', margin: '8px 0 16px 0',
               display: 'flex', alignItems: 'center', justifyContent: 'center', width: 110, height: 110
@@ -381,20 +455,27 @@ export default function Home() {
           >
             <div style={{
               position: 'absolute', width: 100, height: 100, borderRadius: '50%',
-              background: isHearingSound ? 'rgba(0, 230, 118, 0.3)' : 'rgba(217, 22, 54, 0.25)',
-              border: `2px solid ${isHearingSound ? '#00e676' : 'rgba(217, 22, 54, 0.4)'}`,
-              boxShadow: isHearingSound ? '0 0 32px rgba(0,230,118,0.8)' : '0 0 16px rgba(217,22,54,0.4)',
+              background: isHearingSound ? 'rgba(0, 230, 118, 0.3)' : isListeningActive ? 'rgba(0, 230, 118, 0.15)' : 'rgba(217, 22, 54, 0.25)',
+              border: `2px solid ${isHearingSound ? '#00e676' : isListeningActive ? 'rgba(0, 230, 118, 0.5)' : 'rgba(217, 22, 54, 0.4)'}`,
+              boxShadow: isHearingSound ? '0 0 32px rgba(0,230,118,0.8)' : isListeningActive ? '0 0 18px rgba(0,230,118,0.4)' : '0 0 16px rgba(217,22,54,0.4)',
               transform: isHearingSound ? 'scale(1.15)' : 'scale(1)',
               transition: 'all 0.2s ease-in-out'
             }} />
             <button 
-              onClick={() => router.push('/voice-assistant')}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isListeningActive) {
+                  requestMicAndStart();
+                } else {
+                  router.push('/voice-assistant');
+                }
+              }}
               style={{
                 position: 'relative', zIndex: 2, width: 72, height: 72, borderRadius: '50%',
-                background: isHearingSound ? 'linear-gradient(135deg, #00e676, #00b0ff)' : 'linear-gradient(135deg, #D91636, #ff2d55)',
+                background: isHearingSound ? 'linear-gradient(135deg, #00e676, #00b0ff)' : isListeningActive ? 'linear-gradient(135deg, #2ed573, #1e90ff)' : 'linear-gradient(135deg, #D91636, #ff2d55)',
                 border: '2px solid rgba(255,255,255,0.6)',
                 color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: isHearingSound ? '0 0 30px rgba(0,230,118,0.8)' : '0 0 24px rgba(217,22,54,0.6)',
+                boxShadow: isHearingSound ? '0 0 30px rgba(0,230,118,0.8)' : isListeningActive ? '0 0 20px rgba(46,213,115,0.6)' : '0 0 24px rgba(217,22,54,0.6)',
                 cursor: 'pointer', transition: 'all 0.2s'
               }}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
@@ -409,20 +490,30 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Real-time Live Speech Caption Display Box (Enlarged) */}
-          <div style={{
-            margin: '16px 0', padding: '16px 20px', width: '100%',
-            background: isHearingSound ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255,255,255,0.06)',
-            border: `2px solid ${isHearingSound ? 'rgba(0, 230, 118, 0.8)' : 'rgba(255,255,255,0.2)'}`,
-            borderRadius: 16, minHeight: 60, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            textAlign: 'center', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
+          {/* Real-time Live Speech Caption Display Box */}
+          <div 
+            onClick={requestMicAndStart}
+            style={{
+              margin: '16px 0', padding: '16px 20px', width: '100%',
+              background: isHearingSound ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255,255,255,0.06)',
+              border: `2px solid ${isHearingSound ? 'rgba(0, 230, 118, 0.8)' : isListeningActive ? 'rgba(0, 230, 118, 0.3)' : 'rgba(255,255,255,0.2)'}`,
+              borderRadius: 16, minHeight: 60, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              textAlign: 'center', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              cursor: !isListeningActive ? 'pointer' : 'default'
+            }}
+          >
             <span style={{
               fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(16px, 2vw, 22px)',
-              color: isHearingSound ? '#00e676' : 'var(--text-primary)',
+              color: isHearingSound ? '#00e676' : isListeningActive ? 'var(--text-primary)' : '#ff6b81',
               fontWeight: 700, letterSpacing: '0.5px'
             }}>
-              {heardSpeech ? `HEARD: "${heardSpeech}"` : isHearingSound ? 'HEARING VOICE NOW...' : 'LISTENING 24/7... (Say "Wake Up" or "जाग जाओ")'}
+              {heardSpeech 
+                ? `HEARD: "${heardSpeech}"` 
+                : isHearingSound 
+                ? 'HEARING VOICE NOW...' 
+                : isListeningActive 
+                ? 'LISTENING 24/7... (Say "Wake Up" or "जाग जाओ")' 
+                : '🎤 CLICK HERE TO ENABLE MICROPHONE'}
             </span>
           </div>
 

@@ -19,6 +19,40 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Intercept and suppress third-party browser extension crashes from triggering Next.js dev overlay
+              if (typeof window !== 'undefined') {
+                window.addEventListener('error', function(e) {
+                  var fn = e.filename || '';
+                  var msg = e.message || '';
+                  if (
+                    fn.indexOf('chrome-extension:') !== -1 ||
+                    fn.indexOf('moz-extension:') !== -1 ||
+                    msg.indexOf('M_ID') !== -1 ||
+                    (msg.indexOf('Cannot read properties of undefined') !== -1 && fn.indexOf('executors') !== -1)
+                  ) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return true;
+                  }
+                }, true);
+
+                window.addEventListener('unhandledrejection', function(e) {
+                  var r = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason || '');
+                  if (r.indexOf('chrome-extension:') !== -1 || r.indexOf('M_ID') !== -1) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return true;
+                  }
+                }, true);
+              }
+            `,
+          }}
+        />
+      </head>
       <body>
         <GestureProvider>
           <LanguageProvider>
