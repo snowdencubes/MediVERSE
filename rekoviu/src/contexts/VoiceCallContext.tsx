@@ -16,6 +16,8 @@ interface VoiceCallContextType {
   callStatus: CallStatus;
   isMuted: boolean;
   liveTranscript: string;
+  latestUserQuery: string;
+  latestAssistantReply: string;
   messages: ChatMessage[];
   sessionId: string;
   latestTicket: any | null;
@@ -34,6 +36,8 @@ export const VoiceCallProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [callStatus, setCallStatus] = useState<CallStatus>('IDLE');
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [liveTranscript, setLiveTranscript] = useState<string>('');
+  const [latestUserQuery, setLatestUserQuery] = useState<string>('');
+  const [latestAssistantReply, setLatestAssistantReply] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sessionId, setSessionId] = useState<string>('');
   const [latestTicket, setLatestTicket] = useState<any | null>(null);
@@ -43,6 +47,7 @@ export const VoiceCallProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const isMutedRef = useRef<boolean>(false);
   const isSpeakingRef = useRef<boolean>(false);
   const isProcessingRef = useRef<boolean>(false);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const isStartingRef = useRef<boolean>(false);
   const isStartedRef = useRef<boolean>(false);
   const transcriptRef = useRef<string>('');
