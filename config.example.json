@@ -1,0 +1,10 @@
+{
+  "supabase": {
+    "url": "https://ylzpjtzeetnvypvikiqa.supabase.co",
+    "key": "sb_publishable_mvS1x5C11_f5uIC9mpGukA_7vsP1jDQ"
+  },
+  "SUPABASE_URL": "https://ylzpjtzeetnvypvikiqa.supabase.co",
+  "SUPABASE_KEY": "sb_publishable_mvS1x5C11_f5uIC9mpGukA_7vsP1jDQ",
+  "hf_token": "YOUR_HUGGING_FACE_TOKEN_HERE",
+  "HF_TOKEN": "YOUR_HUGGING_FACE_TOKEN_HERE"
+}

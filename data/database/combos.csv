@@ -1,0 +1,3 @@
+id,title,category,description,included_tests,price,priority_bump
+cmb_1,Vitals & BP Screening Combo,Quick Diagnostics,"Digital BP, Pulse Ox","Digital BP;Pulse Ox",15.0,1
+cmb_2,Express Cardiac Shield Combo,Advanced Screening,12-lead ECG & Lipid panel,"ECG;Lipid",45.0,3
