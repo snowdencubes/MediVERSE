@@ -287,6 +287,22 @@ export const api = {
     });
     if (!res.ok) throw new Error(`API POST ${path} failed`);
     return await res.json();
+  },
+  put: async (path: string, body: any) => {
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}${path}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`API PUT ${path} failed`);
+    return await res.json();
+  },
+  delete: async (path: string) => {
+    const baseUrl = getApiBase();
+    const res = await fetch(`${baseUrl}${path}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`API DELETE ${path} failed`);
+    return await res.json();
   }
 };
 
