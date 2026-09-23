@@ -35,12 +35,10 @@ logger.setLevel(logging.INFO)
 # ── Paths ────────────────────────────────────────────────────────────────────
 _THIS_FILE = os.path.abspath(__file__)
 # rekov/app/services/backupverifier/verifier.py  ->  root is 5 levels up
-ROOT_DIR = os.path.dirname(  # rekov root
-    os.path.dirname(          # rekov/
-        os.path.dirname(      # rekov/app/
-            os.path.dirname(  # rekov/app/services/
-                os.path.dirname(_THIS_FILE)  # rekov/app/services/backupverifier/
-            )
+ROOT_DIR = os.path.dirname(  # rekov/
+    os.path.dirname(      # rekov/app/
+        os.path.dirname(  # rekov/app/services/
+            os.path.dirname(_THIS_FILE)  # rekov/app/services/backupverifier/
         )
     )
 )
