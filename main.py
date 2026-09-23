@@ -298,9 +298,10 @@ def main():
     sys_logger.info("")
 
     # ── 0. Health-check existing services ────────────────────────────────────
+    frontend_port = os.environ.get("PORT", "3000")
     api_alive = _is_service_healthy("http://127.0.0.1:4040/api/v1/health") or \
                 _is_service_healthy("http://127.0.0.1:4040/")
-    ui_alive  = _is_service_healthy("http://127.0.0.1:3000/")
+    ui_alive  = _is_service_healthy(f"http://127.0.0.1:{frontend_port}/")
 
     if api_alive and ui_alive:
         sys_logger.success("  [OK]   All services already online — reusing existing instances.")
@@ -321,16 +322,16 @@ def main():
         return
 
     # ── Kill stale zombie processes on our ports ──────────────────────────────
-    if not ui_alive and _is_port_in_use(3000):
-        sys_logger.warning("  [WRN]  [CLEANUP]  Port 3000 occupied — killing stale process...")
-        _kill_port(3000)
+    if not ui_alive and _is_port_in_use(int(frontend_port)):
+        sys_logger.warning(f"  [WRN]  [CLEANUP]  Port {frontend_port} occupied — killing stale process...")
+        _kill_port(int(frontend_port))
         # Wait until confirmed free (max 6s in 0.5s steps)
         for _ in range(12):
-            if not _is_port_in_use(3000):
+            if not _is_port_in_use(int(frontend_port)):
                 break
             time.sleep(0.5)
         else:
-            sys_logger.warning("  [WRN]  [CLEANUP]  Port 3000 still occupied — proceeding anyway")
+            sys_logger.warning(f"  [WRN]  [CLEANUP]  Port {frontend_port} still occupied — proceeding anyway")
     if not api_alive and _is_port_in_use(4040):
         sys_logger.warning("  [WRN]  [CLEANUP]  Port 4040 occupied — killing stale process...")
         _kill_port(4040)
@@ -344,7 +345,7 @@ def main():
     # ── Re-check health after cleanup ─────────────────────────────────────────
     api_alive = _is_service_healthy("http://127.0.0.1:4040/api/v1/health") or \
                 _is_service_healthy("http://127.0.0.1:4040/")
-    ui_alive  = _is_service_healthy("http://127.0.0.1:3000/")
+    ui_alive  = _is_service_healthy(f"http://127.0.0.1:{frontend_port}/")
 
     root_dir    = os.path.dirname(os.path.abspath(__file__))
     is_win      = sys.platform == "win32"
@@ -448,6 +449,8 @@ def main():
             except Exception as _pe:
                 sys_logger.warning(f"  [WRN]  [UI]     Next.js patch script note: {_pe}")
 
+    frontend_port = os.environ.get("PORT", "3000")
+
     # ── 4. Launch services ───────────────────────────────────────────────────
     backend_cmd = [sys.executable, "-m", "uvicorn", "main:app",
                    "--host", "0.0.0.0", "--port", "4040"]
@@ -466,11 +469,11 @@ def main():
     _next_bin = os.path.join(frontend_dir, "node_modules", "next", "dist", "bin", "next")
     _node_bin = shutil.which("node") or "node"
     if os.path.isfile(_next_bin):
-        frontend_cmd = [_node_bin, _next_bin, "start", "-p", "3000"]
+        frontend_cmd = [_node_bin, _next_bin, "start", "-p", frontend_port]
         sys_logger.info("  [INF]  [UI]   Launching Next.js directly via node (bypasses npm.cmd wrapper)")
     else:
         # Fallback: npm run start without shell so we at least own npm.cmd
-        frontend_cmd = [_npm_bin, "run", "start"]
+        frontend_cmd = [_npm_bin, "run", "start", "--", "-p", frontend_port]
 
     backend_process  = run_process(backend_cmd,  backend_dir,  "API") if not api_alive else None
     frontend_process = run_process(frontend_cmd, frontend_dir, "UI") if not ui_alive else None
@@ -480,7 +483,7 @@ def main():
     _banner("ALL SYSTEMS LAUNCHING")
     sys_logger.info("")
     _service_status("API  (FastAPI + BackupVerifier) :4040", not not backend_process or api_alive)
-    _service_status("UI   (Next.js)                  :3000", not not frontend_process or ui_alive)
+    _service_status(f"UI   (Next.js)                  :{frontend_port}", not not frontend_process or ui_alive)
     sys_logger.info("")
     sys_logger.info("  ->  http://localhost:3000         (App)")
     sys_logger.info("  ->  http://localhost:3000/kiosk   (Kiosk)")
@@ -518,9 +521,9 @@ def main():
 
                 # Before killing anything, check if Next.js is actually serving.
                 # On Windows, the npm wrapper can exit (code 0) while the node
-                # child is still alive and healthy on :3000.
-                if _is_service_healthy("http://127.0.0.1:3000/"):
-                    sys_logger.info("  [INF]  [UI]   npm process exited but Next.js is still serving on :3000 — switching to port monitor")
+                # child is still alive and healthy on the frontend port.
+                if _is_service_healthy(f"http://127.0.0.1:{frontend_port}/"):
+                    sys_logger.info(f"  [INF]  [UI]   npm process exited but Next.js is still serving on :{frontend_port} — switching to port monitor")
                     ui_orphaned = True
                 else:
                     # Port is either gone or not responding — real exit
@@ -531,13 +534,13 @@ def main():
                         time.sleep(3)
 
                     # Kill any stale holder and wait until port is confirmed free
-                    _kill_port(3000)
+                    _kill_port(int(frontend_port))
                     for _wait in range(10):          # up to 5 seconds
-                        if not _is_port_in_use(3000):
+                        if not _is_port_in_use(int(frontend_port)):
                             break
                         time.sleep(0.5)
                     else:
-                        sys_logger.warning("  [WRN]  [UI]   Port 3000 still occupied after kill — force-trying anyway")
+                        sys_logger.warning(f"  [WRN]  [UI]   Port {frontend_port} still occupied after kill — force-trying anyway")
 
                     time.sleep(1)   # small extra cushion
                     ui_orphaned = False
@@ -545,9 +548,9 @@ def main():
 
             # ── Frontend: port-health monitor (orphan mode) ───────────────────
             elif ui_orphaned:
-                if not _is_service_healthy("http://127.0.0.1:3000/"):
+                if not _is_service_healthy(f"http://127.0.0.1:{frontend_port}/"):
                     sys_logger.warning("  [WRN]  [UI]   Next.js went down — clearing port and restarting...")
-                    _kill_port(3000)
+                    _kill_port(int(frontend_port))
                     time.sleep(2)
                     ui_orphaned = False
                     frontend_process = run_process(frontend_cmd, frontend_dir, "UI")
