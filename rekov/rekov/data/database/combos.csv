@@ -1,0 +1,4 @@
+id,title,category,description,included_tests,price,priority_bump
+cmb_1,Basic Health Check,Wellness,Essential tests for a quick overview of your health.,CBC;Blood Sugar;Blood Pressure,25.0,0
+cmb_2,Cardiac Screening,Cardiology,Comprehensive heart health screening.,ECG;Lipid Profile;Troponin,60.0,1
+cmb_3,Fever Panel,Diagnostics,Identify the cause of persistent fever.,Dengue;Malaria;Typhoid;CBC,40.0,2

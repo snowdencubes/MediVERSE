@@ -1,0 +1,75 @@
+ticket_id,token_number,patient_name,patient_phone,department,doctor,room,total_fee,priority,triage_score,combos,created_at
+tck-87daf2d0,GEN-101,raju poaad,N/A,General Medicine,Dr. Priya Sharma,Room 102,35.0,STANDARD,1,,2026-09-10 13:34:50
+tck-dd770b2e,ORTH-101,Ramesh Kumar,9876543210,Orthopedics,Dr. Amit Patel,Room 201,80.0,STANDARD,1,,2026-09-10 13:56:22
+tck-22a29ba3,GEN-101,Test Patient,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-10 14:18:28
+tck-1f4f6269,GEN-101,Unknown,N/A,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-21 20:12:30
+tck-316032e7,GEN-101,Not,N/A,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-21 20:19:49
+tck-d5426abf,GEN-101,Rahul Kumar Test,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-21 20:56:31
+tck-3a3d0fff,GEN-101,Rahul Verma,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-21 21:56:01
+tck-b557e17c,GEN-101,Rahul Verma,9876543210,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-21 21:56:06
+tck-36f1bd83,ORTH-101,Rahul,9999999999,Orthopedics,Dr. Aris Thorne,Room 205,60.0,STANDARD,1,,2026-09-21 21:59:00
+tck-766c181c,CARD-101,Rahul  Mujhe Bukhar   Book Karo,9999999999,Cardiology,Dr. Ananya Roy,Room 201,70.0,STANDARD,1,,2026-09-21 21:59:35
+tck-3583b39f,CARD-101,Rahul,9999999999,Cardiology,Dr. Ananya Roy,Room 201,70.0,STANDARD,1,,2026-09-21 22:00:03
+tck-42f476ec,GEN-101,Test Production Patient,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-22 18:45:52
+tck-8e7704c0,GEN-101,Direct Verification Patient,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-22 19:03:35
+tck-f63bd5a8,GEN-101,Cloud Receipt Test Patient,9876543210,General Medicine,Duty Specialist,Desk A,35.0,STANDARD,1,,2026-09-22 19:05:49
+tck-068f56d4,GEN-101,API Patient 1,9990001100,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:32
+tck-9802a3f5,GEN-102,API Patient 2,9990001101,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:34
+tck-e07922ba,GEN-103,API Patient 3,9990001102,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:36
+tck-f87f82e1,GEN-104,API Patient 4,9990001103,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:38
+tck-0c9ad159,GEN-105,API Patient 5,9990001104,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:41
+tck-f2f5b4d8,GEN-106,API Patient 6,9990001105,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:43
+tck-ed5931f0,GEN-107,API Patient 7,9990001106,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:46
+tck-5e0c00cc,GEN-108,API Patient 8,9990001107,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:48
+tck-513fca1a,GEN-109,API Patient 9,9990001108,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:50
+tck-d456d94b,GEN-110,API Patient 10,9990001109,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:52
+tck-619f3b34,GEN-111,API Patient 11,9990001110,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:55
+tck-426a77da,GEN-112,API Patient 12,9990001111,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:18:57
+tck-4da5e8d8,GEN-113,API Patient 13,9990001112,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:00
+tck-9b74f897,GEN-114,API Patient 14,9990001113,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:02
+tck-6acbe0d4,GEN-115,API Patient 15,9990001114,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:04
+tck-a8e29a06,GEN-116,API Patient 16,9990001115,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:07
+tck-1cf20c90,GEN-117,API Patient 17,9990001116,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:09
+tck-33553cb6,GEN-118,API Patient 18,9990001117,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:12
+tck-cb2640db,GEN-119,API Patient 19,9990001118,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:14
+tck-88d2cf96,GEN-120,API Patient 20,9990001119,General Medicine,Dr. Amit Sharma,Room 101,35.0,STANDARD,1,,2026-09-22 19:19:17
+tck-cdd67ccf,CARD-101,Alice Rodriguez,9876438512,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:46:20
+tck-f6eef022,CARD-102,Fiona Garcia,9876187626,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:46:26
+tck-ee664898,CARD-103,Alice Williams,9876960735,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:46:33
+tck-020fff5f,CARD-104,Charlie Jones,9876571505,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:46:53
+tck-f00a6570,CARD-105,John Williams,9876131051,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:47:48
+tck-e979d1e4,CARD-106,George Johnson,9876612934,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:48:33
+tck-ed76f77a,CARD-107,Alice Miller,9876840374,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:49:21
+tck-ecaba73c,CARD-108,Hannah Miller,9876618798,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:50:03
+tck-3005c440,CARD-109,John Doe,9876240349,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:51:18
+tck-04d2f888,CARD-110,Charlie Davis,9876795873,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:51:30
+tck-7de42898,CARD-111,Alice Williams,9876573393,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:51:42
+tck-2f75cac3,CARD-112,Diana Davis,9876729710,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:51:56
+tck-670dfa58,CARD-113,Alice Williams,9876713363,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:52:10
+tck-1764fd36,CARD-114,Alice Brown,9876648419,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:52:29
+tck-8b593daf,CARD-115,Alice Miller,9876365008,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:52:46
+tck-1f093a69,CARD-116,Charlie Smith,9876500797,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:53:18
+tck-699e8140,CARD-117,Ethan Davis,9876282633,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:53:35
+tck-a053f011,CARD-118,Alice Doe,9876843001,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:53:58
+tck-53b78031,CARD-119,Jane Brown,9876666716,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:54:10
+tck-a9cd72c2,CARD-120,Ethan Smith,9876228194,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:54:24
+tck-6d46bf63,CARD-121,Diana Miller,9876773874,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:54:38
+tck-279ee6a0,CARD-122,Ethan Doe,9876361166,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:55:00
+tck-a26cbc01,CARD-123,Diana Smith,9876389756,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:55:13
+tck-c1684234,CARD-124,Hannah Rodriguez,9876701433,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:55:27
+tck-e7cf9b46,CARD-125,Ethan Johnson,9876765062,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:55:39
+tck-2b88fb4f,CARD-126,George Garcia,9876193994,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:55:54
+tck-969e9527,CARD-127,Jane Miller,9876149917,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:56:06
+tck-f0f1d388,CARD-128,Charlie Garcia,9876116880,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 20:56:19
+tck-811064c8,PED-101,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:34
+tck-fdd522ea,PED-102,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:36
+tck-6aca4a7f,PED-103,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:37
+tck-1d5fdeb0,PED-104,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:37
+tck-54d462dc,PED-105,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:40
+tck-8647a266,PED-106,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:41
+tck-e90f2ec6,PED-107,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:42
+tck-80fa6633,PED-108,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:42
+tck-c17094c3,PED-109,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:43
+tck-bd0377fb,PED-110,QWRYGGF,458384158,Pediatrics,Duty Specialist,Desk A,135.0,STANDARD,1,Cardiac Screening; Fever Panel,2026-09-22 21:01:43
+tck-978053a9,CARD-101,DSSSHGGG ,4488487428413,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 21:09:17
+tck-0b16a2e0,CARD-102,DSSSHGGG ,4488487428413,Cardiology,Dr. Priya Patel,Room 204,65.0,STANDARD,1,,2026-09-22 21:09:17

@@ -1,0 +1,5 @@
+id,national_id,name,phone,age,gender,blood_group,medical_history,abha_id,created_at
+pat_1,ABHA-9876-1234,Rajesh Kumar,+919876543210,42,Male,O+,Hypertension & Type-2 Diabetes,rajesh.kumar@abha,2026-09-20T10:00:00Z
+pat_2,ABHA-5432-8765,Sunita Sharma,+919812345678,35,Female,B+,Asthma & Seasonal Allergies,sunita.sharma@abha,2026-09-20T11:15:00Z
+pat_3,ABHA-1122-3344,Anil Verma,+919711223344,58,Male,A+,Coronary Artery Disease & BP,anil.verma@abha,2026-09-21T09:30:00Z
+pat_4,ABHA-6677-8899,Pooja Patel,+919655443322,28,Female,AB+,General Routine Checkup,pooja.patel@abha,2026-09-21T14:20:00Z

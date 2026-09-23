@@ -1,0 +1,450 @@
+ts,session_id,event_type,page,element,value,extra
+2026-09-22T17:27:20Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,1,
+2026-09-22T17:27:20Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,12,
+2026-09-22T17:27:20Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,123,
+2026-09-22T17:27:20Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,1234,
+2026-09-22T17:27:21Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,12345,
+2026-09-22T17:27:21Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,123455,
+2026-09-22T17:27:21Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,1234556,
+2026-09-22T17:27:21Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,12345563,
+2026-09-22T17:27:21Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,123455634,
+2026-09-22T17:27:25Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,1234556345,
+2026-09-22T17:27:25Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T17:27:26Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-name,12345563453,
+2026-09-22T17:27:26Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:28Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:28Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:28Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:28Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:28Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:34Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:34Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:34Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:34Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:36Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:27:36Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,input,/kiosk,patient-phone,***,
+2026-09-22T17:35:17Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T17:35:20Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T17:36:12Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T17:36:13Z,b2c6bb17-422e-415b-8e5f-5b2e8ece69f5,submit,/kiosk,create-ticket,PUL-395,"{""ticket_id"": ""tck-local-1790098572843"", ""department"": ""PULM Clinic"", ""patient"": ""12345563453""}"
+2026-09-22T18:03:45Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,R,
+2026-09-22T18:03:46Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RA,
+2026-09-22T18:03:47Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAH,
+2026-09-22T18:03:49Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAHU,
+2026-09-22T18:03:51Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAHUJ,
+2026-09-22T18:03:53Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAHUJ ,
+2026-09-22T18:03:53Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAHUJ L,
+2026-09-22T18:03:54Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAHUJ LH,
+2026-09-22T18:03:54Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-name,RAHUJ LHJ,
+2026-09-22T18:04:01Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:01Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:01Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:02Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:05Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:08Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T18:04:09Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:09Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T18:04:09Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:12Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:14Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T18:04:14Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,input,/kiosk,patient-phone,***,
+2026-09-22T18:04:14Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T18:04:19Z,d0fcd16b-566c-4be8-9fcc-54cb33fb3054,submit,/kiosk,create-ticket,ONC-202,"{""ticket_id"": ""tck-local-1790100259470"", ""department"": ""ONC Clinic"", ""patient"": ""RAHUJ LHJ""}"
+2026-09-22T18:50:02Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,1,
+2026-09-22T18:50:02Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,12,
+2026-09-22T18:50:04Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,123,
+2026-09-22T18:50:04Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,1233,
+2026-09-22T18:50:04Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,12332,
+2026-09-22T18:50:04Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,123324,
+2026-09-22T18:50:05Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,1233242,
+2026-09-22T18:50:05Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,12332424,
+2026-09-22T18:50:12Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,123324243,
+2026-09-22T18:50:18Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,12332424354,
+2026-09-22T18:50:17Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,1233242435,
+2026-09-22T18:50:18Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,,
+2026-09-22T18:50:18Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,h,
+2026-09-22T18:50:18Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,ha,
+2026-09-22T18:50:18Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,hal,
+2026-09-22T18:50:23Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,hall,
+2026-09-22T18:50:23Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,hall u,
+2026-09-22T18:50:23Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,hall ,
+2026-09-22T18:50:24Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,hall uo,
+2026-09-22T18:50:24Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,input,/kiosk,patient-name,hall uoi,
+2026-09-22T18:50:24Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T18:50:29Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T18:50:29Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T18:50:29Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T18:50:30Z,85fdc4ac-a1ee-4633-8df2-e29e7c166e86,submit,/kiosk,create-ticket,ONC-734,"{""ticket_id"": ""tck-local-1790103030641"", ""department"": ""ONC Clinic"", ""patient"": ""hall uoi""}"
+2026-09-22T19:16:00Z,0ff80117-7015-43a6-9fae-2b98237c74a1,input,/kiosk,patient-name,Test Patient 1,
+2026-09-22T19:16:00Z,0ff80117-7015-43a6-9fae-2b98237c74a1,input,/kiosk,patient-phone,***,
+2026-09-22T19:16:02Z,0ff80117-7015-43a6-9fae-2b98237c74a1,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T19:16:14Z,db9dff31-56be-486f-a7e6-37873d309bd0,input,/kiosk,patient-name,Test Patient 2,
+2026-09-22T19:16:14Z,db9dff31-56be-486f-a7e6-37873d309bd0,input,/kiosk,patient-phone,***,
+2026-09-22T19:16:16Z,db9dff31-56be-486f-a7e6-37873d309bd0,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T19:16:28Z,c0f3011d-9143-4771-9850-f4472aff00fd,input,/kiosk,patient-name,Test Patient 3,
+2026-09-22T19:16:28Z,c0f3011d-9143-4771-9850-f4472aff00fd,input,/kiosk,patient-phone,***,
+2026-09-22T19:16:30Z,c0f3011d-9143-4771-9850-f4472aff00fd,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T19:16:43Z,0254d41e-0300-43a4-a737-9755e4a9a421,input,/kiosk,patient-name,Test Patient 4,
+2026-09-22T19:16:43Z,0254d41e-0300-43a4-a737-9755e4a9a421,input,/kiosk,patient-phone,***,
+2026-09-22T19:16:45Z,0254d41e-0300-43a4-a737-9755e4a9a421,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T19:53:11Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,q,
+2026-09-22T19:53:11Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qe,
+2026-09-22T19:53:11Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeq,
+2026-09-22T19:53:11Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqe,
+2026-09-22T19:53:11Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq,
+2026-09-22T19:53:11Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq ,
+2026-09-22T19:53:13Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq q,
+2026-09-22T19:53:13Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq qw,
+2026-09-22T19:53:13Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq qwe,
+2026-09-22T19:53:14Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq qweq,
+2026-09-22T19:53:15Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,qeqeq qweqe,
+2026-09-22T19:53:15Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:15Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:15Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:15Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:16Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:17Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:17Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:17Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:18Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:18Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T19:53:18Z,ce496f82-a3c5-4016-8100-845c3a6508e4,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T19:53:21Z,ce496f82-a3c5-4016-8100-845c3a6508e4,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T19:53:27Z,ce496f82-a3c5-4016-8100-845c3a6508e4,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T19:53:29Z,ce496f82-a3c5-4016-8100-845c3a6508e4,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T19:53:29Z,ce496f82-a3c5-4016-8100-845c3a6508e4,submit,/kiosk,create-ticket,ENT-983,"{""ticket_id"": ""tck-local-1790106809525"", ""department"": ""ENT Clinic"", ""patient"": ""qeqeq qweqe""}"
+2026-09-22T20:45:23Z,8e44ce68-0b10-435e-ad36-7331bb26542e,input,/kiosk,patient-name,Fiona Smith,
+2026-09-22T20:45:23Z,8e44ce68-0b10-435e-ad36-7331bb26542e,input,/kiosk,patient-phone,***,
+2026-09-22T20:45:23Z,8e44ce68-0b10-435e-ad36-7331bb26542e,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:45:23Z,8e44ce68-0b10-435e-ad36-7331bb26542e,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:45:32Z,11d8e57f-e238-40b9-95bf-1ba897357198,input,/kiosk,patient-name,Hannah Doe,
+2026-09-22T20:45:32Z,11d8e57f-e238-40b9-95bf-1ba897357198,input,/kiosk,patient-phone,***,
+2026-09-22T20:45:32Z,11d8e57f-e238-40b9-95bf-1ba897357198,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:45:32Z,11d8e57f-e238-40b9-95bf-1ba897357198,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:45:41Z,02725547-fe28-441a-b4c9-e87d0e568cec,input,/kiosk,patient-name,Hannah Doe,
+2026-09-22T20:45:41Z,02725547-fe28-441a-b4c9-e87d0e568cec,input,/kiosk,patient-phone,***,
+2026-09-22T20:45:41Z,02725547-fe28-441a-b4c9-e87d0e568cec,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:45:41Z,02725547-fe28-441a-b4c9-e87d0e568cec,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:45:50Z,850ca26d-72fc-4406-95df-89b6a028856b,input,/kiosk,patient-name,Charlie Johnson,
+2026-09-22T20:45:50Z,850ca26d-72fc-4406-95df-89b6a028856b,input,/kiosk,patient-phone,***,
+2026-09-22T20:45:51Z,850ca26d-72fc-4406-95df-89b6a028856b,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:45:51Z,850ca26d-72fc-4406-95df-89b6a028856b,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:45:59Z,49eaab3d-2919-416f-ac34-ea1ad49f3744,input,/kiosk,patient-name,Jane Davis,
+2026-09-22T20:45:59Z,49eaab3d-2919-416f-ac34-ea1ad49f3744,input,/kiosk,patient-phone,***,
+2026-09-22T20:45:59Z,49eaab3d-2919-416f-ac34-ea1ad49f3744,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:45:59Z,49eaab3d-2919-416f-ac34-ea1ad49f3744,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:46:18Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,input,/kiosk,patient-name,Alice Rodriguez,
+2026-09-22T20:46:18Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,input,/kiosk,patient-phone,***,
+2026-09-22T20:46:18Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:46:18Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:46:19Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:46:19Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:46:20Z,a0a8f968-8c11-4e62-a634-06e0bb7b25f1,submit,/kiosk,create-ticket,CARD-101,"{""ticket_id"": ""tck-cdd67ccf"", ""department"": ""Cardiology"", ""patient"": ""Alice Rodriguez""}"
+2026-09-22T20:46:24Z,38200226-d020-43d8-a279-d0a64d7cb929,input,/kiosk,patient-name,Fiona Garcia,
+2026-09-22T20:46:24Z,38200226-d020-43d8-a279-d0a64d7cb929,input,/kiosk,patient-phone,***,
+2026-09-22T20:46:25Z,38200226-d020-43d8-a279-d0a64d7cb929,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:46:25Z,38200226-d020-43d8-a279-d0a64d7cb929,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:46:25Z,38200226-d020-43d8-a279-d0a64d7cb929,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:46:25Z,38200226-d020-43d8-a279-d0a64d7cb929,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:46:27Z,38200226-d020-43d8-a279-d0a64d7cb929,submit,/kiosk,create-ticket,CARD-102,"{""ticket_id"": ""tck-f6eef022"", ""department"": ""Cardiology"", ""patient"": ""Fiona Garcia""}"
+2026-09-22T20:46:31Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,input,/kiosk,patient-name,Alice Williams,
+2026-09-22T20:46:31Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,input,/kiosk,patient-phone,***,
+2026-09-22T20:46:31Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:46:31Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:46:31Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:46:31Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:46:33Z,03820bf3-b0c9-4d9b-8873-bbbf9b99e612,submit,/kiosk,create-ticket,CARD-103,"{""ticket_id"": ""tck-ee664898"", ""department"": ""Cardiology"", ""patient"": ""Alice Williams""}"
+2026-09-22T20:46:37Z,29d94825-314e-45af-8b0c-e1d40fd67d88,input,/kiosk,patient-name,Fiona Miller,
+2026-09-22T20:46:37Z,29d94825-314e-45af-8b0c-e1d40fd67d88,input,/kiosk,patient-phone,***,
+2026-09-22T20:46:37Z,29d94825-314e-45af-8b0c-e1d40fd67d88,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:46:38Z,29d94825-314e-45af-8b0c-e1d40fd67d88,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:46:38Z,29d94825-314e-45af-8b0c-e1d40fd67d88,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:46:38Z,29d94825-314e-45af-8b0c-e1d40fd67d88,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:46:51Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,input,/kiosk,patient-name,Charlie Jones,
+2026-09-22T20:46:51Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,input,/kiosk,patient-phone,***,
+2026-09-22T20:46:51Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:46:51Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:46:51Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:46:51Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:46:53Z,9d120f36-5c7d-4949-9f95-eb86bf0094c9,submit,/kiosk,create-ticket,CARD-104,"{""ticket_id"": ""tck-020fff5f"", ""department"": ""Cardiology"", ""patient"": ""Charlie Jones""}"
+2026-09-22T20:47:40Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,input,/kiosk,patient-name,John Williams,
+2026-09-22T20:47:41Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,input,/kiosk,patient-phone,***,
+2026-09-22T20:47:41Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:47:41Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:47:41Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:47:41Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:47:48Z,807b838a-f032-4c05-85eb-dfc67d1c2d65,submit,/kiosk,create-ticket,CARD-105,"{""ticket_id"": ""tck-f00a6570"", ""department"": ""Cardiology"", ""patient"": ""John Williams""}"
+2026-09-22T20:48:26Z,03567c6e-41af-43f8-8d71-4b84b877def4,input,/kiosk,patient-name,George Johnson,
+2026-09-22T20:48:26Z,03567c6e-41af-43f8-8d71-4b84b877def4,input,/kiosk,patient-phone,***,
+2026-09-22T20:48:26Z,03567c6e-41af-43f8-8d71-4b84b877def4,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:48:27Z,03567c6e-41af-43f8-8d71-4b84b877def4,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:48:27Z,03567c6e-41af-43f8-8d71-4b84b877def4,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:48:27Z,03567c6e-41af-43f8-8d71-4b84b877def4,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:48:33Z,03567c6e-41af-43f8-8d71-4b84b877def4,submit,/kiosk,create-ticket,CARD-106,"{""ticket_id"": ""tck-e979d1e4"", ""department"": ""Cardiology"", ""patient"": ""George Johnson""}"
+2026-09-22T20:49:19Z,b3465aad-5cfe-4996-baf0-eb016195b258,input,/kiosk,patient-name,Alice Miller,
+2026-09-22T20:49:19Z,b3465aad-5cfe-4996-baf0-eb016195b258,input,/kiosk,patient-phone,***,
+2026-09-22T20:49:19Z,b3465aad-5cfe-4996-baf0-eb016195b258,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:49:19Z,b3465aad-5cfe-4996-baf0-eb016195b258,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:49:19Z,b3465aad-5cfe-4996-baf0-eb016195b258,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:49:19Z,b3465aad-5cfe-4996-baf0-eb016195b258,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:49:21Z,b3465aad-5cfe-4996-baf0-eb016195b258,submit,/kiosk,create-ticket,CARD-107,"{""ticket_id"": ""tck-ed76f77a"", ""department"": ""Cardiology"", ""patient"": ""Alice Miller""}"
+2026-09-22T20:50:01Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,input,/kiosk,patient-name,Hannah Miller,
+2026-09-22T20:50:01Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:01Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:50:02Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:50:02Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:50:02Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:50:03Z,9186b1bd-8218-4f34-8e51-a52f2f587d7c,submit,/kiosk,create-ticket,CARD-108,"{""ticket_id"": ""tck-ecaba73c"", ""department"": ""Cardiology"", ""patient"": ""Hannah Miller""}"
+2026-09-22T20:50:30Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr ,
+2026-09-22T20:50:30Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,se,
+2026-09-22T20:50:30Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr,
+2026-09-22T20:50:30Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serw,
+2026-09-22T20:50:30Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,ser,
+2026-09-22T20:50:40Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr s,
+2026-09-22T20:50:40Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr sd,
+2026-09-22T20:50:40Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr sdf,
+2026-09-22T20:50:41Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr sdfg,
+2026-09-22T20:50:41Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr sdfgs,
+2026-09-22T20:50:42Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr sdfgsd,
+2026-09-22T20:50:48Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-name,serwr sdfgsdg,
+2026-09-22T20:50:49Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:49Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:49Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:49Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:50Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:58Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:58Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:58Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:59Z,ce496f82-a3c5-4016-8100-845c3a6508e4,input,/kiosk,patient-phone,***,
+2026-09-22T20:50:59Z,ce496f82-a3c5-4016-8100-845c3a6508e4,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:50:59Z,ce496f82-a3c5-4016-8100-845c3a6508e4,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:51:12Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,input,/kiosk,patient-name,John Doe,
+2026-09-22T20:51:12Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,input,/kiosk,patient-phone,***,
+2026-09-22T20:51:13Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:51:13Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:51:14Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:51:14Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:51:18Z,0c0bef5a-ab14-4e6c-b4f2-04cb07ba7de6,submit,/kiosk,create-ticket,CARD-109,"{""ticket_id"": ""tck-3005c440"", ""department"": ""Cardiology"", ""patient"": ""John Doe""}"
+2026-09-22T20:51:28Z,8d434d07-204c-49c2-a271-b7164c00a6d3,input,/kiosk,patient-name,Charlie Davis,
+2026-09-22T20:51:28Z,8d434d07-204c-49c2-a271-b7164c00a6d3,input,/kiosk,patient-phone,***,
+2026-09-22T20:51:28Z,8d434d07-204c-49c2-a271-b7164c00a6d3,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:51:28Z,8d434d07-204c-49c2-a271-b7164c00a6d3,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:51:28Z,8d434d07-204c-49c2-a271-b7164c00a6d3,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:51:28Z,8d434d07-204c-49c2-a271-b7164c00a6d3,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:51:30Z,8d434d07-204c-49c2-a271-b7164c00a6d3,submit,/kiosk,create-ticket,CARD-110,"{""ticket_id"": ""tck-04d2f888"", ""department"": ""Cardiology"", ""patient"": ""Charlie Davis""}"
+2026-09-22T20:51:40Z,97459715-5c88-4e7a-bef5-757f55ac20fd,input,/kiosk,patient-name,Alice Williams,
+2026-09-22T20:51:40Z,97459715-5c88-4e7a-bef5-757f55ac20fd,input,/kiosk,patient-phone,***,
+2026-09-22T20:51:40Z,97459715-5c88-4e7a-bef5-757f55ac20fd,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:51:40Z,97459715-5c88-4e7a-bef5-757f55ac20fd,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:51:41Z,97459715-5c88-4e7a-bef5-757f55ac20fd,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:51:41Z,97459715-5c88-4e7a-bef5-757f55ac20fd,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:51:42Z,97459715-5c88-4e7a-bef5-757f55ac20fd,submit,/kiosk,create-ticket,CARD-111,"{""ticket_id"": ""tck-7de42898"", ""department"": ""Cardiology"", ""patient"": ""Alice Williams""}"
+2026-09-22T20:51:54Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,input,/kiosk,patient-name,Diana Davis,
+2026-09-22T20:51:54Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,input,/kiosk,patient-phone,***,
+2026-09-22T20:51:54Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:51:54Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:51:54Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:51:54Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:51:56Z,6cb2c95c-1313-4a1f-a4d2-ab1ae1115e43,submit,/kiosk,create-ticket,CARD-112,"{""ticket_id"": ""tck-2f75cac3"", ""department"": ""Cardiology"", ""patient"": ""Diana Davis""}"
+2026-09-22T20:52:07Z,6e449305-755e-4167-bd54-72c0422d4cf9,input,/kiosk,patient-name,Alice Williams,
+2026-09-22T20:52:07Z,6e449305-755e-4167-bd54-72c0422d4cf9,input,/kiosk,patient-phone,***,
+2026-09-22T20:52:07Z,6e449305-755e-4167-bd54-72c0422d4cf9,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:52:08Z,6e449305-755e-4167-bd54-72c0422d4cf9,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:52:08Z,6e449305-755e-4167-bd54-72c0422d4cf9,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:52:08Z,6e449305-755e-4167-bd54-72c0422d4cf9,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:52:10Z,6e449305-755e-4167-bd54-72c0422d4cf9,submit,/kiosk,create-ticket,CARD-113,"{""ticket_id"": ""tck-670dfa58"", ""department"": ""Cardiology"", ""patient"": ""Alice Williams""}"
+2026-09-22T20:52:21Z,27f05439-2344-4837-b454-9f3dbec36309,input,/kiosk,patient-name,Alice Brown,
+2026-09-22T20:52:21Z,27f05439-2344-4837-b454-9f3dbec36309,input,/kiosk,patient-phone,***,
+2026-09-22T20:52:21Z,27f05439-2344-4837-b454-9f3dbec36309,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:52:21Z,27f05439-2344-4837-b454-9f3dbec36309,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:52:21Z,27f05439-2344-4837-b454-9f3dbec36309,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:52:21Z,27f05439-2344-4837-b454-9f3dbec36309,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:52:29Z,27f05439-2344-4837-b454-9f3dbec36309,submit,/kiosk,create-ticket,CARD-114,"{""ticket_id"": ""tck-1764fd36"", ""department"": ""Cardiology"", ""patient"": ""Alice Brown""}"
+2026-09-22T20:52:44Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,input,/kiosk,patient-name,Alice Miller,
+2026-09-22T20:52:44Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,input,/kiosk,patient-phone,***,
+2026-09-22T20:52:44Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:52:44Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:52:44Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:52:44Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:52:46Z,fe7e9df1-3c72-4a1a-abb6-a22de0630397,submit,/kiosk,create-ticket,CARD-115,"{""ticket_id"": ""tck-8b593daf"", ""department"": ""Cardiology"", ""patient"": ""Alice Miller""}"
+2026-09-22T20:53:14Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,input,/kiosk,patient-name,Charlie Smith,
+2026-09-22T20:53:14Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,input,/kiosk,patient-phone,***,
+2026-09-22T20:53:14Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:53:14Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:53:14Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:53:14Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:53:18Z,d2853c5f-13d2-4f13-b38d-ce0315c882d0,submit,/kiosk,create-ticket,CARD-116,"{""ticket_id"": ""tck-1f093a69"", ""department"": ""Cardiology"", ""patient"": ""Charlie Smith""}"
+2026-09-22T20:53:33Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,input,/kiosk,patient-name,Ethan Davis,
+2026-09-22T20:53:33Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,input,/kiosk,patient-phone,***,
+2026-09-22T20:53:33Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:53:33Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:53:34Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:53:34Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:53:35Z,a95af857-a801-45f7-8bc4-d43f71dfe96b,submit,/kiosk,create-ticket,CARD-117,"{""ticket_id"": ""tck-699e8140"", ""department"": ""Cardiology"", ""patient"": ""Ethan Davis""}"
+2026-09-22T20:53:56Z,03480c58-845e-4cf2-9634-a36e975f6070,input,/kiosk,patient-name,Alice Doe,
+2026-09-22T20:53:56Z,03480c58-845e-4cf2-9634-a36e975f6070,input,/kiosk,patient-phone,***,
+2026-09-22T20:53:56Z,03480c58-845e-4cf2-9634-a36e975f6070,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:53:56Z,03480c58-845e-4cf2-9634-a36e975f6070,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:53:56Z,03480c58-845e-4cf2-9634-a36e975f6070,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:53:56Z,03480c58-845e-4cf2-9634-a36e975f6070,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:53:58Z,03480c58-845e-4cf2-9634-a36e975f6070,submit,/kiosk,create-ticket,CARD-118,"{""ticket_id"": ""tck-a053f011"", ""department"": ""Cardiology"", ""patient"": ""Alice Doe""}"
+2026-09-22T20:54:09Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,input,/kiosk,patient-name,Jane Brown,
+2026-09-22T20:54:09Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,input,/kiosk,patient-phone,***,
+2026-09-22T20:54:09Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:54:09Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:54:09Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:54:09Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:54:10Z,30872d5b-851b-4c96-83bc-21d8b88cdf31,submit,/kiosk,create-ticket,CARD-119,"{""ticket_id"": ""tck-53b78031"", ""department"": ""Cardiology"", ""patient"": ""Jane Brown""}"
+2026-09-22T20:54:22Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,input,/kiosk,patient-name,Ethan Smith,
+2026-09-22T20:54:22Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,input,/kiosk,patient-phone,***,
+2026-09-22T20:54:22Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:54:23Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:54:23Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:54:23Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:54:24Z,e9a55e50-95ad-4842-a49e-d2cd1a7cdb58,submit,/kiosk,create-ticket,CARD-120,"{""ticket_id"": ""tck-a9cd72c2"", ""department"": ""Cardiology"", ""patient"": ""Ethan Smith""}"
+2026-09-22T20:54:35Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,input,/kiosk,patient-name,Diana Miller,
+2026-09-22T20:54:36Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,input,/kiosk,patient-phone,***,
+2026-09-22T20:54:36Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:54:36Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:54:36Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:54:36Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:54:38Z,03c6f93a-bf39-48e3-bfb8-002a95a76f9d,submit,/kiosk,create-ticket,CARD-121,"{""ticket_id"": ""tck-6d46bf63"", ""department"": ""Cardiology"", ""patient"": ""Diana Miller""}"
+2026-09-22T20:54:54Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,input,/kiosk,patient-name,Ethan Doe,
+2026-09-22T20:54:54Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,input,/kiosk,patient-phone,***,
+2026-09-22T20:54:54Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:54:54Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:54:54Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:54:54Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:55:00Z,27968cc9-9fd6-455a-88d9-0e1d163f2239,submit,/kiosk,create-ticket,CARD-122,"{""ticket_id"": ""tck-279ee6a0"", ""department"": ""Cardiology"", ""patient"": ""Ethan Doe""}"
+2026-09-22T20:55:11Z,89f08585-8cac-4a38-9829-30e720d11561,input,/kiosk,patient-name,Diana Smith,
+2026-09-22T20:55:11Z,89f08585-8cac-4a38-9829-30e720d11561,input,/kiosk,patient-phone,***,
+2026-09-22T20:55:11Z,89f08585-8cac-4a38-9829-30e720d11561,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:55:11Z,89f08585-8cac-4a38-9829-30e720d11561,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:55:11Z,89f08585-8cac-4a38-9829-30e720d11561,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:55:11Z,89f08585-8cac-4a38-9829-30e720d11561,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:55:13Z,89f08585-8cac-4a38-9829-30e720d11561,submit,/kiosk,create-ticket,CARD-123,"{""ticket_id"": ""tck-a26cbc01"", ""department"": ""Cardiology"", ""patient"": ""Diana Smith""}"
+2026-09-22T20:55:25Z,86cd5be5-37d1-41d6-819e-4145743b4974,input,/kiosk,patient-name,Hannah Rodriguez,
+2026-09-22T20:55:25Z,86cd5be5-37d1-41d6-819e-4145743b4974,input,/kiosk,patient-phone,***,
+2026-09-22T20:55:25Z,86cd5be5-37d1-41d6-819e-4145743b4974,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:55:25Z,86cd5be5-37d1-41d6-819e-4145743b4974,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:55:25Z,86cd5be5-37d1-41d6-819e-4145743b4974,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:55:25Z,86cd5be5-37d1-41d6-819e-4145743b4974,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:55:27Z,86cd5be5-37d1-41d6-819e-4145743b4974,submit,/kiosk,create-ticket,CARD-124,"{""ticket_id"": ""tck-c1684234"", ""department"": ""Cardiology"", ""patient"": ""Hannah Rodriguez""}"
+2026-09-22T20:55:37Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,input,/kiosk,patient-name,Ethan Johnson,
+2026-09-22T20:55:37Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,input,/kiosk,patient-phone,***,
+2026-09-22T20:55:37Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:55:37Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:55:37Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:55:37Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:55:39Z,7bb4fd9c-5da4-49f9-9056-affe5bd73749,submit,/kiosk,create-ticket,CARD-125,"{""ticket_id"": ""tck-e7cf9b46"", ""department"": ""Cardiology"", ""patient"": ""Ethan Johnson""}"
+2026-09-22T20:55:50Z,a9b9a883-b439-4906-99bc-851c3bea9a69,input,/kiosk,patient-name,George Garcia,
+2026-09-22T20:55:50Z,a9b9a883-b439-4906-99bc-851c3bea9a69,input,/kiosk,patient-phone,***,
+2026-09-22T20:55:50Z,a9b9a883-b439-4906-99bc-851c3bea9a69,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:55:50Z,a9b9a883-b439-4906-99bc-851c3bea9a69,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:55:50Z,a9b9a883-b439-4906-99bc-851c3bea9a69,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:55:50Z,a9b9a883-b439-4906-99bc-851c3bea9a69,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:55:54Z,a9b9a883-b439-4906-99bc-851c3bea9a69,submit,/kiosk,create-ticket,CARD-126,"{""ticket_id"": ""tck-2b88fb4f"", ""department"": ""Cardiology"", ""patient"": ""George Garcia""}"
+2026-09-22T20:56:04Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,input,/kiosk,patient-name,Jane Miller,
+2026-09-22T20:56:04Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,input,/kiosk,patient-phone,***,
+2026-09-22T20:56:04Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:56:04Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:56:04Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:56:04Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:56:06Z,0a4f58c1-6e11-43e3-b34c-2974d6dcb8ef,submit,/kiosk,create-ticket,CARD-127,"{""ticket_id"": ""tck-969e9527"", ""department"": ""Cardiology"", ""patient"": ""Jane Miller""}"
+2026-09-22T20:56:17Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,input,/kiosk,patient-name,Charlie Garcia,
+2026-09-22T20:56:17Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,input,/kiosk,patient-phone,***,
+2026-09-22T20:56:17Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T20:56:17Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T20:56:17Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T20:56:17Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T20:56:19Z,38052db0-fe72-4a28-a1a0-fec04e2f9c8b,submit,/kiosk,create-ticket,CARD-128,"{""ticket_id"": ""tck-f0f1d388"", ""department"": ""Cardiology"", ""patient"": ""Charlie Garcia""}"
+2026-09-22T21:01:10Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,Q,
+2026-09-22T21:01:11Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,QW,
+2026-09-22T21:01:11Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,QWR,
+2026-09-22T21:01:12Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,QWRY,
+2026-09-22T21:01:12Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,QWRYG,
+2026-09-22T21:01:12Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,QWRYGG,
+2026-09-22T21:01:16Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,QWRYGGF,
+2026-09-22T21:01:17Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:17Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:18Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:19Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:19Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:22Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:23Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:24Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:25Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:01:26Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T21:01:27Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T21:01:29Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T21:01:29Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:31Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:32Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:34Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:35Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:36Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:37Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:41Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:41Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:42Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:01:43Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-101,"{""ticket_id"": ""tck-811064c8"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:01:47Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-102,"{""ticket_id"": ""tck-fdd522ea"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:01:47Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-103,"{""ticket_id"": ""tck-6aca4a7f"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:01:49Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-104,"{""ticket_id"": ""tck-1d5fdeb0"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:01:50Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-105,"{""ticket_id"": ""tck-54d462dc"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:01:52Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-106,"{""ticket_id"": ""tck-8647a266"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:01:53Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-107,"{""ticket_id"": ""tck-e90f2ec6"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:02:00Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-108,"{""ticket_id"": ""tck-80fa6633"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:02:03Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-109,"{""ticket_id"": ""tck-c17094c3"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:02:08Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,PED-110,"{""ticket_id"": ""tck-bd0377fb"", ""department"": ""Pediatrics"", ""patient"": ""QWRYGGF""}"
+2026-09-22T21:08:53Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,D,
+2026-09-22T21:08:54Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DS,
+2026-09-22T21:08:54Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSS,
+2026-09-22T21:08:55Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSSS,
+2026-09-22T21:08:55Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSSSH,
+2026-09-22T21:08:55Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSSSHG,
+2026-09-22T21:08:56Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSSSHGG,
+2026-09-22T21:08:59Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSSSHGGG,
+2026-09-22T21:09:00Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-name,DSSSHGGG ,
+2026-09-22T21:09:00Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:00Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:01Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:02Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:07Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:07Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:08Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:09Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:09Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:10Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:13Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:14Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:14Z,7368bcf5-600d-481f-bf90-0de6112ad76e,input,/kiosk,patient-phone,***,
+2026-09-22T21:09:14Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T21:09:14Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T21:09:15Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"
+2026-09-22T21:09:17Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:09:17Z,7368bcf5-600d-481f-bf90-0de6112ad76e,navigate,/kiosk,step-4-next,,"{""from_step"": 4, ""to_step"": 5}"
+2026-09-22T21:09:17Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,CARD-101,"{""ticket_id"": ""tck-978053a9"", ""department"": ""Cardiology"", ""patient"": ""DSSSHGGG ""}"
+2026-09-22T21:09:17Z,7368bcf5-600d-481f-bf90-0de6112ad76e,submit,/kiosk,create-ticket,CARD-102,"{""ticket_id"": ""tck-0b16a2e0"", ""department"": ""Cardiology"", ""patient"": ""DSSSHGGG ""}"
+2026-09-22T21:25:54Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,E,
+2026-09-22T21:25:54Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,EU,
+2026-09-22T21:25:55Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,EUG,
+2026-09-22T21:25:55Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,EUGS,
+2026-09-22T21:25:55Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,EUGSO,
+2026-09-22T21:25:55Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,EUGSOG,
+2026-09-22T21:26:00Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-name,EUGSOGA,
+2026-09-22T21:26:01Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:03Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:03Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:06Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:07Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:08Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:10Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:11Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:11Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:13Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:13Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:14Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,input,/kiosk,patient-phone,***,
+2026-09-22T21:26:15Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,navigate,/kiosk,step-1-next,,"{""from_step"": 1, ""to_step"": 2}"
+2026-09-22T21:26:17Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,navigate,/kiosk,step-2-next,,"{""from_step"": 2, ""to_step"": 3}"
+2026-09-22T21:26:20Z,eac8153a-4bcb-452a-b9d3-49f679f3034e,navigate,/kiosk,step-3-next,,"{""from_step"": 3, ""to_step"": 4}"

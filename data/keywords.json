@@ -1,0 +1,36 @@
+{
+  "wake_words": [
+    "wake up",
+    "hello",
+    "jaag jao",
+    "jaag jao prashant",
+    "wake up prashant",
+    "hey prashant",
+    "prashant",
+    "listen prashant",
+    "suno prashant",
+    "hi prashant",
+    "namaste prashant",
+    "kiosk wake"
+  ],
+  "confirm_words": [
+    "yes",
+    "haan",
+    "ha", "haji",
+    "yeah",
+    "yep",
+    "sure",
+    "continue",
+    "ok",
+    "okay",
+    "chalo"
+  ],
+  "back_words": [
+    "back",
+    "peeche",
+    "wapas",
+    "main menu",
+    "home",
+    "cancel"
+  ]
+}

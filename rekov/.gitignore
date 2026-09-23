@@ -1,0 +1,61 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables & configuration
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+config.json
+rekov/config.json
+
+# Next.js
+.next
+out
+next-env.d.ts
+
+# Logs & Databases
+*.log
+*.db
+*backend_log.txt
+data/logs/
+data/backup_offline/
+backup/
+*receipts_user/
+*receiptsour/
+
+# TypeScript
+*.tsbuildinfo
+
