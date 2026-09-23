@@ -431,8 +431,9 @@ def main():
             sys_logger.error(f"  [ERR]  [SETUP]  Frontend dependencies failed: {e}")
             sys.exit(1)
 
+    is_prod = os.environ.get("RENDER") == "true" or os.environ.get("NODE_ENV") == "production"
     # ── 3. Clear stale .next webpack cache & apply Windows patch ─────────────
-    if not ui_alive:
+    if not ui_alive and not is_prod:
         next_cache = os.path.join(frontend_dir, ".next")
         if os.path.isdir(next_cache):
             try:
