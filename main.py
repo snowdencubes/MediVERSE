@@ -450,7 +450,7 @@ def main():
 
     # ── 4. Launch services ───────────────────────────────────────────────────
     backend_cmd = [sys.executable, "-m", "uvicorn", "main:app",
-                   "--host", "0.0.0.0", "--port", "4040", "--reload"]
+                   "--host", "0.0.0.0", "--port", "4040"]
 
     # Use explicit npm binary (no shell=True) so Python owns the npm process
     # directly instead of through cmd.exe, which can exit early on Windows.
@@ -466,11 +466,11 @@ def main():
     _next_bin = os.path.join(frontend_dir, "node_modules", "next", "dist", "bin", "next")
     _node_bin = shutil.which("node") or "node"
     if os.path.isfile(_next_bin):
-        frontend_cmd = [_node_bin, _next_bin, "dev", "-p", "3000"]
+        frontend_cmd = [_node_bin, _next_bin, "start", "-p", "3000"]
         sys_logger.info("  [INF]  [UI]   Launching Next.js directly via node (bypasses npm.cmd wrapper)")
     else:
-        # Fallback: npm run dev without shell so we at least own npm.cmd
-        frontend_cmd = [_npm_bin, "run", "dev"]
+        # Fallback: npm run start without shell so we at least own npm.cmd
+        frontend_cmd = [_npm_bin, "run", "start"]
 
     backend_process  = run_process(backend_cmd,  backend_dir,  "API") if not api_alive else None
     frontend_process = run_process(frontend_cmd, frontend_dir, "UI") if not ui_alive else None
