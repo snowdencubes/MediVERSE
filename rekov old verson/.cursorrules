@@ -1,7 +1,0 @@
-# Project Context
-Read `AI_HANDOFF.md` before generating code. It contains critical instructions about the UI components, our "Red-Led" design system, Universal Usability requirements, and the Next.js App Router architecture.
-
-# Universal Usability (CRITICAL)
-- **One Decision Per Screen**: Never ask for two disparate things at once.
-- **56px Minimum Touch Targets**: Every interactive element must be massive.
-- **Icons MUST have Text**: Never use icon-only buttons.
