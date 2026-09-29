@@ -34,8 +34,8 @@
 
 ## 📸 Sneak Peek
 <div align="center">
-  <img src="docs/assets/kiosk_ui.jpg" alt="Kiosk UI" width="48%" style="border-radius: 8px;">
-  <img src="docs/assets/ai_terminal.jpg" alt="RITMO AI Terminal" width="48%" style="border-radius: 8px;">
+  <img src="https://via.placeholder.com/800x400/0052cc/FFFFFF?text=Stunning+Next.js+Kiosk+UI" alt="Kiosk UI" width="48%">
+  <img src="https://via.placeholder.com/800x400/121212/0052cc?text=RITMO+AI+Terminal" alt="RITMO AI Terminal" width="48%">
 </div>
 
 ---
@@ -67,7 +67,7 @@
       </td>
       <td align="center">
         <a href="https://github.com/snowdencubes/MediVERSE/graphs/contributors">
-          <img src="docs/assets/team_icon.jpg" width="120px;" alt="Open Source Team" style="border-radius:50%"/>
+          <img src="https://via.placeholder.com/120/1a1a1a/0052cc?text=Team" width="120px;" alt="Open Source Team" style="border-radius:50%"/>
           <br />
           <b>Contributors</b>
         </a>
