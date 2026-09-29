@@ -35,11 +35,16 @@ COPY rekoviu/ ./rekoviu/
 
 # Copy system launcher and data
 COPY data/ ./data/
-COPY main.py logger.py ./
+COPY base/ ./base/
+COPY huggfaceonnx/ ./huggfaceonnx/
+COPY language/ ./language/
+COPY ritmo/ ./ritmo/
+COPY main.py logger.py interface.py rekov_credits.py ./
 
 EXPOSE 3000
 EXPOSE 4040
 
 # Run unified launcher (starts frontend on 3000 and backend on 4040)
-CMD ["python", "main.py"]
+# We use rekov/launcher.py directly to bypass the interactive CLI of main.py
+CMD ["python", "rekov/launcher.py"]
 
