@@ -73,28 +73,19 @@
       </td>
       <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/snowdencubes">
-          <img src="https://github.com/snowdencubes.png" width="100px;" alt="Snowden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
+          <img src="https://github.com/snowdencubes.png" width="100px;" alt="Snowden" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px;"/>
           <br />
           <b style="font-size: 1.0em;">Snowden</b>
         </a>
         <br />
-        <span style="color: #0052cc; font-weight: bold; font-size: 0.85em;">Project Lead</span><br/>
+        <span style="color: #555; font-weight: bold; font-size: 0.85em;">Third Developer</span><br/>
         <i style="font-size: 0.8em;">(Krish Kumar's Alt)</i>
       </td>
       <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/droy">
-          <img src="https://github.com/droy.png" width="100px;" alt="Dipankar Roy" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px;"/>
+          <img src="https://api.dicebear.com/9.x/micah/svg?seed=lazy&backgroundColor=b6e3f4" width="100px;" alt="Dipankar Roy" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px;"/>
           <br />
           <b style="font-size: 1.0em;">Dipankar Roy</b>
-        </a>
-        <br />
-        <span style="color: #555; font-weight: bold; font-size: 0.85em;">Contributor</span><br/>
-      </td>
-      <td align="center" style="border: none; padding: 15px;">
-        <a href="https://github.com/rhoggs-bot-test-account">
-          <img src="https://github.com/rhoggs-bot-test-account.png" width="100px;" alt="rhoggs" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px;"/>
-          <br />
-          <b style="font-size: 1.0em;">rhoggs-bot</b>
         </a>
         <br />
         <span style="color: #555; font-weight: bold; font-size: 0.85em;">Contributor</span><br/>
