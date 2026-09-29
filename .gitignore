@@ -65,6 +65,7 @@ base/models/*.onnx
 
 # Generated receipts
 data/receipts/
+data/tts_cache/
 
 # Backup / scratch files
 _interface_orig.py

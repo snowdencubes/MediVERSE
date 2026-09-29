@@ -104,6 +104,12 @@ def _load_env_from_config():
                 )
                 if hf:
                     os.environ["HF_TOKEN"] = os.environ["HF_API_TOKEN"] = os.environ["HUGGINGFACE_API_KEY"] = hf
+                el = (
+                    cfg.get("elevenlabs_key") or cfg.get("ELEVENLABS_KEY")
+                    or os.environ.get("ELEVENLABS_API_KEY", "")
+                )
+                if el:
+                    os.environ["ELEVENLABS_API_KEY"] = el
                 print(_green(f"  [OK]  Config loaded from {os.path.basename(path)}"))
                 return
             except Exception as e:

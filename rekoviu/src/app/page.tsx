@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useGesture } from '@/contexts/GestureContext';
 import { MediVERSENav } from '@/components/common/MediVERSENav';
-import { SmartQRCard } from '@/components/common/SmartQRCard';
 
 const LANG_GROUPS = [
   { id: 'primary', tLabel: 'primary_lang', items: [
@@ -148,8 +147,7 @@ export default function Home() {
         {/* SEGMENT 2 (MIDDLE): Compact 24/7 Voice AI Card */}
         <div style={{ flex: '1 1 320px', maxWidth: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           
-          {/* Smart Session QR Card (replaces Telegram QR) */}
-          <SmartQRCard />
+          {/* Smart Session QR Card removed */}
 
           <div style={{
             width: '100%', background: 'var(--bg-card)', border: '1px solid rgba(48, 209, 88, 0.5)', borderRadius: 20, paddingTop: 48, paddingBottom: 20, paddingLeft: 20, paddingRight: 20,

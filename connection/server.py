@@ -47,6 +47,9 @@ def _load_config():
                 hf = cfg.get("hf_token") or cfg.get("HF_TOKEN") or ""
                 if hf:
                     os.environ["HF_TOKEN"] = hf
+                el = cfg.get("elevenlabs_key") or cfg.get("ELEVENLABS_KEY") or ""
+                if el:
+                    os.environ["ELEVENLABS_API_KEY"] = el
                 # Tell frontend/backend the API is under /api/v1 on the same origin
                 os.environ["NEXT_PUBLIC_API_URL"] = "http://localhost:3000/api/v1"
                 return
@@ -108,48 +111,32 @@ if os.path.isdir(NEXT_EXPORT):
     # Production static export
     app.mount("/", StaticFiles(directory=NEXT_EXPORT, html=True), name="frontend")
     print(f"[OK]  Serving Next.js static export from {NEXT_EXPORT}")
+elif os.path.isdir(FRONTEND_DIR) and os.path.isfile(os.path.join(FRONTEND_DIR, "package.json")):
+    # No export yet — try to build it
+    print("[!]   No Next.js export found. Building now...")
+    try:
+        # Install deps if needed
+        if not os.path.isdir(os.path.join(FRONTEND_DIR, "node_modules")):
+            subprocess.run(["npm", "ci"], cwd=FRONTEND_DIR, check=True, timeout=120)
+        # Build static export
+        build_env = os.environ.copy()
+        build_env["NEXT_PUBLIC_API_URL"] = "/api/v1"
+        subprocess.run(["npm", "run", "build"], cwd=FRONTEND_DIR, check=True, timeout=180, env=build_env)
+        if os.path.isdir(NEXT_EXPORT):
+            app.mount("/", StaticFiles(directory=NEXT_EXPORT, html=True), name="frontend")
+            print(f"[OK]  Built and serving Next.js from {NEXT_EXPORT}")
+        else:
+            print("[WRN] Build completed but out/ not found.")
+    except Exception as e:
+        print(f"[ERR] Could not build frontend: {e}")
+        print("      Run 'cd rekoviu && npm run build' manually.")
+        @app.get("/")
+        def fallback_root():
+            return {"message": "REKOV API running. Frontend not built — run 'cd rekoviu && npm run build'"}
 else:
-    # Dev fallback -- proxy to Next.js dev server (npm run dev) on port 3001
-    import httpx
-    from starlette.requests import Request
-    from starlette.responses import StreamingResponse, HTMLResponse
-    from fastapi.responses import FileResponse
-
-    NEXT_DEV_URL = "http://localhost:3001"
-
-    @app.api_route("/{path:path}", methods=["GET", "HEAD", "OPTIONS"])
-    async def _next_proxy(request: Request, path: str):
-        async with httpx.AsyncClient() as client:
-            url = f"{NEXT_DEV_URL}/{path}"
-            if request.url.query:
-                url += f"?{request.url.query}"
-            try:
-                resp = await client.request(
-                    method=request.method,
-                    url=url,
-                    headers=dict(request.headers),
-                    timeout=60,
-                )
-                # Remove hop-by-hop and content-encoding headers to avoid double-encoding issues
-                filtered_headers = {
-                    k: v for k, v in resp.headers.items()
-                    if k.lower() not in ("content-encoding", "content-length", "transfer-encoding", "connection")
-                }
-                return StreamingResponse(
-                    content=iter([resp.content]),
-                    status_code=resp.status_code,
-                    headers=filtered_headers,
-                )
-            except Exception as e:
-                if "favicon" in path:
-                    return FileResponse(os.path.join(FRONTEND_DIR, "public", "favicon.ico"))
-                return HTMLResponse(
-                    content=f"<html><body style='background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:50px;'><h2>Next.js UI is starting...</h2><p>Please wait a few seconds and refresh the page.</p><p style='color:#666;font-size:12px;'>Error: {str(e)}</p></body></html>",
-                    status_code=502
-                )
-
-    print(f"[!]   No Next.js export found. Proxying /* to {NEXT_DEV_URL}")
-    print(f"      Run 'npm run dev -- --port 3001' in rekoviu/ for the frontend.")
+    @app.get("/")
+    def fallback_root():
+        return {"message": "REKOV API running. Frontend directory not found."}
 
 
 # ---------------------------------------------------------------------------
