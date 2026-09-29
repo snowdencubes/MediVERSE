@@ -1,62 +1,143 @@
-# MediVERSE (Team CureX - SIH26047)
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0052cc&height=250&section=header&text=MediVERSE&fontSize=90&fontAlignY=35&desc=The%20Next-Gen%20Hospital%20Queue%20%26%20AI%20Assistant&descAlignY=55&descAlign=50" />
+  
+  <p align="center">
+    <strong>Revolutionizing Healthcare Management with AI, Voice, and Seamless Automation</strong>
+  </p>
 
-MediVERSE is a comprehensive Patient Case-Taking System designed specifically for AYUSH OPDs. It provides an ultra-accessible patient kiosk for self-service intake, and a powerful Doctor Portal for reviewing AI-drafted summaries.
+  <p align="center">
+    <a href="https://github.com/snowdencubes/MediVERSE/releases"><img src="https://img.shields.io/github/v/tag/snowdencubes/MediVERSE?label=release&color=0052cc&style=for-the-badge" alt="Release"></a>
+    <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python"></a>
+    <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-Black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js"></a>
+    <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0052cc?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
+    <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase"></a>
+  </p>
+</div>
 
-## 🤖 For AI Agents & LLM Assistants (Context)
-**CRITICAL DIRECTIVE:**
-- The `backup/` directory contains versioned zipped archives of the project (e.g., `backup/backupv1.zip`). **Under no circumstances should any AI agent, script, or user delete, modify, or remove this folder.** It must remain completely untouched.
-- The project is now split into two main architectures: `rekoviu/` (Next.js Frontend) and `rekov/` (FastAPI Backend).
+---
 
-## 🚀 Collaborator Setup & Clone Commands
+## 🌟 Why MediVERSE? (The Hackathon Hook)
+**Imagine a hospital where queues manage themselves and AI triages patients before they even see a doctor.** 
 
-To get started with development, run the following commands in your terminal:
+**MediVERSE** is a full-stack, AI-powered hospital management ecosystem. It seamlessly bridges the gap between physical hospital kiosks and advanced digital AI triage. Whether a patient uses the Next.js touch kiosk, chats with our LLM, or speaks directly to our Voice Assistant, MediVERSE handles check-in, dynamic queuing, and digital receipts (with instantly scannable QR codes) in real-time.
 
+### ✨ Key Features That Wow
+- 🚀 **Omnichannel Triage:** 
+  - **Web UI:** Stunning Kiosk-style interface built on Next.js.
+  - **AI Mode:** Understands symptoms in English, Hindi, and Hinglish using Qwen 72B (Online) or Qwen 0.5B-3B (100% Offline ONNX).
+  - **Voice Mode:** Always-listening STT (Google/Vosk) + TTS (Edge-TTS).
+- ⚡ **Digital Receipts via QR:** Instantly generates PDF receipts uploaded to Supabase Storage. Patients just scan a QR code and walk away.
+- 🔋 **Resilient Architecture:** Fallback to local SQLite when offline. Once the internet returns, background threads seamlessly sync to Supabase.
+- 🛠️ **Zero Config Launch:** Everything runs from one command: `python main.py`
+
+---
+
+## 📸 Sneak Peek
+<div align="center">
+  <img src="https://via.placeholder.com/800x400/0052cc/FFFFFF?text=Stunning+Next.js+Kiosk+UI" alt="Kiosk UI" width="48%">
+  <img src="https://via.placeholder.com/800x400/121212/0052cc?text=RITMO+AI+Terminal" alt="RITMO AI Terminal" width="48%">
+</div>
+
+---
+
+## 👨‍💻 Meet the Masterminds
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/pheonix14">
+          <img src="https://github.com/pheonix14.png" width="120px;" alt="Phoenix 14" style="border-radius:50%"/>
+          <br />
+          <b>Phoenix 14</b>
+        </a>
+        <br />
+        <span style="color: #0052cc">Lead Developer</span><br/>
+        <i>Backend Architecture, AI Integration & Core Engine</i>
+      </td>
+      <td align="center">
+        <a href="https://github.com/krishkumarcodes">
+          <img src="https://github.com/krishkumarcodes.png" width="120px;" alt="Shoden (Krish Kumar)" style="border-radius:50%"/>
+          <br />
+          <b>Shoden (Krish Kumar)</b>
+        </a>
+        <br />
+        <span style="color: #0052cc">Second Developer</span><br/>
+        <i>Frontend Wizardry, Web UI & UX Experience</i>
+      </td>
+      <td align="center">
+        <a href="https://github.com/snowdencubes/MediVERSE/graphs/contributors">
+          <img src="https://via.placeholder.com/120/1a1a1a/0052cc?text=Team" width="120px;" alt="Open Source Team" style="border-radius:50%"/>
+          <br />
+          <b>Contributors</b>
+        </a>
+        <br />
+        <span style="color: #0052cc">Open Source Team</span><br/>
+        <i>Thanks to everyone who contributed to MediVERSE!</i>
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
+## 🛠️ Architecture
+
+```mermaid
+graph TD;
+    Patient-->|Touches Screen| Kiosk[Next.js Frontend]
+    Patient-->|Speaks/Chats| AI[Terminal/Voice]
+    Kiosk-->|API Calls| FastAPI[FastAPI Backend]
+    AI-->|Direct Logic| FastAPI
+    FastAPI-->|Syncs| Supabase[(Supabase Cloud)]
+    FastAPI-->|Fallback| SQLite[(Local SQLite)]
+    FastAPI-->|Inference| HF[HuggingFace / ONNX]
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone & Install
 ```bash
-# 1. Clone the repository
 git clone https://github.com/snowdencubes/MediVERSE.git
-
-# 2. Navigate into the project directory
 cd MediVERSE
-
-# 3. Install Frontend Dependencies
-cd rekoviu
-npm ci
-
-# 4. Install Backend Dependencies
-cd ../rekov
-pip install -r requirements.txt
+pip install fastapi uvicorn supabase requests
 ```
 
-## 🐳 Deployment (Docker)
+### 2. Configure (Zero Leaks!)
+Copy `config.example.json` to `config.json` and add your keys. **(Don't worry, `config.json` is gitignored so your keys are safe and will never be committed!)**
+```jsonc
+{
+  "supabase": {
+    "url": "https://xxxx.supabase.co",
+    "key": "eyJ..."
+  },
+  "hf_token": "hf_..."
+}
+```
 
-The project includes a highly optimized, multi-stage `Dockerfile` and `docker-compose.yml`.
-
+### 3. Launch
 ```bash
-# Build and start the container in detached mode
-docker-compose up --build -d
+python main.py
 ```
-The production server will start on port `7860` (or the port specified by the `$PORT` environment variable).
+*Choose between Web UI, Terminal AI, or Backend-only mode!*
 
-## ✨ Features
-- **Universal Usability Kiosk**: Built for low digital literacy. Plain-language text paired with every icon, and zero hidden gestures.
-- **AI Voice Assistant**: Integrated voice interaction for seamless scheduling and triage.
-- **Doctor Portal & Receptionist Desk**: Modern dashboards for staff to review the AI's parsed intake summaries alongside AYUSH-specific factors.
-- **FastAPI Backend**: Robust Python backend to handle heavy AI models and queue management.
+---
 
-## 🛠️ Tech Stack
-- **Frontend**: Next.js 14 (Static Export), React, Tailwind CSS
-- **Backend**: Python 3.11, FastAPI, Uvicorn
-- **Containerization**: Docker (multi-stage standalone builds)
+## 📁 Complete File Structure (Simplified)
+```text
+MediVERSE/
+├── main.py              # Magic entry point
+├── rekov/               # FastAPI Backend & System Launcher
+├── rekoviu/             # Next.js Frontend
+├── base/                # DB Layer & Offline SQLite logic
+└── data/                # Local data (Receipts, DBs, Offline Backups)
+```
 
-## 👥 Contributors
+---
 
-This project is built and maintained by **Team CureX**:
-
-- **Showden (Krish Kumar)**: *Lead Developer, UI/UX Design & Frontend Architecture*  
-  Led the frontend initiatives (Next.js), universal usability design (Kiosk & Mobile), and integrated the sophisticated 22-language translation engine.
-
-- **pheonix14**: *Backend Architecture & AI Integration*  
-  Engineered the core Python/FastAPI backend, managed the AI/LLM parsing logic for medical summaries, and developed the custom voice-assistant engine.
-
-- **Dipankar Roy**: *Cloud Infrastructure, Database Design, & DevOps*  
-  Configured the multi-stage Docker environment, oversaw deployment to Render, managed database state syncing, and ensured offline-first data persistence.
+<div align="center">
+  <b>Built with ❤️ for the future of healthcare.</b><br>
+  <sub>MediVERSE v12.0.0 · Hospital AI Queue Management System</sub>
+</div>

@@ -367,7 +367,7 @@ function VoiceAssistantContent() {
 
 export default function VoiceAssistantPage() {
   return (
-    <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--text-primary)' }}>Loading Voice Assistant...</div>}>
+    <Suspense fallback={<div style={{ padding: 40, color: 'white', textAlign: 'center' }}>Loading Voice Assistant...</div>}>
       <VoiceAssistantContent />
     </Suspense>
   );
