@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0052cc&height=250&section=header&text=MediVERSE&fontSize=90&fontAlignY=35&desc=The%20Next-Gen%20Hospital%20Queue%20%26%20AI%20Assistant&descAlignY=55&descAlign=50" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0052cc&height=250&section=header&text=MediVERSE&fontSize=90&fontAlignY=35&desc=The%20Next-Gen%20Hospital%20Queue%20and%20AI%20Assistant&descAlignY=55&descAlign=50" />
   
   <p align="center">
     <strong>Revolutionizing Healthcare Management with AI, Voice, and Seamless Automation</strong>
