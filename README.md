@@ -32,11 +32,19 @@
 
 ---
 
-## 📸 Sneak Peek
-<div align="center">
-  <img src="docs/assets/kiosk_ui.jpg" alt="Kiosk UI" width="48%" style="border-radius: 8px;">
-  <img src="docs/assets/ai_terminal.jpg" alt="RITMO AI Terminal" width="48%" style="border-radius: 8px;">
-</div>
+## 🌌 The MediVERSE Superpowers
+
+<blockquote style="border-left: 4px solid #0052cc; background-color: #f6f8fa; padding: 10px 15px; border-radius: 4px;">
+  <strong>🔥 Offline First, Cloud Second:</strong> Internet went down? No problem. MediVERSE continues triaging patients locally using SQLite and lightweight ONNX language models. The moment you're back online, background daemons silently sync everything securely to Supabase.
+</blockquote>
+
+<blockquote style="border-left: 4px solid #3ECF8E; background-color: #f6f8fa; padding: 10px 15px; border-radius: 4px;">
+  <strong>🗣️ Multilingual Voice Triage:</strong> Forget typing. Patients simply speak their symptoms in English, Hindi, or Hinglish. RITMO (our AI agent) listens, understands, and instantly predicts the exact medical department they need.
+</blockquote>
+
+<blockquote style="border-left: 4px solid #111; background-color: #f6f8fa; padding: 10px 15px; border-radius: 4px;">
+  <strong>📱 Paperless Hospital Queue:</strong> Instantly generated PDF receipts securely dropped into Supabase buckets. Patients scan a quick QR code off the kiosk screen on their mobile device and walk straight to their assigned queue.
+</blockquote>
 
 ---
 
