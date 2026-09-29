@@ -7,6 +7,10 @@
 
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=1000&color=FF3333&center=true&vCenter=true&width=600&lines=Seamless+Hospital+Management;AI-Powered+Patient+Triage;Offline+First+Architecture" alt="Typing SVG" />
 
+  <br/>
+  <img src="https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F-Built%20with%20Love-ff3333?style=for-the-badge&labelColor=111111&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmMzMzMyIgZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8+PC9zdmc+" alt="Built with Love" />
+  <br/><br/>
+
   <p align="center">
     <a href="https://github.com/snowdencubes/MediVERSE/releases"><img src="https://img.shields.io/github/v/tag/snowdencubes/MediVERSE?label=release&color=0052cc&style=for-the-badge" alt="Release"></a>
     <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python"></a>
