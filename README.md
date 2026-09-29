@@ -43,37 +43,37 @@
 ## 👨‍💻 Meet the Masterminds
 
 <div align="center">
-  <table>
+  <table style="border-collapse: collapse; border: none;">
     <tr>
-      <td align="center">
+      <td align="center" style="border: none; padding: 20px;">
         <a href="https://github.com/pheonix14">
-          <img src="https://github.com/pheonix14.png" width="120px;" alt="Phoenix 14" style="border-radius:50%"/>
+          <img src="https://github.com/pheonix14.png" width="130px;" alt="Phoenix 14" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px; transition: transform 0.3s;"/>
           <br />
-          <b>Phoenix 14</b>
+          <b style="font-size: 1.1em;">Phoenix 14</b>
         </a>
         <br />
-        <span style="color: #0052cc">Lead Developer</span><br/>
-        <i>Backend Architecture, AI Integration & Core Engine</i>
+        <span style="color: #0052cc; font-weight: bold; font-size: 0.9em;">Lead Developer</span><br/>
+        <i>Backend Architecture,<br/>AI Integration & Core Engine</i>
       </td>
-      <td align="center">
+      <td align="center" style="border: none; padding: 20px;">
         <a href="https://github.com/krishkumarcodes">
-          <img src="https://github.com/krishkumarcodes.png" width="120px;" alt="Shoden (Krish Kumar)" style="border-radius:50%"/>
+          <img src="https://github.com/krishkumarcodes.png" width="130px;" alt="Showden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px; transition: transform 0.3s;"/>
           <br />
-          <b>Shoden (Krish Kumar)</b>
+          <b style="font-size: 1.1em;">Showden</b>
         </a>
         <br />
-        <span style="color: #0052cc">Second Developer</span><br/>
-        <i>Frontend Wizardry, Web UI & UX Experience</i>
+        <span style="color: #0052cc; font-weight: bold; font-size: 0.9em;">Second Developer</span><br/>
+        <i>Frontend Wizardry,<br/>Web UI & UX Experience</i>
       </td>
-      <td align="center">
-        <a href="https://github.com/snowdencubes/MediVERSE/graphs/contributors">
-          <img src="https://via.placeholder.com/120/1a1a1a/0052cc?text=Team" width="120px;" alt="Open Source Team" style="border-radius:50%"/>
+      <td align="center" style="border: none; padding: 20px;">
+        <a href="https://github.com/droy">
+          <img src="https://github.com/droy.png" width="130px;" alt="Dipankar Roy" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px; transition: transform 0.3s;"/>
           <br />
-          <b>Contributors</b>
+          <b style="font-size: 1.1em;">Dipankar Roy</b>
         </a>
         <br />
-        <span style="color: #0052cc">Open Source Team</span><br/>
-        <i>Thanks to everyone who contributed to MediVERSE!</i>
+        <span style="color: #555; font-weight: bold; font-size: 0.9em;">Contributor</span><br/>
+        <i>Cloud Infrastructure,<br/>Database & DevOps</i>
       </td>
     </tr>
   </table>
