@@ -64,7 +64,7 @@
       </td>
       <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/krishkumarcodes">
-          <img src="https://github.com/krishkumarcodes.png" width="100px;" alt="Showden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
+          <img src="docs/assets/krish_pfp.webp" width="100px;" alt="Showden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
           <br />
           <b style="font-size: 1.0em;">Showden</b>
         </a>
