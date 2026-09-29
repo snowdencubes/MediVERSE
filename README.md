@@ -1,9 +1,11 @@
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0052cc&height=250&section=header&text=MediVERSE&fontSize=90&fontAlignY=35&desc=The%20Next-Gen%20Hospital%20Queue%20and%20AI%20Assistant&descAlignY=55&descAlign=50" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=ff3333&height=250&section=header&text=MediVERSE&fontSize=90&fontAlignY=35&desc=The%20Next-Gen%20Hospital%20Queue%20and%20AI%20Assistant&descAlignY=55&descAlign=50" />
   
   <p align="center">
     <strong>Revolutionizing Healthcare Management with AI, Voice, and Seamless Automation</strong>
   </p>
+
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=1000&color=FF3333&center=true&vCenter=true&width=600&lines=Seamless+Hospital+Management;AI-Powered+Patient+Triage;Offline+First+Architecture" alt="Typing SVG" />
 
   <p align="center">
     <a href="https://github.com/snowdencubes/MediVERSE/releases"><img src="https://img.shields.io/github/v/tag/snowdencubes/MediVERSE?label=release&color=0052cc&style=for-the-badge" alt="Release"></a>
@@ -55,21 +57,21 @@
     <tr>
       <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/pheonix14">
-          <img src="https://github.com/pheonix14.png" width="100px;" alt="Phoenix 14" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
+          <img src="https://github.com/pheonix14.png" width="100px;" alt="Phoenix 14" style="border-radius:50%; border: 3px solid #ff3333; margin-bottom: 10px;"/>
           <br />
           <b style="font-size: 1.0em;">Phoenix 14</b>
         </a>
         <br />
-        <span style="color: #0052cc; font-weight: bold; font-size: 0.85em;">Lead Developer</span><br/>
+        <span style="color: #ff3333; font-weight: bold; font-size: 0.85em;">Lead Developer (Backend)</span><br/>
       </td>
       <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/krishkumarcodes">
-          <img src="docs/assets/krish_pfp.jpg" width="100px;" alt="Showden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
+          <img src="docs/assets/krish_pfp.jpg" width="100px;" alt="Showden" style="border-radius:50%; border: 3px solid #ff3333; margin-bottom: 10px;"/>
           <br />
           <b style="font-size: 1.0em;">Showden</b>
         </a>
         <br />
-        <span style="color: #0052cc; font-weight: bold; font-size: 0.85em;">Second Developer</span><br/>
+        <span style="color: #ff3333; font-weight: bold; font-size: 0.85em;">Second Developer (Frontend)</span><br/>
       </td>
       <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/snowdencubes">
@@ -78,7 +80,7 @@
           <b style="font-size: 1.0em;">Snowden</b>
         </a>
         <br />
-        <span style="color: #555; font-weight: bold; font-size: 0.85em;">Third Developer</span><br/>
+        <span style="color: #555; font-weight: bold; font-size: 0.85em;">Third Developer (Organization)</span><br/>
         <i style="font-size: 0.8em;">(Krish Kumar's Alt)</i>
       </td>
       <td align="center" style="border: none; padding: 15px;">
