@@ -681,11 +681,11 @@ def run_offline_mode():
 
     print()
     print(blue(f"  Loading {short_name} (ONNX)..."))
-    models_cache = ROOT_DIR / "base" / "models"
+    models_cache = ROOT_DIR / "data" / "models"
     onnx_cache   = models_cache / (short_name + "-onnx")
 
     if onnx_cache.exists():
-        print(dim(f"  Cache: base/models/{short_name}-onnx"))
+        print(dim(f"  Cache: data/models/{short_name}-onnx"))
     else:
         print(yellow(f"  First run — downloading + exporting to ONNX..."))
         print(dim("  One-time only. Future loads take seconds."))

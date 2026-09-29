@@ -143,7 +143,10 @@ def speak(text: str, lang: str | None = None):
                 pygame.mixer.music.play()
                 while pygame.mixer.music.get_busy():
                     pygame.time.wait(80)
-                pygame.mixer.music.unload()
+                try:
+                    pygame.mixer.music.unload()
+                except AttributeError:
+                    pass
             finally:
                 try: os.unlink(tmp)
                 except Exception: pass
@@ -511,37 +514,30 @@ def run_voice_loop(ai_reply_fn, stt_engine=None):
                 speak(msg)
                 _last_ticket = result
 
-                # Ask about receipt
-                speak("Would you like me to generate a receipt?")
-                print(dim("  Listening for yes/no..."))
-                try:
-                    yn = stt_engine.listen(timeout=6)
-                    if any(w in yn.lower() for w in ("yes", "yeah", "sure", "please", "ok", "generate")):
-                        speak("Generating your receipt now.")
-                        receipt = generate_receipt(result)
-                        if receipt["ok"]:
-                            msg2 = "Receipt generated."
-                            if receipt.get("storage_url"):
-                                msg2 += " It has been uploaded to Supabase. You can scan the QR code."
-                            else:
-                                msg2 += " It is saved locally and has been opened in your browser."
-                            speak(msg2)
-                            try:
-                                if sys.platform == "win32":
-                                    os.startfile(receipt["html_path"])
-                            except Exception:
-                                pass
-                            # Print ASCII QR
-                            lines = receipt.get("ascii_qr_lines", [])
-                            if lines:
-                                # plain print to avoid TextIOWrapper closed-file crash
-                                w = len(lines[0]) + 4
-                                print("  +" + "-" * w + "+")
-                                for ln in lines:
-                                    print("  |  " + ln + "  |")
-                                print("  +" + "-" * w + "+")
-                except Exception:
-                    pass
+                # Automatically generate receipt
+                speak("Generating your receipt now.")
+                receipt = generate_receipt(result)
+                if receipt["ok"]:
+                    msg2 = "Receipt generated."
+                    if receipt.get("storage_url"):
+                        msg2 += " It has been uploaded to Supabase. You can scan the QR code."
+                    else:
+                        msg2 += " It is saved locally and has been opened in your browser."
+                    speak(msg2)
+                    try:
+                        if sys.platform == "win32":
+                            os.startfile(receipt["html_path"])
+                    except Exception:
+                        pass
+                    # Print ASCII QR
+                    lines = receipt.get("ascii_qr_lines", [])
+                    if lines:
+                        # plain print to avoid TextIOWrapper closed-file crash
+                        w = len(lines[0]) + 4
+                        print("  +" + "-" * w + "+")
+                        for ln in lines:
+                            print("  |  " + ln + "  |")
+                        print("  +" + "-" * w + "+")
             else:
                 speak("I'm sorry, the booking failed. Please try again.")
 

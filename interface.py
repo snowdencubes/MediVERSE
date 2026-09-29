@@ -183,6 +183,13 @@ def _print_cli_submenu():
     except Exception:
         pass
 
+    try:
+        sys.path.insert(0, ROOT_DIR)
+        from ritmo.ticketflow import print_ascii_qr
+        print_ascii_qr("http://localhost:3000", label="REKOV Web UI")
+    except Exception:
+        pass
+
     # Active language badge
     try:
         from language.manager import LM
