@@ -34,8 +34,8 @@
 
 ## 📸 Sneak Peek
 <div align="center">
-  <img src="https://via.placeholder.com/800x400/0052cc/FFFFFF?text=Stunning+Next.js+Kiosk+UI" alt="Kiosk UI" width="48%">
-  <img src="https://via.placeholder.com/800x400/121212/0052cc?text=RITMO+AI+Terminal" alt="RITMO AI Terminal" width="48%">
+  <img src="docs/assets/kiosk_ui.jpg" alt="Kiosk UI" width="48%" style="border-radius: 8px;">
+  <img src="docs/assets/ai_terminal.jpg" alt="RITMO AI Terminal" width="48%" style="border-radius: 8px;">
 </div>
 
 ---
