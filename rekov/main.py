@@ -8,6 +8,8 @@ import os
 from fastapi.staticfiles import StaticFiles
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+REKOV_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(REKOV_DIR))
 sys.path.insert(0, str(ROOT_DIR))
 
 from app.core.config import settings
@@ -132,7 +134,7 @@ def root():
     }
 
 # Serve Next.js static export if it exists
-frontend_out_path = os.path.join(ROOT_DIR.parent, "rekoviu", "out")
+frontend_out_path = os.path.join(ROOT_DIR, "rekoviu", "out")
 if os.path.isdir(frontend_out_path):
     app.mount("/", StaticFiles(directory=frontend_out_path, html=True), name="frontend")
 else:
