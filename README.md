@@ -45,35 +45,51 @@
 <div align="center">
   <table style="border-collapse: collapse; border: none;">
     <tr>
-      <td align="center" style="border: none; padding: 20px;">
+      <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/pheonix14">
-          <img src="https://github.com/pheonix14.png" width="130px;" alt="Phoenix 14" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px; transition: transform 0.3s;"/>
+          <img src="https://github.com/pheonix14.png" width="100px;" alt="Phoenix 14" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
           <br />
-          <b style="font-size: 1.1em;">Phoenix 14</b>
+          <b style="font-size: 1.0em;">Phoenix 14</b>
         </a>
         <br />
-        <span style="color: #0052cc; font-weight: bold; font-size: 0.9em;">Lead Developer</span><br/>
-        <i>Backend Architecture,<br/>AI Integration & Core Engine</i>
+        <span style="color: #0052cc; font-weight: bold; font-size: 0.85em;">Lead Developer</span><br/>
       </td>
-      <td align="center" style="border: none; padding: 20px;">
+      <td align="center" style="border: none; padding: 15px;">
         <a href="https://github.com/krishkumarcodes">
-          <img src="https://github.com/krishkumarcodes.png" width="130px;" alt="Showden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px; transition: transform 0.3s;"/>
+          <img src="https://github.com/krishkumarcodes.png" width="100px;" alt="Showden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
           <br />
-          <b style="font-size: 1.1em;">Showden</b>
+          <b style="font-size: 1.0em;">Showden</b>
         </a>
         <br />
-        <span style="color: #0052cc; font-weight: bold; font-size: 0.9em;">Second Developer</span><br/>
-        <i>Frontend Wizardry,<br/>Web UI & UX Experience</i>
+        <span style="color: #0052cc; font-weight: bold; font-size: 0.85em;">Second Developer</span><br/>
       </td>
-      <td align="center" style="border: none; padding: 20px;">
-        <a href="https://github.com/droy">
-          <img src="https://github.com/droy.png" width="130px;" alt="Dipankar Roy" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px; transition: transform 0.3s;"/>
+      <td align="center" style="border: none; padding: 15px;">
+        <a href="https://github.com/snowdencubes">
+          <img src="https://github.com/snowdencubes.png" width="100px;" alt="Snowden" style="border-radius:50%; border: 3px solid #0052cc; margin-bottom: 10px;"/>
           <br />
-          <b style="font-size: 1.1em;">Dipankar Roy</b>
+          <b style="font-size: 1.0em;">Snowden</b>
         </a>
         <br />
-        <span style="color: #555; font-weight: bold; font-size: 0.9em;">Contributor</span><br/>
-        <i>Cloud Infrastructure,<br/>Database & DevOps</i>
+        <span style="color: #0052cc; font-weight: bold; font-size: 0.85em;">Project Lead</span><br/>
+        <i style="font-size: 0.8em;">(Krish Kumar's Alt)</i>
+      </td>
+      <td align="center" style="border: none; padding: 15px;">
+        <a href="https://github.com/droy">
+          <img src="https://github.com/droy.png" width="100px;" alt="Dipankar Roy" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px;"/>
+          <br />
+          <b style="font-size: 1.0em;">Dipankar Roy</b>
+        </a>
+        <br />
+        <span style="color: #555; font-weight: bold; font-size: 0.85em;">Contributor</span><br/>
+      </td>
+      <td align="center" style="border: none; padding: 15px;">
+        <a href="https://github.com/rhoggs-bot-test-account">
+          <img src="https://github.com/rhoggs-bot-test-account.png" width="100px;" alt="rhoggs" style="border-radius:50%; border: 3px solid #555; margin-bottom: 10px;"/>
+          <br />
+          <b style="font-size: 1.0em;">rhoggs-bot</b>
+        </a>
+        <br />
+        <span style="color: #555; font-weight: bold; font-size: 0.85em;">Contributor</span><br/>
       </td>
     </tr>
   </table>

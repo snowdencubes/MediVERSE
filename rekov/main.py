@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
+import os
+from fastapi.staticfiles import StaticFiles
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
@@ -119,7 +121,7 @@ app.include_router(awake_router.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(telegram_router, prefix=f"{settings.API_V1_STR}/bot")
 app.include_router(whatsapp_router, prefix=f"{settings.API_V1_STR}/bot")
 
-@app.get("/")
+@app.get("/api/v1")
 def root():
     return {
         "message": "Welcome to REKOV API",
@@ -128,6 +130,15 @@ def root():
         "awake":  f"{settings.API_V1_STR}/awake/stats",
         "frontend_url": "http://localhost:3000"
     }
+
+# Serve Next.js static export if it exists
+frontend_out_path = os.path.join(ROOT_DIR.parent, "rekoviu", "out")
+if os.path.isdir(frontend_out_path):
+    app.mount("/", StaticFiles(directory=frontend_out_path, html=True), name="frontend")
+else:
+    @app.get("/")
+    def fallback_root():
+        return {"message": "REKOV API is running (Frontend not built)"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=4040, reload=True)

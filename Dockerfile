@@ -4,36 +4,27 @@ WORKDIR /app/rekoviu
 COPY rekoviu/package*.json ./
 RUN npm ci
 COPY rekoviu/ ./
+# Bake the relative API path so the static export calls the same host
+ENV NEXT_PUBLIC_API_URL=/api/v1
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-# Stage 2: Production Unified Image (FastAPI + Next.js UI)
+# Stage 2: Production Unified Image (FastAPI serves Next.js)
 FROM python:3.11-slim
 WORKDIR /app
 
-# Install Node.js for Next.js runtime
-RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
-
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PORT=3000
+    PYTHONDONTWRITEBYTECODE=1
 
-# Copy and install backend requirements
+# Install backend requirements
 COPY rekov/requirements.txt ./rekov/
 RUN pip install --no-cache-dir -r rekov/requirements.txt
 COPY rekov/ ./rekov/
 
-# Copy compiled frontend
-COPY rekoviu/package*.json ./rekoviu/
-COPY --from=frontend-builder /app/rekoviu/.next ./rekoviu/.next
-COPY --from=frontend-builder /app/rekoviu/public ./rekoviu/public
-COPY --from=frontend-builder /app/rekoviu/node_modules ./rekoviu/node_modules
-COPY rekoviu/ ./rekoviu/
+# Copy static frontend export (out/)
+COPY --from=frontend-builder /app/rekoviu/out ./rekoviu/out
 
-# Copy system launcher and data
+# Copy system data and modules
 COPY data/ ./data/
 COPY base/ ./base/
 COPY huggfaceonnx/ ./huggfaceonnx/
@@ -41,10 +32,7 @@ COPY language/ ./language/
 COPY ritmo/ ./ritmo/
 COPY main.py logger.py interface.py rekov_credits.py ./
 
-EXPOSE 3000
-EXPOSE 4040
-
-# Run unified launcher (starts frontend on 3000 and backend on 4040)
-# We use rekov/launcher.py directly to bypass the interactive CLI of main.py
-CMD ["python", "rekov/launcher.py"]
+# Run FastAPI directly on the PORT provided by Render
+# The backend will serve the frontend from /app/rekoviu/out
+CMD uvicorn rekov.main:app --host 0.0.0.0 --port ${PORT:-10000}
 
